@@ -1,0 +1,41 @@
+---
+description: Run the transport-map test protocol after meaningful updates
+alwaysApply: true
+---
+
+# Transport Map — Testing Protocol
+
+After completing a **meaningful code update** (features, graph logic, UI, layers, or map behavior), ask the user:
+
+> **Should I run the test protocol now?**
+
+When the user says **yes**, run the appropriate commands and report results clearly.
+
+## Command tiers
+
+| Change type | Run |
+|-------------|-----|
+| Graph / data / registry only | `npm run test` |
+| React components / sidebar (no map pipeline) | `npm run test` then `npm run test:e2e` |
+| Map rendering, modes, layers, deck/map | `npm run test` → `npm run build` → `npm run test:e2e` |
+| Pre-deploy / large release | `npm run test:all` |
+
+## Result report template
+
+1. **Passed** — list suites
+2. **Failed** — exact file + test name + error snippet
+3. **Likely cause** — one sentence
+4. **Recommended fix** — actionable
+5. **Safe to continue?** — yes / no
+
+## New transport modes
+
+When adding a `transport_mode` to `MAP_LAYER_REGISTRY`:
+
+1. Add a contract in `src/tests/modeTestContracts.js`
+2. Run at least `npm run test`; for UI/map changes run full protocol
+3. Capture Playwright screenshots if the mode affects the map (`requiresScreenshot: true` in contract)
+
+Do not merge modes that bypass contracts — tests must fail with the standard contract message.
+
+See `docs/TESTING_STRATEGY.md` for full philosophy and file map.

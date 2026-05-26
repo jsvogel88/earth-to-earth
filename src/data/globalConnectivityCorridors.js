@@ -1,0 +1,131 @@
+/**
+ * Manual global connectivity corridors — planning overlay only (never graph edges).
+ */
+
+import {
+  CORRIDOR_STATUS,
+  CORRIDOR_TYPES,
+  TRANSPORT_MODE_TAGS,
+  createCorridorRecord,
+  validateCorridorRecord,
+} from './corridorPlanningSchema.js';
+
+/** @type {import('./corridorPlanningSchema.js').CorridorPlanningRecord[]} */
+export const GLOBAL_CONNECTIVITY_CORRIDORS = [
+  createCorridorRecord({
+    id: 'gcc-horn-africa-eurasia',
+    name: 'Horn of Africa ↔ Middle East ↔ Eurasia',
+    intermediateNodes: ['Mogadishu', 'Djibouti', 'Dubai', 'Istanbul', 'Moscow'],
+    corridorType: CORRIDOR_TYPES.GLOBAL_TRUNK,
+    mode: TRANSPORT_MODE_TAGS.MULTIMODAL,
+    status: CORRIDOR_STATUS.STRATEGIC_STUDY,
+    feasibilityScore: 62,
+    economicScore: 78,
+    minZoom: 0,
+    notes: 'Macro trunk — Red Sea / Gulf gateway chain',
+  }),
+  createCorridorRecord({
+    id: 'gcc-east-africa-india',
+    name: 'East Africa ↔ Arabian Peninsula ↔ India',
+    intermediateNodes: ['Nairobi', 'Jeddah', 'Mumbai'],
+    corridorType: CORRIDOR_TYPES.CONTINENTAL_TRUNK,
+    mode: TRANSPORT_MODE_TAGS.HYPERLOOP,
+    status: CORRIDOR_STATUS.PLANNING,
+    feasibilityScore: 70,
+    minZoom: 1,
+  }),
+  createCorridorRecord({
+    id: 'gcc-australia-far-east',
+    name: 'Australia ↔ Indonesia ↔ Far East',
+    intermediateNodes: ['Perth', 'Jakarta', 'Singapore', 'Tokyo'],
+    corridorType: CORRIDOR_TYPES.GLOBAL_TRUNK,
+    mode: TRANSPORT_MODE_TAGS.MULTIMODAL,
+    status: CORRIDOR_STATUS.PLANNING,
+    economicScore: 82,
+    minZoom: 0,
+  }),
+  createCorridorRecord({
+    id: 'gcc-beijing-alaska-pnw',
+    name: 'North China ↔ Northeast Asia ↔ Alaska corridor',
+    intermediateNodes: ['Beijing', 'Seoul', 'Anchorage'],
+    corridorType: CORRIDOR_TYPES.POLAR_ARCTIC,
+    mode: TRANSPORT_MODE_TAGS.HYPERLOOP,
+    status: CORRIDOR_STATUS.CONCEPTUAL,
+    terrainRisk: 55,
+    weatherRisk: 72,
+    minZoom: 1.5,
+    notes: 'Bering-adjacent macro study — not an open-ocean hyperloop span',
+  }),
+  createCorridorRecord({
+    id: 'gcc-alaska-bc-la',
+    name: 'Alaska ↔ British Columbia ↔ Pacific Northwest ↔ Los Angeles',
+    intermediateNodes: ['Anchorage', 'Vancouver', 'Seattle', 'Los Angeles'],
+    corridorType: CORRIDOR_TYPES.CONTINENTAL_TRUNK,
+    mode: TRANSPORT_MODE_TAGS.HYPERLOOP,
+    status: CORRIDOR_STATUS.PLANNING,
+    feasibilityScore: 68,
+    minZoom: 2,
+  }),
+  createCorridorRecord({
+    id: 'gcc-la-south-america',
+    name: 'Los Angeles ↔ Mexico ↔ Central America ↔ South America',
+    intermediateNodes: ['Los Angeles', 'Mexico City', 'Panama City', 'Bogotá', 'São Paulo'],
+    corridorType: CORRIDOR_TYPES.GLOBAL_TRUNK,
+    mode: TRANSPORT_MODE_TAGS.MULTIMODAL,
+    status: CORRIDOR_STATUS.PLANNING,
+    economicScore: 85,
+    minZoom: 1,
+  }),
+  createCorridorRecord({
+    id: 'gcc-ny-greenland-scandinavia',
+    name: 'New York ↔ Greenland ↔ Iceland ↔ Scandinavia',
+    intermediateNodes: ['New York', 'Reykjavik', 'Oslo', 'Stockholm'],
+    corridorType: CORRIDOR_TYPES.POLAR_ARCTIC,
+    mode: TRANSPORT_MODE_TAGS.HYPERLOOP,
+    status: CORRIDOR_STATUS.CONCEPTUAL,
+    weatherRisk: 65,
+    minZoom: 2,
+    notes: 'Arctic gateway macro — undersea segments conceptual only',
+  }),
+  createCorridorRecord({
+    id: 'gcc-europe-mena-india-sea',
+    name: 'Europe ↔ Middle East ↔ India ↔ Southeast Asia',
+    intermediateNodes: ['Frankfurt', 'Dubai', 'Mumbai', 'Singapore'],
+    corridorType: CORRIDOR_TYPES.GLOBAL_TRUNK,
+    mode: TRANSPORT_MODE_TAGS.MULTIMODAL,
+    status: CORRIDOR_STATUS.PLANNING,
+    minZoom: 0,
+  }),
+  createCorridorRecord({
+    id: 'gcc-south-america-coastal',
+    name: 'South America coastal trunk',
+    intermediateNodes: ['São Paulo', 'Rio de Janeiro', 'Buenos Aires', 'Santiago'],
+    corridorType: CORRIDOR_TYPES.CONTINENTAL_TRUNK,
+    mode: TRANSPORT_MODE_TAGS.HYPERLOOP,
+    status: CORRIDOR_STATUS.PLANNING,
+    minZoom: 2,
+  }),
+  createCorridorRecord({
+    id: 'gcc-africa-trunk-ew',
+    name: 'Africa east–west trunk candidate',
+    intermediateNodes: ['Lagos', 'Kinshasa', 'Nairobi', 'Dar es Salaam'],
+    corridorType: CORRIDOR_TYPES.REGIONAL_FEEDER,
+    mode: TRANSPORT_MODE_TAGS.HYPERLOOP,
+    status: CORRIDOR_STATUS.STRATEGIC_STUDY,
+    feasibilityScore: 48,
+    minZoom: 2.5,
+  }),
+  createCorridorRecord({
+    id: 'gcc-africa-trunk-ns',
+    name: 'Africa north–south trunk candidate',
+    intermediateNodes: ['Cairo', 'Nairobi', 'Johannesburg', 'Cape Town'],
+    corridorType: CORRIDOR_TYPES.REGIONAL_FEEDER,
+    mode: TRANSPORT_MODE_TAGS.HYPERLOOP,
+    status: CORRIDOR_STATUS.STRATEGIC_STUDY,
+    minZoom: 2.5,
+  }),
+];
+
+export function getValidatedGlobalCorridors() {
+  return GLOBAL_CONNECTIVITY_CORRIDORS.filter((c) => validateCorridorRecord(c).valid);
+}

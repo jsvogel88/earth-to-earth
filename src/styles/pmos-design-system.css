@@ -1,0 +1,151 @@
+/**
+ * Planetary Mobility OS — design tokens & base chrome
+ */
+
+:root {
+  --pmos-bg-deep: #030508;
+  --pmos-bg-navy: #060a14;
+  --pmos-glass: rgba(8, 14, 28, 0.72);
+  --pmos-glass-strong: rgba(10, 16, 32, 0.88);
+  --pmos-border: rgba(100, 200, 255, 0.18);
+  --pmos-border-active: rgba(100, 200, 255, 0.45);
+  --pmos-cyan: #5ce1ff;
+  --pmos-cyan-soft: rgba(92, 225, 255, 0.15);
+  --pmos-gold: #d4af37;
+  --pmos-magenta: #e879f9;
+  --pmos-text: #e8ecff;
+  --pmos-text-muted: #8b9cc8;
+  --pmos-text-dim: #5a6a94;
+  --pmos-radius: 12px;
+  --pmos-radius-sm: 8px;
+  --pmos-blur: blur(16px) saturate(1.4);
+  --pmos-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 1px rgba(92, 225, 255, 0.12);
+  --pmos-font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --pmos-z-command: 200;
+  --pmos-z-dock: 180;
+  --pmos-z-context: 170;
+  --pmos-z-timeline: 160;
+  --pmos-z-metrics: 155;
+  --pmos-z-legend: 150;
+}
+
+.pmos-root {
+  font-family: var(--pmos-font);
+  color: var(--pmos-text);
+}
+
+.pmos-glass {
+  background: var(--pmos-glass);
+  backdrop-filter: var(--pmos-blur);
+  -webkit-backdrop-filter: var(--pmos-blur);
+  border: 1px solid var(--pmos-border);
+  border-radius: var(--pmos-radius);
+  box-shadow: var(--pmos-shadow);
+}
+
+.pmos-glass-strong {
+  background: var(--pmos-glass-strong);
+  backdrop-filter: var(--pmos-blur);
+  border: 1px solid var(--pmos-border);
+  border-radius: var(--pmos-radius);
+  box-shadow: var(--pmos-shadow);
+}
+
+.pmos-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pmos-text-dim);
+}
+
+.pmos-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--pmos-text);
+}
+
+.pmos-subtitle {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--pmos-text-muted);
+}
+
+.pmos-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--pmos-text-muted);
+  background: rgba(92, 225, 255, 0.06);
+  border: 1px solid var(--pmos-border);
+  border-radius: var(--pmos-radius-sm);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.pmos-btn:hover {
+  color: var(--pmos-cyan);
+  border-color: var(--pmos-border-active);
+  background: var(--pmos-cyan-soft);
+}
+
+.pmos-btn.is-active {
+  color: var(--pmos-cyan);
+  border-color: var(--pmos-cyan);
+  background: var(--pmos-cyan-soft);
+  box-shadow: 0 0 12px rgba(92, 225, 255, 0.2);
+}
+
+.pmos-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pmos-text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--pmos-border);
+  border-radius: 999px;
+}
+
+.pmos-theme-e2e { --pmos-mode-accent: #d4af37; }
+.pmos-theme-hyperloop { --pmos-mode-accent: #00dcff; }
+.pmos-theme-robotaxi { --pmos-mode-accent: #7dff9a; }
+.pmos-theme-civilization { --pmos-mode-accent: #c084fc; }
+.pmos-theme-e2m { --pmos-mode-accent: #ffb84d; }
+
+.pmos-mode-accent {
+  color: var(--pmos-mode-accent, var(--pmos-cyan));
+}
+
+@keyframes pmos-slide-in-right {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pmos-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pmos-glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px var(--pmos-mode-accent, rgba(92, 225, 255, 0.2)); }
+  50% { box-shadow: 0 0 16px var(--pmos-mode-accent, rgba(92, 225, 255, 0.35)); }
+}
+
+.pmos-animate-in-right {
+  animation: pmos-slide-in-right 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.pmos-animate-fade {
+  animation: pmos-fade-in 0.25s ease forwards;
+}

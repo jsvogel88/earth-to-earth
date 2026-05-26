@@ -1,0 +1,532 @@
+/**
+ * Planetary Mobility OS — shell layout (map-first, floating chrome)
+ */
+
+.pmos-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.pmos-overlay > * {
+  pointer-events: auto;
+}
+
+/* —— Top command bar —— */
+.pmos-command-bar {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--pmos-z-command);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  min-width: min(920px, calc(100vw - 120px));
+  max-width: calc(100vw - 48px);
+  pointer-events: auto;
+}
+
+.pmos-command-bar-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-right: 12px;
+  border-right: 1px solid var(--pmos-border);
+  flex-shrink: 0;
+}
+
+.pmos-command-bar-brand strong {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pmos-cyan);
+}
+
+.pmos-command-bar-brand span {
+  font-size: 9px;
+  color: var(--pmos-text-dim);
+  letter-spacing: 0.06em;
+}
+
+.pmos-command-bar-modes {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.pmos-mode-btn {
+  padding: 6px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: var(--pmos-radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--pmos-text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pmos-mode-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--pmos-text);
+}
+
+.pmos-mode-btn.is-active {
+  color: var(--pmos-mode-accent, var(--pmos-cyan));
+  border-color: color-mix(in srgb, var(--pmos-mode-accent, var(--pmos-cyan)) 40%, transparent);
+  background: color-mix(in srgb, var(--pmos-mode-accent, var(--pmos-cyan)) 12%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--pmos-mode-accent, var(--pmos-cyan)) 25%, transparent);
+}
+
+.pmos-command-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.pmos-command-search-wrap {
+  flex: 1;
+  min-width: 140px;
+  max-width: 320px;
+}
+
+/* —— Mission dock (left) —— */
+.pmos-mission-dock {
+  position: absolute;
+  top: 72px;
+  left: 12px;
+  z-index: var(--pmos-z-dock);
+  display: flex;
+  gap: 0;
+  max-height: calc(100vh - 140px);
+}
+
+.pmos-dock-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  width: 44px;
+}
+
+.pmos-dock-rail-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border: 1px solid transparent;
+  border-radius: var(--pmos-radius-sm);
+  background: transparent;
+  color: var(--pmos-text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pmos-dock-rail-btn:hover,
+.pmos-dock-rail-btn.is-active {
+  color: var(--pmos-cyan);
+  border-color: var(--pmos-border-active);
+  background: var(--pmos-cyan-soft);
+}
+
+.pmos-dock-panel {
+  width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s;
+}
+
+.pmos-mission-dock.is-expanded .pmos-dock-panel,
+.pmos-mission-dock.is-pinned .pmos-dock-panel {
+  width: min(280px, calc(100vw - 80px));
+  opacity: 1;
+  margin-left: 4px;
+}
+
+.pmos-dock-panel-inner {
+  width: min(280px, calc(100vw - 80px));
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  padding: 12px 14px;
+}
+
+.pmos-dock-panel-inner::-webkit-scrollbar {
+  width: 4px;
+}
+
+.pmos-dock-panel-inner::-webkit-scrollbar-thumb {
+  background: rgba(92, 225, 255, 0.25);
+  border-radius: 4px;
+}
+
+/* —— Context panel (right) —— */
+.pmos-context-panel {
+  position: absolute;
+  top: 72px;
+  right: 12px;
+  z-index: var(--pmos-z-context);
+  width: min(300px, calc(100vw - 80px));
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  padding: 16px 18px;
+}
+
+.pmos-context-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pmos-context-metric:last-child {
+  border-bottom: none;
+}
+
+.pmos-context-metric-value {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--pmos-text);
+}
+
+.pmos-context-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--pmos-text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.pmos-context-close:hover {
+  color: var(--pmos-cyan);
+  background: var(--pmos-cyan-soft);
+}
+
+/* —— Metrics floating drawer —— */
+.pmos-metrics-drawer {
+  position: absolute;
+  right: 12px;
+  top: 72px;
+  z-index: var(--pmos-z-metrics);
+  width: min(280px, calc(100vw - 80px));
+  max-height: min(42vh, 360px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  transition: opacity 0.25s, transform 0.3s;
+}
+
+.pmos-metrics-drawer.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(12px);
+}
+
+.pmos-metrics-drawer-body {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.pmos-metrics-drawer .metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-size: 11px;
+}
+
+/* —— Dynamic legend chips —— */
+.pmos-legend-float {
+  position: absolute;
+  bottom: 72px;
+  left: 68px;
+  z-index: var(--pmos-z-legend);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: min(420px, calc(100vw - 100px));
+  padding: 8px 10px;
+}
+
+.pmos-legend-chip {
+  font-size: 9px;
+  padding: 4px 10px;
+  cursor: default;
+}
+
+.pmos-legend-chip:hover {
+  border-color: var(--pmos-border-active);
+  color: var(--pmos-cyan);
+}
+
+/* —— Timeline bar —— */
+.pmos-timeline-bar {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--pmos-z-timeline);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 18px;
+  min-width: min(520px, calc(100vw - 48px));
+  pointer-events: auto;
+}
+
+.pmos-timeline-years {
+  display: flex;
+  gap: 4px;
+}
+
+.pmos-timeline-year-btn {
+  padding: 5px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--pmos-text-dim);
+  cursor: pointer;
+}
+
+.pmos-timeline-year-btn.is-active {
+  color: var(--pmos-cyan);
+  border-color: var(--pmos-cyan);
+  background: var(--pmos-cyan-soft);
+}
+
+.pmos-timeline-era {
+  font-size: 10px;
+  color: var(--pmos-text-muted);
+  min-width: 100px;
+}
+
+/* —— Global search —— */
+.pmos-search {
+  position: relative;
+  width: 100%;
+}
+
+.pmos-search-input {
+  width: 100%;
+  padding: 7px 12px 7px 32px;
+  font-size: 12px;
+  color: var(--pmos-text);
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--pmos-border);
+  border-radius: var(--pmos-radius-sm);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.pmos-search-input:focus {
+  border-color: var(--pmos-cyan);
+  box-shadow: 0 0 0 2px rgba(92, 225, 255, 0.12);
+}
+
+.pmos-search-input::placeholder {
+  color: var(--pmos-text-dim);
+}
+
+.pmos-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: var(--pmos-text-dim);
+  pointer-events: none;
+}
+
+.pmos-search-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 6px;
+  z-index: 300;
+}
+
+.pmos-search-result {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 8px 10px;
+  text-align: left;
+  border: none;
+  border-radius: var(--pmos-radius-sm);
+  background: transparent;
+  color: var(--pmos-text);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pmos-search-result:hover,
+.pmos-search-result.is-highlighted {
+  background: var(--pmos-cyan-soft);
+}
+
+.pmos-search-result-type {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pmos-text-dim);
+}
+
+.pmos-search-result-title {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pmos-search-result-sub {
+  font-size: 10px;
+  color: var(--pmos-text-muted);
+}
+
+/* —— Tagline strip —— */
+.pmos-mode-tagline {
+  position: absolute;
+  top: 58px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 140;
+  padding: 4px 14px;
+  font-size: 10px;
+  color: var(--pmos-text-muted);
+  pointer-events: none;
+  text-align: center;
+  max-width: 80vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* —— Mobile —— */
+.app-viewport.layout-mobile .pmos-command-bar {
+  min-width: auto;
+  width: calc(100% - 16px);
+  flex-wrap: wrap;
+  padding: 6px 10px;
+}
+
+.app-viewport.layout-mobile .pmos-command-bar-brand {
+  display: none;
+}
+
+.app-viewport.layout-mobile .pmos-command-bar-modes {
+  order: 3;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.app-viewport.layout-mobile .pmos-mission-dock,
+.app-viewport.layout-mobile .pmos-metrics-drawer,
+.app-viewport.layout-mobile .pmos-legend-float {
+  display: none;
+}
+
+.app-viewport.layout-mobile .pmos-mission-dock.is-mobile-open,
+.app-viewport.layout-mobile .pmos-metrics-drawer.is-mobile-open {
+  display: flex;
+  position: fixed;
+  left: 8px;
+  right: 8px;
+  bottom: 56px;
+  top: auto;
+  max-height: 55vh;
+}
+
+.app-viewport.layout-mobile .pmos-context-panel {
+  left: 8px;
+  right: 8px;
+  width: auto;
+  bottom: 56px;
+  top: auto;
+}
+
+.app-viewport.layout-mobile .pmos-timeline-bar {
+  bottom: 52px;
+  min-width: auto;
+  width: calc(100% - 16px);
+  padding: 8px 12px;
+}
+
+.app-viewport.layout-mobile .pmos-mobile-nav {
+  display: flex;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 250;
+  background: var(--pmos-glass-strong);
+  border-top: 1px solid var(--pmos-border);
+  padding: 6px;
+  gap: 4px;
+}
+
+.app-viewport.layout-mobile .pmos-mobile-nav button {
+  flex: 1;
+  padding: 8px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  border: 1px solid var(--pmos-border);
+  border-radius: var(--pmos-radius-sm);
+  background: transparent;
+  color: var(--pmos-text-muted);
+  cursor: pointer;
+}
+
+.app-viewport.layout-mobile .pmos-mobile-nav button.is-active {
+  color: var(--pmos-cyan);
+  border-color: var(--pmos-cyan);
+  background: var(--pmos-cyan-soft);
+}
+
+.pmos-mobile-nav {
+  display: none;
+}
+
+/* Hide legacy panels when PMOS shell active */
+.pmos-active .ui-header,
+.pmos-active .ui-panel-origin,
+.pmos-active .ui-panel-metrics,
+.pmos-active .ui-panel-legend,
+.pmos-active .ui-panel-city-detail {
+  display: none !important;
+}
+
+/* Layout mode bar reposition under PMOS */
+.app-viewport.layout-full .layout-mode-bar,
+.app-viewport.layout-half .layout-mode-bar {
+  top: auto;
+  bottom: 72px;
+  left: 12px;
+  transform: none;
+}
+
+.app-viewport.layout-mobile .layout-mode-bar {
+  bottom: 108px;
+}

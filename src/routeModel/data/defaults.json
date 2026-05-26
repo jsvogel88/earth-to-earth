@@ -1,0 +1,22 @@
+{
+  "orbitalVelocity": 23800,
+  "cruiseSpeedKmh": 850,
+  "connectionHoursShort": 2,
+  "connectionHoursLong": 4,
+  "connectionDistanceThresholdKm": 5000,
+  "passengerYield": 15000,
+  "cargoPrice": 6.5,
+  "militaryMargin": 0.22,
+  "cargoMargin": 0.45,
+  "passengerMargin": 0.1,
+  "governmentMargin": 0.15,
+  "emergencyMargin": 0.2,
+  "phase1TargetYear": 2030,
+  "initialCapex": 28000000000,
+  "breakEvenYear": 3,
+  "targetYear5Revenue": 80000000000,
+  "year1RampFactor": 0.12,
+  "militaryFloorMin": 35000000000,
+  "militaryFloorMax": 50000000000,
+  "networkEffectExponent": 1.35
+}

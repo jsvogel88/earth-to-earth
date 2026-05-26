@@ -1,0 +1,51 @@
+.route-optimizer-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #0a0e27;
+  color: #e0e0ff;
+  overflow: hidden;
+}
+
+.route-optimizer-page__header {
+  flex-shrink: 0;
+  padding: 12px 16px 10px;
+  border-bottom: 1px solid rgba(100, 200, 255, 0.25);
+  background: rgba(13, 20, 45, 0.98);
+}
+
+.route-optimizer-page__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #64c8ff;
+}
+
+.route-optimizer-page__subtitle {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #8899cc;
+}
+
+.route-optimizer-page__notice {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: #a8b8e8;
+  line-height: 1.45;
+  max-width: 720px;
+}
+
+.route-optimizer-page__main {
+  flex: 1;
+  min-height: 0;
+  padding: 12px 16px 16px;
+  overflow: hidden;
+}
+
+.route-optimizer-page .route-optimizer-panel--page {
+  height: 100%;
+  max-height: none;
+  width: 100%;
+  max-width: none;
+}

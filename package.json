@@ -1,0 +1,41 @@
+{
+  "name": "transport-map",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "enrich:economic": "node scripts/enrich-economic-data.mjs",
+    "test": "vitest run",
+    "test:serial": "vitest run --pool forks --maxWorkers 1",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:e2e": "playwright test",
+    "pretest:e2e": "npm run build",
+    "test:all": "npm run test && npm run build && npm run test:e2e"
+  },
+  "dependencies": {
+    "@deck.gl/core": "^9.3.2",
+    "@deck.gl/layers": "^9.3.2",
+    "@deck.gl/mapbox": "^9.3.2",
+    "@deck.gl/react": "^9.3.2",
+    "maplibre-gl": "^4.7.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/ui": "^4.1.7",
+    "jsdom": "^29.1.1",
+    "vite": "^5.0.8",
+    "vitest": "^4.1.7"
+  }
+}
