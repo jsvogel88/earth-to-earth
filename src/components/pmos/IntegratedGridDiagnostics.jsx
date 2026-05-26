@@ -82,6 +82,27 @@ export default function IntegratedGridDiagnostics({
           </>
         )}
       </dl>
+      {diagnostics?.routePipeline && (
+        <div
+          data-testid="route-pipeline-stats"
+          style={{ marginTop: 10, fontSize: 10, lineHeight: 1.5, color: '#a8b8e8' }}
+        >
+          <div>
+            View: {diagnostics.routePipeline.viewMode} | Zoom:{' '}
+            {Number(diagnostics.routePipeline.zoom).toFixed(1)}
+          </div>
+          <div>
+            Showing {diagnostics.routePipeline.visibleEdges} /{' '}
+            {diagnostics.routePipeline.totalEdgesConsidered} edges
+          </div>
+          <div>
+            Arcs: {diagnostics.routePipeline.arcs} | Spine: {diagnostics.routePipeline.trunkPaths}{' '}
+            | Loops: {diagnostics.routePipeline.loopPaths} | Feeders:{' '}
+            {diagnostics.routePipeline.feederPaths} | Cargo: {diagnostics.routePipeline.cargoPaths}{' '}
+            | Hidden: {diagnostics.routePipeline.hiddenEdges}
+          </div>
+        </div>
+      )}
       {error && (
         <p style={{ marginTop: 8, color: '#ff8a7a', fontSize: 11 }} data-testid="integrated-graph-error">
           {error}

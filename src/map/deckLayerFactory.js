@@ -357,6 +357,7 @@ export function createIntegratedGraphLayers({
   canonicalLoopPaths = null,
   canonicalSpinePaths = null,
   canonicalGridArcs = null,
+  canonicalE2mPaths = null,
   selectedLocation = null,
   zoom = 2,
   onNodeClick,
@@ -388,7 +389,10 @@ export function createIntegratedGraphLayers({
   const spinePaths = useCanonicalSpine
     ? canonicalSpinePaths
     : [...(hyperloopSpinePaths ?? []), ...graphHyperloopPaths];
-  const e2mPaths = modePaths.filter((d) => d.mode === 'e2m');
+  const e2mPaths =
+    canonicalE2mPaths != null && canonicalE2mPaths.length > 0
+      ? canonicalE2mPaths
+      : modePaths.filter((d) => d.mode === 'e2m');
   const loopPaths =
     canonicalLoopPaths != null && canonicalLoopPaths.length > 0
       ? canonicalLoopPaths

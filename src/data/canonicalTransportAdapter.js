@@ -741,6 +741,11 @@ function _canonicalToAppModeKey(id) {
   return map[id] || id.toUpperCase();
 }
 
+/** All canonical edges (raw transport graph). */
+export function getAllEdges() {
+  return edgesRaw;
+}
+
 // ─── Default export: everything bundled ──────────────────────────────────────
 
 export default {
@@ -749,6 +754,8 @@ export default {
   edges:   edgesRaw,
   routes:  routesRaw,
   layers:  layersRaw,
+  nodesById: _nodesById,
+  getAllEdges,
 
   // App-compatible outputs
   getE2EHubs,

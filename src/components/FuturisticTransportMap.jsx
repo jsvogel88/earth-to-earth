@@ -97,6 +97,9 @@ import {
   debugLogViewStatsOnce,
   validateLoopPathsOnce,
 } from '../data/canonicalTransportAdapter.js';
+import { buildRouteDisplayPipeline } from '../graph/buildRouteDisplayPipeline.js';
+import { integratedViewToPipelineMode } from '../graph/integratedViewToPipelineMode.js';
+import { pipelineBucketsToCanonicalDeck } from '../graph/pipelineDeckBridge.js';
 import { filterIntegratedGraph as filterIntegratedGraphForRender } from '../graph/integratedGridFilters.js';
 import {
   createIntegratedGraphLayers,
@@ -433,16 +436,6 @@ export default function FuturisticTransportMap({
     });
   }, [integratedGraph, layerState, zoom]);
 
-  const integratedDiagnosticsEnriched = useMemo(
-    () => ({
-      ...integratedGraph.diagnostics,
-      renderedVisibleNodeCount: integratedRenderView.visibleNodes.length,
-      renderedVisibleEdgeCount: integratedRenderView.visibleEdges.length,
-      currentZoomTier: integratedRenderView.zoomTier,
-    }),
-    [integratedGraph.diagnostics, integratedRenderView]
-  );
-
   const showIntegratedMapLayers =
     !showOnlyParsedCities &&
     integratedGraph.isReady &&
@@ -466,6 +459,41 @@ export default function FuturisticTransportMap({
   const selectedLocation = useMemo(
     () => (selectedCity ? resolveSelectedLocation(selectedCity) : null),
     [selectedCity]
+  );
+
+  const routeDisplayPipeline = useMemo(() => {
+    if (!showIntegratedMapLayers) return null;
+    try {
+      const viewMode = integratedViewToPipelineMode(
+        layerState.integratedViewFocus ?? INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID
+      );
+      return buildRouteDisplayPipeline({
+        viewMode,
+        zoom,
+        regionFilter: selectedLocation?.region ?? null,
+      });
+    } catch (err) {
+      if (import.meta.env?.DEV) {
+        console.warn('[route-display-pipeline] build failed', err);
+      }
+      return null;
+    }
+  }, [
+    showIntegratedMapLayers,
+    layerState.integratedViewFocus,
+    zoom,
+    selectedLocation?.region,
+  ]);
+
+  const integratedDiagnosticsEnriched = useMemo(
+    () => ({
+      ...integratedGraph.diagnostics,
+      renderedVisibleNodeCount: integratedRenderView.visibleNodes.length,
+      renderedVisibleEdgeCount: integratedRenderView.visibleEdges.length,
+      currentZoomTier: integratedRenderView.zoomTier,
+      routePipeline: routeDisplayPipeline?.stats ?? null,
+    }),
+    [integratedGraph.diagnostics, integratedRenderView, routeDisplayPipeline]
   );
 
   const selectedConnectedEdges = useMemo(
@@ -1242,7 +1270,8 @@ export default function FuturisticTransportMap({
 
   const canonicalViewDeck = useMemo(() => {
     if (!showIntegratedMapLayers) return null;
-    try {
+
+    const buildLegacyViewDeck = () => {
       const focus = layerState.integratedViewFocus ?? INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID;
       if (focus === INTEGRATED_VIEW_FOCUS.LOOP) {
         const data = getLoopViewData();
@@ -1254,6 +1283,7 @@ export default function FuturisticTransportMap({
             deckMode: 'hyperloop',
           }),
           canonicalGridArcs: null,
+          canonicalE2mPaths: null,
         };
       }
       if (
@@ -1270,13 +1300,47 @@ export default function FuturisticTransportMap({
           canonicalLoopPaths: canonicalPathsToDeckPaths(loopAndFeeder, { deckMode: 'loop' }),
           canonicalSpinePaths: canonicalPathsToDeckPaths(spine, { deckMode: 'hyperloop' }),
           canonicalGridArcs: data.arcs,
+          canonicalE2mPaths: null,
         };
       }
+      return null;
+    };
+
+    try {
+      if (routeDisplayPipeline) {
+        const deck = pipelineBucketsToCanonicalDeck(routeDisplayPipeline);
+        const hasPipelineData =
+          deck.canonicalGridArcs.length > 0 ||
+          deck.canonicalSpinePaths.length > 0 ||
+          deck.canonicalLoopPaths.length > 0 ||
+          deck.canonicalE2mPaths.length > 0;
+
+        if (hasPipelineData) {
+          if (import.meta.env?.DEV) {
+            debugLogViewStatsOnce('pipeline', routeDisplayPipeline.stats);
+          }
+          const focus = layerState.integratedViewFocus ?? INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID;
+          if (focus === INTEGRATED_VIEW_FOCUS.LOOP) {
+            return {
+              ...deck,
+              canonicalGridArcs: [],
+              canonicalSpinePaths: [],
+            };
+          }
+          return deck;
+        }
+      }
+      return buildLegacyViewDeck();
     } catch (err) {
       console.warn('[canonical-transport] view deck bundle failed', err);
+      return buildLegacyViewDeck();
     }
-    return null;
-  }, [showIntegratedMapLayers, layerState.integratedViewFocus, isCivilizationMode]);
+  }, [
+    showIntegratedMapLayers,
+    layerState.integratedViewFocus,
+    isCivilizationMode,
+    routeDisplayPipeline,
+  ]);
 
   const integratedDeckLayers = useMemo(() => {
     if (!showIntegratedMapLayers) return [];
@@ -1291,6 +1355,7 @@ export default function FuturisticTransportMap({
         canonicalLoopPaths: canonicalViewDeck?.canonicalLoopPaths,
         canonicalSpinePaths: canonicalViewDeck?.canonicalSpinePaths,
         canonicalGridArcs: canonicalViewDeck?.canonicalGridArcs,
+        canonicalE2mPaths: canonicalViewDeck?.canonicalE2mPaths,
         selectedLocation,
         zoom,
         onNodeClick: handleIntegratedNodePick,
