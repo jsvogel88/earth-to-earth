@@ -7,6 +7,7 @@ import {
   mergeIntegratedFilterDefaults,
 } from '../ui/integratedGridFilters.js';
 import { filterEdgesByZoom, filterNodesByZoom, getZoomTier } from '../modes/zoomVisibility.js';
+import { mergeCanonicalLayerVisibility } from '../data/canonicalZoomVisibilityBridge.js';
 
 export { mergeIntegratedFilterDefaults, getZoomTier };
 
@@ -32,7 +33,10 @@ export function filterIntegratedGraph({
   activeModes = {},
   zoom = 2,
 } = {}) {
-  const filters = { ...activeFilters, ...activeModes };
+  const filters = mergeCanonicalLayerVisibility(
+    { ...activeFilters, ...activeModes },
+    zoom
+  );
   const layerPass = filterByLayerFlags(nodes, edges, filters);
   const zoomEdges = filterEdgesByZoom(layerPass.visibleEdges, zoom, filters);
   const zoomNodes = filterNodesByZoom(layerPass.visibleNodes, zoomEdges, zoom, filters);

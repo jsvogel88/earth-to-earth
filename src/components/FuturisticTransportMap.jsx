@@ -87,6 +87,16 @@ import {
   isCoreHyperloopWebPath,
 } from '../graph/index.js';
 import { useIntegratedTransportGraph } from '../hooks/useIntegratedTransportGraph.js';
+import { withCanonicalHyperloopPaths } from '../data/canonicalHyperloopPathBridge.js';
+import {
+  getNetworkStats,
+  getValidationReport,
+  getGridViewData,
+  getLoopViewData,
+  canonicalPathsToDeckPaths,
+  debugLogViewStatsOnce,
+  validateLoopPathsOnce,
+} from '../data/canonicalTransportAdapter.js';
 import { filterIntegratedGraph as filterIntegratedGraphForRender } from '../graph/integratedGridFilters.js';
 import {
   createIntegratedGraphLayers,
@@ -377,16 +387,26 @@ export default function FuturisticTransportMap({
 
   const roiHubs = hubRegistry.activeHubs;
 
-  const planetaryGraph = useMemo(
-    () =>
-      buildPlanetaryHyperloopGraph({
-        activeE2EHubs: roiHubs,
-        regionalFeederCitiesByHub,
-        includePlanningConnectors: true,
-        runConnectivityRepair: true,
-      }),
-    [roiHubs]
-  );
+  const planetaryGraph = useMemo(() => {
+    const legacy = buildPlanetaryHyperloopGraph({
+      activeE2EHubs: roiHubs,
+      regionalFeederCitiesByHub,
+      includePlanningConnectors: true,
+      runConnectivityRepair: true,
+    });
+    return withCanonicalHyperloopPaths(legacy);
+  }, [roiHubs]);
+
+  const canonicalNetworkDiagnostics = useMemo(() => {
+    try {
+      return {
+        stats: getNetworkStats(),
+        validation: getValidationReport(),
+      };
+    } catch {
+      return null;
+    }
+  }, []);
 
   const integratedGraph = useIntegratedTransportGraph({
     cities: roiHubs,
@@ -1210,8 +1230,53 @@ export default function FuturisticTransportMap({
 
   const hyperloopSpinePaths = useMemo(() => {
     if (!showIntegratedMapLayers || layerState.showIntegratedHyperloop === false) return [];
+    const focus = layerState.integratedViewFocus ?? INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID;
+    if (focus === INTEGRATED_VIEW_FOCUS.LOOP) return [];
     return webRenderablePaths;
-  }, [showIntegratedMapLayers, layerState.showIntegratedHyperloop, webRenderablePaths]);
+  }, [
+    showIntegratedMapLayers,
+    layerState.showIntegratedHyperloop,
+    layerState.integratedViewFocus,
+    webRenderablePaths,
+  ]);
+
+  const canonicalViewDeck = useMemo(() => {
+    if (!showIntegratedMapLayers) return null;
+    try {
+      const focus = layerState.integratedViewFocus ?? INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID;
+      if (focus === INTEGRATED_VIEW_FOCUS.LOOP) {
+        const data = getLoopViewData();
+        validateLoopPathsOnce(data.paths);
+        debugLogViewStatsOnce('loop', data.stats);
+        return {
+          canonicalLoopPaths: canonicalPathsToDeckPaths(data.paths, { deckMode: 'loop' }),
+          canonicalSpinePaths: canonicalPathsToDeckPaths(data.spinePaths ?? [], {
+            deckMode: 'hyperloop',
+          }),
+          canonicalGridArcs: null,
+        };
+      }
+      if (
+        focus === INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID ||
+        isCivilizationMode
+      ) {
+        const data = getGridViewData();
+        debugLogViewStatsOnce('grid', data.stats);
+        const spine = data.paths.filter((p) => p.renderFamily === 'SPINE');
+        const loopAndFeeder = data.paths.filter(
+          (p) => p.renderFamily === 'REGIONAL_LOOP' || p.renderFamily === 'FEEDER'
+        );
+        return {
+          canonicalLoopPaths: canonicalPathsToDeckPaths(loopAndFeeder, { deckMode: 'loop' }),
+          canonicalSpinePaths: canonicalPathsToDeckPaths(spine, { deckMode: 'hyperloop' }),
+          canonicalGridArcs: data.arcs,
+        };
+      }
+    } catch (err) {
+      console.warn('[canonical-transport] view deck bundle failed', err);
+    }
+    return null;
+  }, [showIntegratedMapLayers, layerState.integratedViewFocus, isCivilizationMode]);
 
   const integratedDeckLayers = useMemo(() => {
     if (!showIntegratedMapLayers) return [];
@@ -1223,6 +1288,9 @@ export default function FuturisticTransportMap({
         visibleEdges: integratedRenderView.visibleEdges,
         activeFilters: layerState,
         hyperloopSpinePaths,
+        canonicalLoopPaths: canonicalViewDeck?.canonicalLoopPaths,
+        canonicalSpinePaths: canonicalViewDeck?.canonicalSpinePaths,
+        canonicalGridArcs: canonicalViewDeck?.canonicalGridArcs,
         selectedLocation,
         zoom,
         onNodeClick: handleIntegratedNodePick,
@@ -1240,6 +1308,7 @@ export default function FuturisticTransportMap({
     integratedRenderView.visibleEdges,
     layerState,
     hyperloopSpinePaths,
+    canonicalViewDeck,
     selectedLocation,
     zoom,
     handleIntegratedNodePick,
@@ -2332,6 +2401,64 @@ export default function FuturisticTransportMap({
         }
         metricsContent={
           <>
+          {canonicalNetworkDiagnostics?.stats && (
+            <div
+              className="metrics-grid"
+              style={{ marginBottom: '10px', paddingBottom: '8px', borderBottom: '1px solid rgba(100,200,255,0.15)' }}
+            >
+              <div style={{ gridColumn: '1 / -1', fontSize: '10px', color: '#64c8ff' }}>
+                Canonical transport v1.4.0
+                {planetaryGraph.canonicalPathsActive ? ' · canonical hyperloop paths' : ''}
+              </div>
+              <div>
+                <div style={{ color: '#8899cc', fontSize: '10px' }}>NODES</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
+                  {canonicalNetworkDiagnostics.stats.totalNodes}
+                </div>
+              </div>
+              <div>
+                <div style={{ color: '#8899cc', fontSize: '10px' }}>EDGES</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
+                  {canonicalNetworkDiagnostics.stats.totalEdges}
+                </div>
+              </div>
+              <div>
+                <div style={{ color: '#8899cc', fontSize: '10px' }}>ROUTES</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
+                  {canonicalNetworkDiagnostics.stats.totalRoutes}
+                </div>
+              </div>
+              <div>
+                <div style={{ color: '#8899cc', fontSize: '10px' }}>E2E HUBS</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#ff6b35' }}>
+                  {canonicalNetworkDiagnostics.stats.e2eHubs}
+                </div>
+              </div>
+              <div>
+                <div style={{ color: '#8899cc', fontSize: '10px' }}>REGIONS</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
+                  {Object.keys(canonicalNetworkDiagnostics.stats.byRegion ?? {}).length}
+                </div>
+              </div>
+              <div>
+                <div style={{ color: '#8899cc', fontSize: '10px' }}>VALIDATION</div>
+                <div
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    color: canonicalNetworkDiagnostics.validation?.valid ? '#50c878' : '#ff6420',
+                  }}
+                >
+                  {canonicalNetworkDiagnostics.validation?.errors?.length ?? 0} err /{' '}
+                  {canonicalNetworkDiagnostics.validation?.warnings?.length ?? 0} warn
+                </div>
+              </div>
+              <div>
+                <div style={{ color: '#8899cc', fontSize: '10px' }}>ACTIVE E2E (MAP)</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{roiHubs.length}</div>
+              </div>
+            </div>
+          )}
           {(showFutureHighPopulationHubs ||
             showRareEarthHubs ||
             showRemoteCargoRoutes) && (

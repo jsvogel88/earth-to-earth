@@ -12,6 +12,7 @@
 import csvText from './world-cities.csv?raw';
 import { normalizeCityKey, PHASE1_MANUAL_COORDS } from './hyperloopPhase1Coordinates.js';
 import { enrichWorldCityRecord, getEnrichmentMeta } from './economics/loadEconomics.js';
+import { getE2EHubs } from './canonicalTransportAdapter.js';
 
 /** @typedef {import('./economics/loadEconomics.js').WorldCity & object} WorldCity */
 
@@ -190,7 +191,23 @@ export function networkCityId(name, country) {
   return `net:${nameSlug}:${countrySlug}`;
 }
 
-const _curatedNetworkRows = [
+/** @param {ReturnType<typeof getE2EHubs>[number]} hub */
+function canonicalHubToNetworkCity(hub) {
+  return {
+    id: hub.networkCityId,
+    name: hub.name,
+    country: hub.country,
+    lat: hub.latitude ?? hub.lat,
+    lon: hub.longitude ?? hub.lon,
+    population: hub.population,
+    continent: hub.region,
+    region: hub.region,
+    aliases: [],
+    hasCoordinates: true,
+  };
+}
+
+const _legacyCuratedNetworkRows = [
   ['New York', 'USA', 40.7128, -74.006, 8335897, 'North America', 'Northeast US'],
   ['London', 'UK', 51.5074, -0.1278, 8982000, 'Europe', 'Western Europe'],
   ['Los Angeles', 'USA', 34.0522, -118.2437, 3990456, 'North America', 'US West'],
@@ -224,20 +241,32 @@ const _curatedNetworkRows = [
   ['Lagos', 'Nigeria', 6.5244, 3.3792, 15388000, 'Africa', 'West Africa'],
 ];
 
-export const CURATED_NETWORK_CITIES = _curatedNetworkRows.map(
-  ([name, country, lat, lon, population, continent, region]) => ({
-    id: networkCityId(name, country),
-    name,
-    country,
-    lat,
-    lon,
-    population,
-    continent,
-    region,
-    aliases: [],
-    hasCoordinates: true,
-  })
-);
+function buildCuratedNetworkCities() {
+  try {
+    const hubs = getE2EHubs();
+    if (hubs?.length) {
+      return hubs.map(canonicalHubToNetworkCity);
+    }
+  } catch (error) {
+    console.warn('Canonical E2E hubs unavailable, using legacy curated list', error);
+  }
+  return _legacyCuratedNetworkRows.map(
+    ([name, country, lat, lon, population, continent, region]) => ({
+      id: networkCityId(name, country),
+      name,
+      country,
+      lat,
+      lon,
+      population,
+      continent,
+      region,
+      aliases: [],
+      hasCoordinates: true,
+    })
+  );
+}
+
+export const CURATED_NETWORK_CITIES = buildCuratedNetworkCities();
 
 const _networkById = new Map(CURATED_NETWORK_CITIES.map((c) => [c.id, c]));
 const _networkByKey = new Map(
@@ -273,5 +302,13 @@ export function toMapHubRecord(city, numericId) {
 }
 
 export function getMapRoiHubs() {
+  try {
+    const hubs = getE2EHubs();
+    if (hubs?.length) {
+      return hubs.map((hub, index) => toMapHubRecord(canonicalHubToNetworkCity(hub), index));
+    }
+  } catch (error) {
+    console.warn('Canonical getE2EHubs failed, using curated registry', error);
+  }
   return getActiveE2EHubCities().map((city, index) => toMapHubRecord(city, index));
 }

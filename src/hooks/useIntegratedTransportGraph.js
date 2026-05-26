@@ -5,9 +5,59 @@
 
 import { useMemo } from 'react';
 import { generateIntegratedRoutes } from '../graph/generateIntegratedRoutes.js';
+import { getIntegratedGraph } from '../data/canonicalTransportAdapter.js';
 import { classifyCity } from '../modes/classifyLocation.js';
 import { DEFAULT_MINERAL_HUBS } from '../data/mineralHubs.js';
 import { filterIntegratedGraph } from '../ui/integratedGridFilters.js';
+
+function edgeDedupKey(edge) {
+  const from = edge.fromNodeId ?? edge.origin_id ?? edge.from;
+  const to = edge.toNodeId ?? edge.destination_id ?? edge.to;
+  return `${from}|${to}|${edge.mode ?? ''}`;
+}
+
+/**
+ * Canonical backbone (E2E/hyperloop) + legacy E2M/loop/mineral enrichment.
+ * @param {{ nodes: object[], edges: object[] }} canonical
+ * @param {{ nodes: object[], edges: object[], diagnostics: object }} legacy
+ */
+function mergeCanonicalIntegratedGraph(canonical, legacy) {
+  const nodeById = new Map();
+  for (const n of legacy.nodes ?? []) {
+    if (n?.id) nodeById.set(n.id, n);
+  }
+  for (const n of canonical.nodes ?? []) {
+    if (n?.id && !nodeById.has(n.id)) nodeById.set(n.id, n);
+  }
+
+  const edgeMap = new Map();
+  for (const e of canonical.edges ?? []) {
+    if (e.mode === 'hyperloop' || e.mode === 'e2e') {
+      edgeMap.set(edgeDedupKey(e), e);
+    }
+  }
+  for (const e of legacy.edges ?? []) {
+    if (e.mode === 'e2m' || e.mode === 'loop' || e.mode === 'auto') {
+      edgeMap.set(edgeDedupKey(e), e);
+    }
+  }
+  for (const e of legacy.edges ?? []) {
+    if (!edgeMap.has(edgeDedupKey(e))) edgeMap.set(edgeDedupKey(e), e);
+  }
+
+  return {
+    nodes: [...nodeById.values()],
+    edges: [...edgeMap.values()],
+    diagnostics: {
+      ...legacy.diagnostics,
+      warnings: [
+        ...(legacy.diagnostics?.warnings ?? []),
+        'Merged canonical v1.4.0 E2E/hyperloop with legacy E2M/loop routes',
+      ],
+      dataSource: 'canonical-transport-v1.4.0+legacy',
+    },
+  };
+}
 
 const EMPTY_DIAGNOSTICS = {
   totalNodes: 0,
@@ -55,14 +105,53 @@ export function buildIntegratedTransportGraph({
       })
     );
 
-    const graph = generateIntegratedRoutes({
-      cities: classifiedCities,
-      mineralHubs,
-      existingHyperloopGraph,
-      options,
-    });
+    const useCanonicalGraph =
+      options?.useCanonicalGraph === true ||
+      (existingHyperloopGraph != null && options?.useCanonicalGraph !== false);
 
-    const diagnostics = { ...graph.diagnostics };
+    let graph;
+    let usedCanonicalGraph = false;
+    if (useCanonicalGraph) {
+      const legacyGraph = generateIntegratedRoutes({
+        cities: classifiedCities,
+        mineralHubs,
+        existingHyperloopGraph,
+        options,
+      });
+      try {
+        const canonical = getIntegratedGraph(options?.modeFilter ?? null);
+        if (canonical?.nodes?.length && canonical?.edges?.length) {
+          const merged = mergeCanonicalIntegratedGraph(canonical, legacyGraph);
+          graph = { nodes: merged.nodes, edges: merged.edges, diagnostics: merged.diagnostics };
+          usedCanonicalGraph = true;
+        } else {
+          throw new Error('Canonical integrated graph returned empty nodes or edges');
+        }
+      } catch (canonicalError) {
+        console.warn('Canonical graph failed, falling back to legacy graph', canonicalError);
+        graph = legacyGraph;
+      }
+    } else {
+      graph = generateIntegratedRoutes({
+        cities: classifiedCities,
+        mineralHubs,
+        existingHyperloopGraph,
+        options,
+      });
+    }
+
+    const diagnostics = usedCanonicalGraph
+      ? {
+          ...(graph.diagnostics ?? {}),
+          totalNodes: graph.nodes.length,
+          totalEdges: graph.edges.length,
+          e2eRouteCount: graph.edges.filter((e) => e.mode === 'e2e').length,
+          e2mRouteCount: graph.edges.filter((e) => e.mode === 'e2m').length,
+          loopRouteCount: graph.edges.filter((e) => e.mode === 'loop').length,
+          hyperloopRouteCount: graph.edges.filter((e) => e.mode === 'hyperloop').length,
+          dataSource: 'canonical-transport-v1.4.0+legacy',
+        }
+      : { ...graph.diagnostics };
     const warnings = [...(diagnostics.warnings ?? [])];
 
     if (!existingHyperloopGraph) {

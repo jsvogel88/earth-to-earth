@@ -200,10 +200,17 @@ export function createLoopLayers({
       data: paths,
       pickable: true,
       widthMinPixels: 1,
-      widthMaxPixels: 3,
+      widthMaxPixels: 4,
       getPath: (d) => d.path,
-      getColor: () => [r, g, b, tier === ZOOM_TIERS.REGIONAL ? 120 : 170],
-      getWidth: () => (tier === ZOOM_TIERS.LOCAL ? 2 : 1.5),
+      getColor: (d) => {
+        const feeder = d.routeType === 'branch' || d.routeType === 'feeder' || d.routeType === 'feeder_route';
+        const alpha = feeder ? (tier === ZOOM_TIERS.REGIONAL ? 100 : 140) : tier === ZOOM_TIERS.REGIONAL ? 120 : 190;
+        return [r, g, b, alpha];
+      },
+      getWidth: (d) => {
+        const scale = d.widthScale ?? 1;
+        return scale * (tier === ZOOM_TIERS.LOCAL ? 2 : 1.5);
+      },
       onClick: onRouteClick,
       onHover: onRouteHover,
     }),
@@ -347,6 +354,9 @@ export function createIntegratedGraphLayers({
   visibleEdges = [],
   activeFilters = {},
   hyperloopSpinePaths = [],
+  canonicalLoopPaths = null,
+  canonicalSpinePaths = null,
+  canonicalGridArcs = null,
   selectedLocation = null,
   zoom = 2,
   onNodeClick,
@@ -364,14 +374,25 @@ export function createIntegratedGraphLayers({
   );
 
   const nodeIndex = buildNodeCoordinateIndex(nodes.length ? nodes : renderNodes);
-  const { arcs, paths: modePaths } = integratedEdgesToRenderData(renderEdgeList, nodeIndex, {
+  const { arcs: edgeArcs, paths: modePaths } = integratedEdgesToRenderData(renderEdgeList, nodeIndex, {
     modes: ['e2e', 'e2m', 'loop', 'hyperloop'],
   });
 
+  let arcs = canonicalGridArcs != null ? canonicalGridArcs : edgeArcs;
+  if (viewFocus === INTEGRATED_VIEW_FOCUS.LOOP && canonicalGridArcs == null) {
+    arcs = [];
+  }
+
   const graphHyperloopPaths = modePaths.filter((d) => d.mode === 'hyperloop');
-  const spinePaths = [...(hyperloopSpinePaths ?? []), ...graphHyperloopPaths];
+  const useCanonicalSpine = canonicalSpinePaths != null;
+  const spinePaths = useCanonicalSpine
+    ? canonicalSpinePaths
+    : [...(hyperloopSpinePaths ?? []), ...graphHyperloopPaths];
   const e2mPaths = modePaths.filter((d) => d.mode === 'e2m');
-  const loopPaths = modePaths.filter((d) => d.mode === 'loop');
+  const loopPaths =
+    canonicalLoopPaths != null && canonicalLoopPaths.length > 0
+      ? canonicalLoopPaths
+      : modePaths.filter((d) => d.mode === 'loop');
 
   const mineralNodes = renderNodes
     .filter((n) => n.mineral_hub_id)

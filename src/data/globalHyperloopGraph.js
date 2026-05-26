@@ -1,4 +1,5 @@
 import { regionalFeederCitiesByHub, getFeederCitiesForHub } from './regionalFeederCities.js';
+import globalSpinalNetwork from './transport/globalSpinalNetwork.json';
 import {
   classifyHyperloopRoute,
   classifyRoute,
@@ -89,6 +90,9 @@ export const REGIONAL_HYPERLOOP_MAX_MILES = 700;
 export const EXTENDED_HYPERLOOP_MAX_MILES = 1400;
 export const STARSHIP_PASSENGER_MIN_MILES = 1400;
 export const CARGO_HYPERLOOP_MAX_MILES = 3000;
+
+/** Ground/tube spinal backbone (v1.4.0) — not E2E Starship arcs. */
+export const GLOBAL_SPINAL_NETWORK = globalSpinalNetwork;
 
 /** Primary map display modes */
 import { MAP_DISPLAY_MODES, TRANSPORT_MODES } from './transportOperatingSystem.js';

@@ -5,6 +5,7 @@
 
 import { E2E_POPULATION_THRESHOLD } from '../modes/classifyLocation.js';
 import { normalizeNodeId } from '../graph/integratedGraphTypes.js';
+import { matchesRouteFamilies } from '../data/routeTypeFamilies.js';
 
 export const INTEGRATED_FILTER_KEYS = {
   showIntegratedE2E: 'showIntegratedE2E',
@@ -114,6 +115,20 @@ export function isEdgeVisibleInIntegratedFilters(edge, filters) {
   if (mode === 'hyperloop' && f.showIntegratedHyperloop === false) return false;
   if (mode === 'loop' && f.showIntegratedLoop === false) return false;
   if (mode === 'auto' && f.showIntegratedAuto === false) return false;
+
+  const rt = edge.route_type ?? edge.routeType;
+  if (mode === 'hyperloop' && rt) {
+    if (
+      f.showIntegratedLoop === false &&
+      matchesRouteFamilies(edge, ['REGIONAL_LOOP', 'FEEDER'])
+    ) {
+      return false;
+    }
+    if (f.showIntegratedHyperloop === false && matchesRouteFamilies(edge, 'SPINE')) {
+      return false;
+    }
+  }
+  if (mode === 'regional_loop' && f.showIntegratedLoop === false) return false;
 
   if (f.showMajorCorridorsOnly) {
     const rt = edge.route_type ?? edge.routeType;
