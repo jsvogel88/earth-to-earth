@@ -1,0 +1,215 @@
+[
+  {
+    "id": "layer:e2e_starship",
+    "label": "E2E Starship",
+    "description": "Global point-to-point rocket/hypersonic routes",
+    "mode": "e2e_starship",
+    "defaultVisible": true,
+    "minZoom": 1,
+    "maxZoom": 10,
+    "nodeTypes": [
+      "city"
+    ],
+    "routeTypes": [
+      "global_backbone"
+    ],
+    "visualPriority": 1,
+    "supports2D": true,
+    "supports3D": true,
+    "colorToken": "#FF6B35",
+    "lineStyle": "glow",
+    "widthTier": "thick",
+    "altitudeMode": "arc"
+  },
+  {
+    "id": "layer:hyperloop",
+    "label": "Hyperloop",
+    "description": "Ground-tube high-speed intercity corridors",
+    "mode": "hyperloop",
+    "defaultVisible": true,
+    "minZoom": 1,
+    "maxZoom": 10,
+    "nodeTypes": [
+      "city",
+      "junction"
+    ],
+    "routeTypes": [
+      "continental_spine",
+      "regional_spine"
+    ],
+    "visualPriority": 2,
+    "supports2D": true,
+    "supports3D": true,
+    "colorToken": "#00D4FF",
+    "lineStyle": "solid",
+    "widthTier": "medium",
+    "altitudeMode": "ground"
+  },
+  {
+    "id": "layer:regional_loop",
+    "label": "Regional Loop",
+    "description": "Metro-area and regional feeder loop networks",
+    "mode": "regional_loop",
+    "defaultVisible": true,
+    "minZoom": 3,
+    "maxZoom": 10,
+    "nodeTypes": [
+      "city",
+      "suburb",
+      "junction"
+    ],
+    "routeTypes": [
+      "regional_loop",
+      "metro_loop"
+    ],
+    "visualPriority": 3,
+    "supports2D": true,
+    "supports3D": false,
+    "colorToken": "#A8FF3E",
+    "lineStyle": "dashed",
+    "widthTier": "thin",
+    "altitudeMode": "ground"
+  },
+  {
+    "id": "layer:e2m",
+    "label": "E2M Cargo",
+    "description": "End-to-middle logistics, cargo, and industrial routes",
+    "mode": "e2m",
+    "defaultVisible": false,
+    "minZoom": 2,
+    "maxZoom": 10,
+    "nodeTypes": [
+      "city",
+      "port",
+      "industrial",
+      "logistics"
+    ],
+    "routeTypes": [
+      "cargo_spine",
+      "resource_corridor"
+    ],
+    "visualPriority": 4,
+    "supports2D": true,
+    "supports3D": true,
+    "colorToken": "#FFD700",
+    "lineStyle": "dotted",
+    "widthTier": "thin",
+    "altitudeMode": "arc"
+  },
+  {
+    "id": "layer:robotaxi",
+    "label": "Robotaxi / Auto",
+    "description": "Autonomous last-mile feeder zones around major hubs",
+    "mode": "robotaxi",
+    "defaultVisible": false,
+    "minZoom": 6,
+    "maxZoom": 10,
+    "nodeTypes": [
+      "city",
+      "suburb",
+      "station"
+    ],
+    "routeTypes": [
+      "local_feeder",
+      "autonomous_zone"
+    ],
+    "visualPriority": 5,
+    "supports2D": true,
+    "supports3D": false,
+    "colorToken": "#C084FC",
+    "lineStyle": "thin",
+    "widthTier": "thin",
+    "altitudeMode": "ground"
+  },
+  {
+    "id": "layer:rail",
+    "label": "Legacy Rail",
+    "description": "Existing conventional rail for context/comparison",
+    "mode": "rail",
+    "defaultVisible": false,
+    "minZoom": 4,
+    "maxZoom": 10,
+    "nodeTypes": [
+      "city",
+      "station"
+    ],
+    "routeTypes": [
+      "rail_spine"
+    ],
+    "visualPriority": 6,
+    "supports2D": true,
+    "supports3D": false,
+    "colorToken": "#94A3B8",
+    "lineStyle": "solid",
+    "widthTier": "thin",
+    "altitudeMode": "ground"
+  },
+  {
+    "id": "layer:port",
+    "label": "Port / Maritime",
+    "description": "Major seaports and maritime freight hubs",
+    "mode": "port",
+    "defaultVisible": false,
+    "minZoom": 3,
+    "maxZoom": 10,
+    "nodeTypes": [
+      "port",
+      "city"
+    ],
+    "routeTypes": [
+      "maritime_spine"
+    ],
+    "visualPriority": 7,
+    "supports2D": true,
+    "supports3D": true,
+    "colorToken": "#38BDF8",
+    "lineStyle": "dotted",
+    "widthTier": "thin",
+    "altitudeMode": "ground"
+  },
+  {
+    "id": "layer:grid",
+    "label": "Planning Grid",
+    "description": "Conceptual planning grid for coverage analysis",
+    "mode": "grid",
+    "defaultVisible": false,
+    "minZoom": 1,
+    "maxZoom": 6,
+    "nodeTypes": [
+      "grid_node"
+    ],
+    "routeTypes": [
+      "grid_edge"
+    ],
+    "visualPriority": 8,
+    "supports2D": true,
+    "supports3D": false,
+    "colorToken": "#334155",
+    "lineStyle": "thin",
+    "widthTier": "hairline",
+    "altitudeMode": "ground"
+  },
+  {
+    "id": "layer:custom",
+    "label": "Custom Destinations",
+    "description": "User-added or manually curated points of interest",
+    "mode": "custom",
+    "defaultVisible": true,
+    "minZoom": 1,
+    "maxZoom": 10,
+    "nodeTypes": [
+      "custom",
+      "poi"
+    ],
+    "routeTypes": [
+      "custom"
+    ],
+    "visualPriority": 9,
+    "supports2D": true,
+    "supports3D": true,
+    "colorToken": "#F59E0B",
+    "lineStyle": "solid",
+    "widthTier": "thin",
+    "altitudeMode": "ground"
+  }
+]

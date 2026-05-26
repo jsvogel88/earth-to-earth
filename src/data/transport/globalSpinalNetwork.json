@@ -1,0 +1,4657 @@
+{
+  "id": "global_spinal_network",
+  "label": "Global Spinal Network",
+  "description": "Interconnected ground-based planetary backbone connecting major continental and megaregional hubs. Ground/tube routes \u2014 NOT E2E arcs.",
+  "mode": "hyperloop",
+  "layerType": "spinal_network",
+  "routeType": "continental_spine",
+  "status": "conceptual",
+  "renderPriority": 2,
+  "visibleByDefault": true,
+  "minZoom": 2,
+  "maxZoom": 9,
+  "renderAs": "ground_path",
+  "altitudeMode": "surface",
+  "dataSource": "hardwired_macrodata",
+  "visual": {
+    "colorToken": "spinal",
+    "hexColor": "#00D4FF",
+    "lineStyle": "solid",
+    "widthTier": 2,
+    "opacity": 0.75,
+    "renderAs": "ground_path",
+    "altitudeMode": "surface",
+    "minZoom": 2,
+    "maxZoom": 9,
+    "showLabelsAtZoom": 5
+  },
+  "nodes": [
+    {
+      "id": "spine:boston-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:boston-united-states",
+      "city": "Boston",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 42.3188,
+      "longitude": -71.0846,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "rail",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | rail_terminal"
+    },
+    {
+      "id": "spine:new-york-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:new-york-united-states",
+      "city": "New York",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 40.6943,
+      "longitude": -73.9249,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | logistics_center"
+    },
+    {
+      "id": "spine:philadelphia-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:philadelphia-united-states",
+      "city": "Philadelphia",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 40.0077,
+      "longitude": -75.1339,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "rail",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | rail_terminal"
+    },
+    {
+      "id": "spine:washington-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:washington-united-states",
+      "city": "Washington",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 38.9047,
+      "longitude": -77.0163,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "rail",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | rail_terminal"
+    },
+    {
+      "id": "spine:toronto-canada",
+      "worldCityId": null,
+      "transportNodeId": "node:city:toronto-canada",
+      "city": "Toronto",
+      "country": "Canada",
+      "region": "North America",
+      "latitude": 43.7417,
+      "longitude": -79.3733,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "airport_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "air"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | airport"
+    },
+    {
+      "id": "spine:detroit-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:detroit-united-states",
+      "city": "Detroit",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 42.3834,
+      "longitude": -83.1024,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:chicago-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:chicago-united-states",
+      "city": "Chicago",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 41.8373,
+      "longitude": -87.6862,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | logistics_center"
+    },
+    {
+      "id": "spine:minneapolis-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:minneapolis-united-states",
+      "city": "Minneapolis",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 44.9635,
+      "longitude": -93.2678,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:dallas-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:dallas-united-states",
+      "city": "Dallas",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 32.7936,
+      "longitude": -96.7662,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | logistics_center"
+    },
+    {
+      "id": "spine:austin-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:austin-united-states",
+      "city": "Austin",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 30.3004,
+      "longitude": -97.7522,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:san-antonio-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:san-antonio-united-states",
+      "city": "San Antonio",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 29.4658,
+      "longitude": -98.5253,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:houston-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:houston-united-states",
+      "city": "Houston",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 29.7863,
+      "longitude": -95.3889,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | energy_node"
+    },
+    {
+      "id": "spine:vancouver-canada",
+      "worldCityId": null,
+      "transportNodeId": "node:city:vancouver-canada",
+      "city": "Vancouver",
+      "country": "Canada",
+      "region": "North America",
+      "latitude": 49.25,
+      "longitude": -123.1,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:seattle-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:seattle-united-states",
+      "city": "Seattle",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 47.6211,
+      "longitude": -122.3244,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2m",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | logistics_center"
+    },
+    {
+      "id": "spine:portland-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:portland-united-states",
+      "city": "Portland",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 45.5372,
+      "longitude": -122.65,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:san-francisco-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:san-francisco-united-states",
+      "city": "San Francisco",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 37.7562,
+      "longitude": -122.443,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "airport_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "air"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | airport"
+    },
+    {
+      "id": "spine:los-angeles-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:los-angeles-united-states",
+      "city": "Los Angeles",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 34.1139,
+      "longitude": -118.4068,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | logistics_center"
+    },
+    {
+      "id": "spine:san-diego-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:san-diego-united-states",
+      "city": "San Diego",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 32.8312,
+      "longitude": -117.1225,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:denver-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:denver-united-states",
+      "city": "Denver",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 39.7621,
+      "longitude": -104.8759,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:salt-lake-city-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:salt-lake-city-united-states",
+      "city": "Salt Lake City",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 40.7608,
+      "longitude": -111.891,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:phoenix-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:phoenix-united-states",
+      "city": "Phoenix",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 33.5722,
+      "longitude": -112.0891,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:mexico-city-mexico",
+      "worldCityId": null,
+      "transportNodeId": "node:city:mexico-city-mexico",
+      "city": "Mexico City",
+      "country": "Mexico",
+      "region": "North America",
+      "latitude": 19.4333,
+      "longitude": -99.1333,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | city"
+    },
+    {
+      "id": "spine:monterrey-mexico",
+      "worldCityId": null,
+      "transportNodeId": "node:city:monterrey-mexico",
+      "city": "Monterrey",
+      "country": "Mexico",
+      "region": "North America",
+      "latitude": 25.6866,
+      "longitude": -100.3161,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:ottawa-canada",
+      "worldCityId": null,
+      "transportNodeId": "node:city:ottawa-canada",
+      "city": "Ottawa",
+      "country": "Canada",
+      "region": "North America",
+      "latitude": 45.4215,
+      "longitude": -75.6919,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:montreal-canada",
+      "worldCityId": null,
+      "transportNodeId": "node:city:montreal-canada",
+      "city": "Montreal",
+      "country": "Canada",
+      "region": "North America",
+      "latitude": 45.5017,
+      "longitude": -73.5673,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:quebec-city-canada",
+      "worldCityId": null,
+      "transportNodeId": "node:city:quebec-city-canada",
+      "city": "Quebec City",
+      "country": "Canada",
+      "region": "North America",
+      "latitude": 46.8139,
+      "longitude": -71.2082,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:london-united-kingdom",
+      "worldCityId": null,
+      "transportNodeId": "node:city:london-united-kingdom",
+      "city": "London",
+      "country": "United Kingdom",
+      "region": "Europe",
+      "latitude": 51.5072,
+      "longitude": -0.1275,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway",
+        "airport_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m",
+        "air"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | airport"
+    },
+    {
+      "id": "spine:paris-france",
+      "worldCityId": null,
+      "transportNodeId": "node:city:paris-france",
+      "city": "Paris",
+      "country": "France",
+      "region": "Europe",
+      "latitude": 48.8566,
+      "longitude": 2.3522,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "airport_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "air"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | airport"
+    },
+    {
+      "id": "spine:brussels-belgium",
+      "worldCityId": null,
+      "transportNodeId": "node:city:brussels-belgium",
+      "city": "Brussels",
+      "country": "Belgium",
+      "region": "Europe",
+      "latitude": 50.8353,
+      "longitude": 4.3314,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "rail"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | rail_terminal"
+    },
+    {
+      "id": "spine:amsterdam-netherlands",
+      "worldCityId": null,
+      "transportNodeId": "node:city:amsterdam-netherlands",
+      "city": "Amsterdam",
+      "country": "Netherlands",
+      "region": "Europe",
+      "latitude": 52.3676,
+      "longitude": 4.9041,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 2 | logistics_center"
+    },
+    {
+      "id": "spine:frankfurt-germany",
+      "worldCityId": null,
+      "transportNodeId": "node:city:frankfurt-germany",
+      "city": "Frankfurt",
+      "country": "Germany",
+      "region": "Europe",
+      "latitude": 50.1109,
+      "longitude": 8.6821,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 2 | logistics_center"
+    },
+    {
+      "id": "spine:munich-germany",
+      "worldCityId": null,
+      "transportNodeId": "node:city:munich-germany",
+      "city": "Munich",
+      "country": "Germany",
+      "region": "Europe",
+      "latitude": 48.1375,
+      "longitude": 11.575,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "airport_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "air",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | airport"
+    },
+    {
+      "id": "spine:zurich-switzerland",
+      "worldCityId": null,
+      "transportNodeId": "node:city:zurich-switzerland",
+      "city": "Zurich",
+      "country": "Switzerland",
+      "region": "Europe",
+      "latitude": 47.3769,
+      "longitude": 8.5417,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "airport_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "air"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | airport"
+    },
+    {
+      "id": "spine:milan-italy",
+      "worldCityId": null,
+      "transportNodeId": "node:city:milan-italy",
+      "city": "Milan",
+      "country": "Italy",
+      "region": "Europe",
+      "latitude": 45.4654,
+      "longitude": 9.1859,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "rail"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | rail_terminal"
+    },
+    {
+      "id": "spine:barcelona-spain",
+      "worldCityId": null,
+      "transportNodeId": "node:city:barcelona-spain",
+      "city": "Barcelona",
+      "country": "Spain",
+      "region": "Europe",
+      "latitude": 41.3825,
+      "longitude": 2.1769,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "port_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "port",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | port"
+    },
+    {
+      "id": "spine:marseille-france",
+      "worldCityId": null,
+      "transportNodeId": "node:city:marseille-france",
+      "city": "Marseille",
+      "country": "France",
+      "region": "Europe",
+      "latitude": 43.2965,
+      "longitude": 5.3698,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "port_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "port",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 2 | port"
+    },
+    {
+      "id": "spine:rome-italy",
+      "worldCityId": null,
+      "transportNodeId": "node:city:rome-italy",
+      "city": "Rome",
+      "country": "Italy",
+      "region": "Europe",
+      "latitude": 41.8931,
+      "longitude": 12.4828,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "airport_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "air",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | airport"
+    },
+    {
+      "id": "spine:naples-italy",
+      "worldCityId": null,
+      "transportNodeId": "node:city:naples-italy",
+      "city": "Naples",
+      "country": "Italy",
+      "region": "Europe",
+      "latitude": 40.8518,
+      "longitude": 14.2681,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:birmingham-united-kingdom",
+      "worldCityId": null,
+      "transportNodeId": "node:city:birmingham-united-kingdom",
+      "city": "Birmingham",
+      "country": "United Kingdom",
+      "region": "Europe",
+      "latitude": 52.4862,
+      "longitude": -1.8904,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:manchester-united-kingdom",
+      "worldCityId": null,
+      "transportNodeId": "node:city:manchester-united-kingdom",
+      "city": "Manchester",
+      "country": "United Kingdom",
+      "region": "Europe",
+      "latitude": 53.4808,
+      "longitude": -2.2426,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:dublin-ireland",
+      "worldCityId": null,
+      "transportNodeId": "node:city:dublin-ireland",
+      "city": "Dublin",
+      "country": "Ireland",
+      "region": "Europe",
+      "latitude": 53.3498,
+      "longitude": -6.2603,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:berlin-germany",
+      "worldCityId": null,
+      "transportNodeId": "node:city:berlin-germany",
+      "city": "Berlin",
+      "country": "Germany",
+      "region": "Europe",
+      "latitude": 52.5167,
+      "longitude": 13.3833,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "rail",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | rail_terminal"
+    },
+    {
+      "id": "spine:prague",
+      "worldCityId": null,
+      "city": "Prague",
+      "country": "Czech Republic",
+      "region": "Europe",
+      "latitude": 50.0755,
+      "longitude": 14.4378,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Coordinates need enrichment"
+    },
+    {
+      "id": "spine:vienna-austria",
+      "worldCityId": null,
+      "transportNodeId": "node:city:vienna-austria",
+      "city": "Vienna",
+      "country": "Austria",
+      "region": "Europe",
+      "latitude": 48.2083,
+      "longitude": 16.3725,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "airport_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "air"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | airport"
+    },
+    {
+      "id": "spine:budapest-hungary",
+      "worldCityId": null,
+      "transportNodeId": "node:city:budapest-hungary",
+      "city": "Budapest",
+      "country": "Hungary",
+      "region": "Europe",
+      "latitude": 47.4983,
+      "longitude": 19.0408,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "rail"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | rail_terminal"
+    },
+    {
+      "id": "spine:warsaw-poland",
+      "worldCityId": null,
+      "transportNodeId": "node:city:warsaw-poland",
+      "city": "Warsaw",
+      "country": "Poland",
+      "region": "Europe",
+      "latitude": 52.23,
+      "longitude": 21.0111,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "rail"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | rail_terminal"
+    },
+    {
+      "id": "spine:copenhagen-denmark",
+      "worldCityId": null,
+      "transportNodeId": "node:city:copenhagen-denmark",
+      "city": "Copenhagen",
+      "country": "Denmark",
+      "region": "Europe",
+      "latitude": 55.6761,
+      "longitude": 12.5683,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "rail"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | rail_terminal"
+    },
+    {
+      "id": "spine:stockholm-sweden",
+      "worldCityId": null,
+      "transportNodeId": "node:city:stockholm-sweden",
+      "city": "Stockholm",
+      "country": "Sweden",
+      "region": "Europe",
+      "latitude": 59.3293,
+      "longitude": 18.0686,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "rail"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | rail_terminal"
+    },
+    {
+      "id": "spine:oslo-norway",
+      "worldCityId": null,
+      "transportNodeId": "node:city:oslo-norway",
+      "city": "Oslo",
+      "country": "Norway",
+      "region": "Europe",
+      "latitude": 59.9139,
+      "longitude": 10.7522,
+      "tier": 4,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 4 | city"
+    },
+    {
+      "id": "spine:helsinki-finland",
+      "worldCityId": null,
+      "transportNodeId": "node:city:helsinki-finland",
+      "city": "Helsinki",
+      "country": "Finland",
+      "region": "Europe",
+      "latitude": 60.1699,
+      "longitude": 24.9384,
+      "tier": 4,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 4 | city"
+    },
+    {
+      "id": "spine:dubai-united-arab-emirates",
+      "worldCityId": null,
+      "transportNodeId": "node:city:dubai-united-arab-emirates",
+      "city": "Dubai",
+      "country": "United Arab Emirates",
+      "region": "Middle East",
+      "latitude": 25.2697,
+      "longitude": 55.3094,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | logistics_center"
+    },
+    {
+      "id": "spine:abu-dhabi-united-arab-emirates",
+      "worldCityId": null,
+      "transportNodeId": "node:city:abu-dhabi-united-arab-emirates",
+      "city": "Abu Dhabi",
+      "country": "United Arab Emirates",
+      "region": "Middle East",
+      "latitude": 24.4511,
+      "longitude": 54.3969,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | energy_node"
+    },
+    {
+      "id": "spine:doha-qatar",
+      "worldCityId": null,
+      "transportNodeId": "node:city:doha-qatar",
+      "city": "Doha",
+      "country": "Qatar",
+      "region": "Middle East",
+      "latitude": 25.2854,
+      "longitude": 51.531,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | energy_node"
+    },
+    {
+      "id": "spine:riyadh-saudi-arabia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:riyadh-saudi-arabia",
+      "city": "Riyadh",
+      "country": "Saudi Arabia",
+      "region": "Middle East",
+      "latitude": 24.65,
+      "longitude": 46.71,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | energy_node"
+    },
+    {
+      "id": "spine:kuwait-city-kuwait",
+      "worldCityId": null,
+      "transportNodeId": "node:city:kuwait-city-kuwait",
+      "city": "Kuwait City",
+      "country": "Kuwait",
+      "region": "Middle East",
+      "latitude": 29.375,
+      "longitude": 47.98,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | energy_node"
+    },
+    {
+      "id": "spine:jeddah-saudi-arabia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:jeddah-saudi-arabia",
+      "city": "Jeddah",
+      "country": "Saudi Arabia",
+      "region": "Middle East",
+      "latitude": 21.5428,
+      "longitude": 39.1728,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:neom-saudi-arabia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:neom-saudi-arabia",
+      "city": "NEOM",
+      "country": "Saudi Arabia",
+      "region": "Middle East",
+      "latitude": 27.9654,
+      "longitude": 35.1862,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:aqaba-jordan",
+      "worldCityId": null,
+      "transportNodeId": "node:city:aqaba-jordan",
+      "city": "Aqaba",
+      "country": "Jordan",
+      "region": "Middle East",
+      "latitude": 29.5269,
+      "longitude": 35.0061,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:tel-aviv-israel",
+      "worldCityId": null,
+      "transportNodeId": "node:city:tel-aviv-israel",
+      "city": "Tel Aviv",
+      "country": "Israel",
+      "region": "Middle East",
+      "latitude": 32.0853,
+      "longitude": 34.7818,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:amman-jordan",
+      "worldCityId": null,
+      "transportNodeId": "node:city:amman-jordan",
+      "city": "Amman",
+      "country": "Jordan",
+      "region": "Middle East",
+      "latitude": 31.95,
+      "longitude": 35.9333,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:cairo-egypt",
+      "worldCityId": null,
+      "transportNodeId": "node:city:cairo-egypt",
+      "city": "Cairo",
+      "country": "Egypt",
+      "region": "Africa",
+      "latitude": 30.0444,
+      "longitude": 31.2358,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "airport_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "air",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | airport"
+    },
+    {
+      "id": "spine:istanbul-turkey",
+      "worldCityId": null,
+      "transportNodeId": "node:city:istanbul-turkey",
+      "city": "Istanbul",
+      "country": "Turkey",
+      "region": "Other",
+      "latitude": 41.01,
+      "longitude": 28.9603,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway",
+        "airport_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m",
+        "air"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | airport"
+    },
+    {
+      "id": "spine:ankara-turkey",
+      "worldCityId": null,
+      "transportNodeId": "node:city:ankara-turkey",
+      "city": "Ankara",
+      "country": "Turkey",
+      "region": "Middle East",
+      "latitude": 39.9334,
+      "longitude": 32.8597,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:beirut-lebanon",
+      "worldCityId": null,
+      "transportNodeId": "node:city:beirut-lebanon",
+      "city": "Beirut",
+      "country": "Lebanon",
+      "region": "Middle East",
+      "latitude": 33.8886,
+      "longitude": 35.4955,
+      "tier": 4,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 4 | city"
+    },
+    {
+      "id": "spine:beijing-china",
+      "worldCityId": null,
+      "transportNodeId": "node:city:beijing-china",
+      "city": "Beijing",
+      "country": "China",
+      "region": "East Asia",
+      "latitude": 39.904,
+      "longitude": 116.4075,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "airport_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "air",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | airport"
+    },
+    {
+      "id": "spine:shanghai-china",
+      "worldCityId": null,
+      "transportNodeId": "node:city:shanghai-china",
+      "city": "Shanghai",
+      "country": "China",
+      "region": "East Asia",
+      "latitude": 31.1667,
+      "longitude": 121.4667,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | logistics_center"
+    },
+    {
+      "id": "spine:hangzhou-china",
+      "worldCityId": null,
+      "transportNodeId": "node:city:hangzhou-china",
+      "city": "Hangzhou",
+      "country": "China",
+      "region": "East Asia",
+      "latitude": 30.25,
+      "longitude": 120.1675,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:shenzhen-china",
+      "worldCityId": null,
+      "transportNodeId": "node:city:shenzhen-china",
+      "city": "Shenzhen",
+      "country": "China",
+      "region": "East Asia",
+      "latitude": 22.535,
+      "longitude": 114.054,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2m",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | logistics_center"
+    },
+    {
+      "id": "spine:guangzhou-china",
+      "worldCityId": null,
+      "transportNodeId": "node:city:guangzhou-china",
+      "city": "Guangzhou",
+      "country": "China",
+      "region": "East Asia",
+      "latitude": 23.1288,
+      "longitude": 113.259,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2m",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | logistics_center"
+    },
+    {
+      "id": "spine:hong-kong-hong-kong",
+      "worldCityId": null,
+      "transportNodeId": "node:city:hong-kong-hong-kong",
+      "city": "Hong Kong",
+      "country": "Hong Kong",
+      "region": "East Asia",
+      "latitude": 22.3069,
+      "longitude": 114.1831,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | logistics_center"
+    },
+    {
+      "id": "spine:tokyo-japan",
+      "worldCityId": null,
+      "transportNodeId": "node:city:tokyo-japan",
+      "city": "Tokyo",
+      "country": "Japan",
+      "region": "East Asia",
+      "latitude": 35.6839,
+      "longitude": 139.7744,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | logistics_center"
+    },
+    {
+      "id": "spine:nagoya-japan",
+      "worldCityId": null,
+      "transportNodeId": "node:city:nagoya-japan",
+      "city": "Nagoya",
+      "country": "Japan",
+      "region": "East Asia",
+      "latitude": 35.1167,
+      "longitude": 136.9333,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "port_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "port",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | port"
+    },
+    {
+      "id": "spine:osaka-japan",
+      "worldCityId": null,
+      "transportNodeId": "node:city:osaka-japan",
+      "city": "Osaka",
+      "country": "Japan",
+      "region": "East Asia",
+      "latitude": 34.6937,
+      "longitude": 135.5022,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 1 | logistics_center"
+    },
+    {
+      "id": "spine:fukuoka-japan",
+      "worldCityId": null,
+      "transportNodeId": "node:city:fukuoka-japan",
+      "city": "Fukuoka",
+      "country": "Japan",
+      "region": "East Asia",
+      "latitude": 33.6,
+      "longitude": 130.4167,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:busan-south-korea",
+      "worldCityId": null,
+      "transportNodeId": "node:city:busan-south-korea",
+      "city": "Busan",
+      "country": "South Korea",
+      "region": "East Asia",
+      "latitude": 35.1,
+      "longitude": 129.0403,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "port_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "port",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | port"
+    },
+    {
+      "id": "spine:seoul-south-korea",
+      "worldCityId": null,
+      "transportNodeId": "node:city:seoul-south-korea",
+      "city": "Seoul",
+      "country": "South Korea",
+      "region": "East Asia",
+      "latitude": 37.56,
+      "longitude": 126.99,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | logistics_center"
+    },
+    {
+      "id": "spine:delhi-india",
+      "worldCityId": null,
+      "transportNodeId": "node:city:delhi-india",
+      "city": "Delhi",
+      "country": "India",
+      "region": "South Asia",
+      "latitude": 28.6667,
+      "longitude": 77.2167,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | logistics_center"
+    },
+    {
+      "id": "spine:mumbai-india",
+      "worldCityId": null,
+      "transportNodeId": "node:city:mumbai-india",
+      "city": "Mumbai",
+      "country": "India",
+      "region": "South Asia",
+      "latitude": 19.0758,
+      "longitude": 72.8775,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | logistics_center"
+    },
+    {
+      "id": "spine:bengaluru-india",
+      "worldCityId": null,
+      "transportNodeId": "node:city:bengaluru-india",
+      "city": "Bengaluru",
+      "country": "India",
+      "region": "South Asia",
+      "latitude": 12.9716,
+      "longitude": 77.5946,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:hyderabad-india",
+      "worldCityId": null,
+      "transportNodeId": "node:city:hyderabad-india",
+      "city": "Hyderabad",
+      "country": "India",
+      "region": "South Asia",
+      "latitude": 17.385,
+      "longitude": 78.4867,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:chennai-india",
+      "worldCityId": null,
+      "transportNodeId": "node:city:chennai-india",
+      "city": "Chennai",
+      "country": "India",
+      "region": "South Asia",
+      "latitude": 13.0825,
+      "longitude": 80.275,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "port_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "port",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | port"
+    },
+    {
+      "id": "spine:bangkok-thailand",
+      "worldCityId": null,
+      "transportNodeId": "node:city:bangkok-thailand",
+      "city": "Bangkok",
+      "country": "Thailand",
+      "region": "Southeast Asia",
+      "latitude": 13.75,
+      "longitude": 100.5167,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | logistics_center"
+    },
+    {
+      "id": "spine:ho-chi-minh-city-vietnam",
+      "worldCityId": null,
+      "transportNodeId": "node:city:ho-chi-minh-city-vietnam",
+      "city": "Ho Chi Minh City",
+      "country": "Vietnam",
+      "region": "Southeast Asia",
+      "latitude": 10.8167,
+      "longitude": 106.6333,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | city"
+    },
+    {
+      "id": "spine:phnom-penh-cambodia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:phnom-penh-cambodia",
+      "city": "Phnom Penh",
+      "country": "Cambodia",
+      "region": "Southeast Asia",
+      "latitude": 11.5696,
+      "longitude": 104.921,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:kuala-lumpur-malaysia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:kuala-lumpur-malaysia",
+      "city": "Kuala Lumpur",
+      "country": "Malaysia",
+      "region": "Southeast Asia",
+      "latitude": 3.1478,
+      "longitude": 101.6953,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | logistics_center"
+    },
+    {
+      "id": "spine:singapore-singapore",
+      "worldCityId": null,
+      "transportNodeId": "node:city:singapore-singapore",
+      "city": "Singapore",
+      "country": "Singapore",
+      "region": "Southeast Asia",
+      "latitude": 1.3,
+      "longitude": 103.8,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | logistics_center"
+    },
+    {
+      "id": "spine:jakarta-indonesia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:jakarta-indonesia",
+      "city": "Jakarta",
+      "country": "Indonesia",
+      "region": "Southeast Asia",
+      "latitude": -6.2146,
+      "longitude": 106.8451,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2m",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | logistics_center"
+    },
+    {
+      "id": "spine:baku-azerbaijan",
+      "worldCityId": null,
+      "transportNodeId": "node:city:baku-azerbaijan",
+      "city": "Baku",
+      "country": "Azerbaijan",
+      "region": "Central Asia",
+      "latitude": 40.3667,
+      "longitude": 49.8352,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | energy_node"
+    },
+    {
+      "id": "spine:tashkent-uzbekistan",
+      "worldCityId": null,
+      "transportNodeId": "node:city:tashkent-uzbekistan",
+      "city": "Tashkent",
+      "country": "Uzbekistan",
+      "region": "Central Asia",
+      "latitude": 41.3,
+      "longitude": 69.2667,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | energy_node"
+    },
+    {
+      "id": "spine:almaty-kazakhstan",
+      "worldCityId": null,
+      "transportNodeId": "node:city:almaty-kazakhstan",
+      "city": "Almaty",
+      "country": "Kazakhstan",
+      "region": "Central Asia",
+      "latitude": 43.25,
+      "longitude": 76.9,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:urumqi-china",
+      "worldCityId": null,
+      "transportNodeId": "node:city:urumqi-china",
+      "city": "Urumqi",
+      "country": "China",
+      "region": "East Asia",
+      "latitude": 43.8256,
+      "longitude": 87.6168,
+      "tier": 4,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 4 | city"
+    },
+    {
+      "id": "spine:casablanca-morocco",
+      "worldCityId": null,
+      "transportNodeId": "node:city:casablanca-morocco",
+      "city": "Casablanca",
+      "country": "Morocco",
+      "region": "Africa",
+      "latitude": 33.5992,
+      "longitude": -7.62,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "port_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "port",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | port"
+    },
+    {
+      "id": "spine:algiers-algeria",
+      "worldCityId": null,
+      "transportNodeId": "node:city:algiers-algeria",
+      "city": "Algiers",
+      "country": "Algeria",
+      "region": "Africa",
+      "latitude": 36.7764,
+      "longitude": 3.0586,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | energy_node"
+    },
+    {
+      "id": "spine:tunis-tunisia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:tunis-tunisia",
+      "city": "Tunis",
+      "country": "Tunisia",
+      "region": "Africa",
+      "latitude": 36.819,
+      "longitude": 10.1658,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:tripoli-libya",
+      "worldCityId": null,
+      "transportNodeId": "node:city:tripoli-libya",
+      "city": "Tripoli",
+      "country": "Libya",
+      "region": "Africa",
+      "latitude": 32.8872,
+      "longitude": 13.1913,
+      "tier": 4,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 4 | energy_node"
+    },
+    {
+      "id": "spine:dakar-senegal",
+      "worldCityId": null,
+      "transportNodeId": "node:city:dakar-senegal",
+      "city": "Dakar",
+      "country": "Senegal",
+      "region": "Africa",
+      "latitude": 14.7167,
+      "longitude": -17.4677,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "port_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "port"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | port"
+    },
+    {
+      "id": "spine:abidjan-c-te-d-ivoire",
+      "worldCityId": null,
+      "transportNodeId": "node:city:abidjan-c-te-d-ivoire",
+      "city": "Abidjan",
+      "country": "C\u00f4te d'Ivoire",
+      "region": "Africa",
+      "latitude": 5.3364,
+      "longitude": -4.0267,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:accra-ghana",
+      "worldCityId": null,
+      "transportNodeId": "node:city:accra-ghana",
+      "city": "Accra",
+      "country": "Ghana",
+      "region": "Africa",
+      "latitude": 5.6037,
+      "longitude": -0.187,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:lagos-nigeria",
+      "worldCityId": null,
+      "transportNodeId": "node:city:lagos-nigeria",
+      "city": "Lagos",
+      "country": "Nigeria",
+      "region": "Africa",
+      "latitude": 6.45,
+      "longitude": 3.4,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | energy_node"
+    },
+    {
+      "id": "spine:addis-ababa-ethiopia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:addis-ababa-ethiopia",
+      "city": "Addis Ababa",
+      "country": "Ethiopia",
+      "region": "Africa",
+      "latitude": 9.0272,
+      "longitude": 38.7369,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:nairobi-kenya",
+      "worldCityId": null,
+      "transportNodeId": "node:city:nairobi-kenya",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "region": "Africa",
+      "latitude": -1.2864,
+      "longitude": 36.8172,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "airport_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "air",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | airport"
+    },
+    {
+      "id": "spine:dar-es-salaam-tanzania",
+      "worldCityId": null,
+      "transportNodeId": "node:city:dar-es-salaam-tanzania",
+      "city": "Dar es Salaam",
+      "country": "Tanzania",
+      "region": "Africa",
+      "latitude": -6.8,
+      "longitude": 39.2833,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "port_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "port",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | port"
+    },
+    {
+      "id": "spine:johannesburg-south-africa",
+      "worldCityId": null,
+      "transportNodeId": "node:city:johannesburg-south-africa",
+      "city": "Johannesburg",
+      "country": "South Africa",
+      "region": "Africa",
+      "latitude": -26.2044,
+      "longitude": 28.0416,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | mineral_node"
+    },
+    {
+      "id": "spine:pretoria-south-africa",
+      "worldCityId": null,
+      "transportNodeId": "node:city:pretoria-south-africa",
+      "city": "Pretoria",
+      "country": "South Africa",
+      "region": "Africa",
+      "latitude": -25.7461,
+      "longitude": 28.1881,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:durban-south-africa",
+      "worldCityId": null,
+      "transportNodeId": "node:city:durban-south-africa",
+      "city": "Durban",
+      "country": "South Africa",
+      "region": "Africa",
+      "latitude": -29.8587,
+      "longitude": 31.0218,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "port_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "port",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 2 | port"
+    },
+    {
+      "id": "spine:cape-town-south-africa",
+      "worldCityId": null,
+      "transportNodeId": "node:city:cape-town-south-africa",
+      "city": "Cape Town",
+      "country": "South Africa",
+      "region": "Africa",
+      "latitude": -33.9249,
+      "longitude": 18.4241,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "port_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "port",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 2 | port"
+    },
+    {
+      "id": "spine:kinshasa-congo-kinshasa",
+      "worldCityId": null,
+      "transportNodeId": "node:city:kinshasa-congo-kinshasa",
+      "city": "Kinshasa",
+      "country": "Congo (Kinshasa)",
+      "region": "Africa",
+      "latitude": -4.3317,
+      "longitude": 15.3139,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | mineral_node"
+    },
+    {
+      "id": "spine:lusaka-zambia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:lusaka-zambia",
+      "city": "Lusaka",
+      "country": "Zambia",
+      "region": "Africa",
+      "latitude": -15.4167,
+      "longitude": 28.2833,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | mineral_node"
+    },
+    {
+      "id": "spine:alexandria-egypt",
+      "worldCityId": null,
+      "transportNodeId": "node:city:alexandria-egypt",
+      "city": "Alexandria",
+      "country": "Egypt",
+      "region": "Africa",
+      "latitude": 31.2,
+      "longitude": 29.9167,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "port_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "port",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | port"
+    },
+    {
+      "id": "spine:athens-greece",
+      "worldCityId": null,
+      "transportNodeId": "node:city:athens-greece",
+      "city": "Athens",
+      "country": "Greece",
+      "region": "Europe",
+      "latitude": 37.9838,
+      "longitude": 23.7275,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:sao-paulo-brazil",
+      "worldCityId": null,
+      "transportNodeId": "node:city:sao-paulo-brazil",
+      "city": "S\u00e3o Paulo",
+      "country": "Brazil",
+      "region": "South America",
+      "latitude": -23.5504,
+      "longitude": -46.6339,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | city"
+    },
+    {
+      "id": "spine:rio-de-janeiro-brazil",
+      "worldCityId": null,
+      "transportNodeId": "node:city:rio-de-janeiro-brazil",
+      "city": "Rio de Janeiro",
+      "country": "Brazil",
+      "region": "South America",
+      "latitude": -22.9083,
+      "longitude": -43.1964,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | city"
+    },
+    {
+      "id": "spine:belo-horizonte-brazil",
+      "worldCityId": null,
+      "transportNodeId": "node:city:belo-horizonte-brazil",
+      "city": "Belo Horizonte",
+      "country": "Brazil",
+      "region": "South America",
+      "latitude": -19.9281,
+      "longitude": -43.9419,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:bras-lia-brazil",
+      "worldCityId": null,
+      "transportNodeId": "node:city:bras-lia-brazil",
+      "city": "Bras\u00edlia",
+      "country": "Brazil",
+      "region": "South America",
+      "latitude": -15.7939,
+      "longitude": -47.8828,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:curitiba-brazil",
+      "worldCityId": null,
+      "transportNodeId": "node:city:curitiba-brazil",
+      "city": "Curitiba",
+      "country": "Brazil",
+      "region": "South America",
+      "latitude": -25.4297,
+      "longitude": -49.2719,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:porto-alegre-brazil",
+      "worldCityId": null,
+      "transportNodeId": "node:city:porto-alegre-brazil",
+      "city": "Porto Alegre",
+      "country": "Brazil",
+      "region": "South America",
+      "latitude": -30.0328,
+      "longitude": -51.23,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:montevideo-uruguay",
+      "worldCityId": null,
+      "transportNodeId": "node:city:montevideo-uruguay",
+      "city": "Montevideo",
+      "country": "Uruguay",
+      "region": "South America",
+      "latitude": -34.9011,
+      "longitude": -56.1645,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:buenos-aires-argentina",
+      "worldCityId": null,
+      "transportNodeId": "node:city:buenos-aires-argentina",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "region": "South America",
+      "latitude": -34.5997,
+      "longitude": -58.3819,
+      "tier": 1,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "port_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "port"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 1 | port"
+    },
+    {
+      "id": "spine:santiago-chile",
+      "worldCityId": null,
+      "transportNodeId": "node:city:santiago-chile",
+      "city": "Santiago",
+      "country": "Chile",
+      "region": "South America",
+      "latitude": -33.45,
+      "longitude": -70.6667,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | mineral_node"
+    },
+    {
+      "id": "spine:bogot-colombia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:bogot-colombia",
+      "city": "Bogot\u00e1",
+      "country": "Colombia",
+      "region": "South America",
+      "latitude": 4.6126,
+      "longitude": -74.0705,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:quito-ecuador",
+      "worldCityId": null,
+      "transportNodeId": "node:city:quito-ecuador",
+      "city": "Quito",
+      "country": "Ecuador",
+      "region": "South America",
+      "latitude": -0.22,
+      "longitude": -78.5125,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:lima-peru",
+      "worldCityId": null,
+      "transportNodeId": "node:city:lima-peru",
+      "city": "Lima",
+      "country": "Peru",
+      "region": "South America",
+      "latitude": -12.06,
+      "longitude": -77.0375,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | city"
+    },
+    {
+      "id": "spine:la-paz-bolivia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:la-paz-bolivia",
+      "city": "La Paz",
+      "country": "Bolivia",
+      "region": "South America",
+      "latitude": -16.4942,
+      "longitude": -68.1475,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | mineral_node"
+    },
+    {
+      "id": "spine:caracas-venezuela",
+      "worldCityId": null,
+      "transportNodeId": "node:city:caracas-venezuela",
+      "city": "Caracas",
+      "country": "Venezuela",
+      "region": "South America",
+      "latitude": 10.5,
+      "longitude": -66.9333,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | energy_node"
+    },
+    {
+      "id": "spine:panama-city-panama",
+      "worldCityId": null,
+      "transportNodeId": "node:city:panama-city-panama",
+      "city": "Panama City",
+      "country": "Panama",
+      "region": "North America",
+      "latitude": 8.9936,
+      "longitude": -79.5197,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:brisbane-australia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:brisbane-australia",
+      "city": "Brisbane",
+      "country": "Australia",
+      "region": "Oceania",
+      "latitude": -27.4678,
+      "longitude": 153.0281,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:sydney-australia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:sydney-australia",
+      "city": "Sydney",
+      "country": "Australia",
+      "region": "Oceania",
+      "latitude": -33.865,
+      "longitude": 151.2094,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "e2m_connector",
+        "logistics_gateway",
+        "port_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "e2m",
+        "port"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | port"
+    },
+    {
+      "id": "spine:canberra-australia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:canberra-australia",
+      "city": "Canberra",
+      "country": "Australia",
+      "region": "Oceania",
+      "latitude": -35.2809,
+      "longitude": 149.13,
+      "tier": 4,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 4 | city"
+    },
+    {
+      "id": "spine:melbourne-australia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:melbourne-australia",
+      "city": "Melbourne",
+      "country": "Australia",
+      "region": "Oceania",
+      "latitude": -37.8136,
+      "longitude": 144.9631,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "e2e_feeder",
+        "transfer_hub",
+        "port_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "e2e_starship",
+        "feeder",
+        "robotaxi",
+        "port"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | port"
+    },
+    {
+      "id": "spine:adelaide-australia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:adelaide-australia",
+      "city": "Adelaide",
+      "country": "Australia",
+      "region": "Oceania",
+      "latitude": -34.9285,
+      "longitude": 138.6007,
+      "tier": 4,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 4 | city"
+    },
+    {
+      "id": "spine:perth-australia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:perth-australia",
+      "city": "Perth",
+      "country": "Australia",
+      "region": "Oceania",
+      "latitude": -31.9522,
+      "longitude": 115.8589,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 3 | mineral_node"
+    },
+    {
+      "id": "spine:pilbara-australia",
+      "worldCityId": null,
+      "transportNodeId": "node:city:pilbara-australia",
+      "city": "Pilbara",
+      "country": "Australia",
+      "region": "Oceania",
+      "latitude": -21.7,
+      "longitude": 117.5,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:auckland-new-zealand",
+      "worldCityId": null,
+      "transportNodeId": "node:city:auckland-new-zealand",
+      "city": "Auckland",
+      "country": "New Zealand",
+      "region": "Oceania",
+      "latitude": -36.8485,
+      "longitude": 174.7633,
+      "tier": 4,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 4 | city"
+    },
+    {
+      "id": "spine:wellington-new-zealand",
+      "worldCityId": null,
+      "transportNodeId": "node:city:wellington-new-zealand",
+      "city": "Wellington",
+      "country": "New Zealand",
+      "region": "Oceania",
+      "latitude": -41.2865,
+      "longitude": 174.7762,
+      "tier": 4,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 4 | city"
+    },
+    {
+      "id": "spine:christchurch-new-zealand",
+      "worldCityId": null,
+      "transportNodeId": "node:city:christchurch-new-zealand",
+      "city": "Christchurch",
+      "country": "New Zealand",
+      "region": "Oceania",
+      "latitude": -43.5321,
+      "longitude": 172.6362,
+      "tier": 4,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 4 | city"
+    },
+    {
+      "id": "spine:honolulu-united-states",
+      "worldCityId": null,
+      "transportNodeId": "node:city:honolulu-united-states",
+      "city": "Honolulu",
+      "country": "United States",
+      "region": "North America",
+      "latitude": 21.3069,
+      "longitude": -157.8583,
+      "tier": 3,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop"
+      ],
+      "hasRobotaxiZone": false,
+      "localMobilityLayer": null,
+      "status": "conceptual",
+      "confidence": "medium",
+      "notes": "Tier 3 | city"
+    },
+    {
+      "id": "spine:madrid-spain",
+      "worldCityId": null,
+      "transportNodeId": "node:city:madrid-spain",
+      "city": "Madrid",
+      "country": "Spain",
+      "region": "Europe",
+      "latitude": 40.4167,
+      "longitude": -3.7167,
+      "tier": 2,
+      "nodeType": "spinal_hub",
+      "roles": [
+        "spinal_hub",
+        "airport_connector"
+      ],
+      "connectsToModes": [
+        "hyperloop",
+        "regional_loop",
+        "air",
+        "robotaxi"
+      ],
+      "hasRobotaxiZone": true,
+      "localMobilityLayer": "robotaxi",
+      "status": "conceptual",
+      "confidence": "high",
+      "notes": "Tier 2 | airport"
+    }
+  ],
+  "corridors": [
+    {
+      "id": "spine:na-northeast",
+      "name": "North America East Coast Spine",
+      "region": "North America",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 1,
+      "nodeSequence": [
+        "spine:boston-united-states",
+        "spine:new-york-united-states",
+        "spine:philadelphia-united-states",
+        "spine:washington-united-states"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:na-great-lakes",
+      "name": "Great Lakes / Midwest Corridor",
+      "region": "North America",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:toronto-canada",
+        "spine:detroit-united-states",
+        "spine:chicago-united-states",
+        "spine:minneapolis-united-states"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:na-texas-triangle",
+      "name": "Texas Triangle",
+      "region": "North America",
+      "corridorType": "regional_loop",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:dallas-united-states",
+        "spine:austin-united-states",
+        "spine:san-antonio-united-states",
+        "spine:houston-united-states"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:na-west-coast",
+      "name": "West Coast Corridor",
+      "region": "North America",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 1,
+      "nodeSequence": [
+        "spine:vancouver-canada",
+        "spine:seattle-united-states",
+        "spine:portland-united-states",
+        "spine:san-francisco-united-states",
+        "spine:los-angeles-united-states",
+        "spine:san-diego-united-states"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "6 cities"
+    },
+    {
+      "id": "spine:na-cross-continental",
+      "name": "Cross-Continental Connector",
+      "region": "North America",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:new-york-united-states",
+        "spine:chicago-united-states",
+        "spine:denver-united-states",
+        "spine:salt-lake-city-united-states",
+        "spine:san-francisco-united-states"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "5 cities"
+    },
+    {
+      "id": "spine:na-mexico",
+      "name": "Mexico Connector",
+      "region": "North America",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:los-angeles-united-states",
+        "spine:phoenix-united-states",
+        "spine:mexico-city-mexico",
+        "spine:monterrey-mexico",
+        "spine:houston-united-states"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "5 cities"
+    },
+    {
+      "id": "spine:na-canada",
+      "name": "Canada Corridor",
+      "region": "North America",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:toronto-canada",
+        "spine:ottawa-canada",
+        "spine:montreal-canada",
+        "spine:quebec-city-canada"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:eu-western-core",
+      "name": "Western Europe Core",
+      "region": "Europe",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 1,
+      "nodeSequence": [
+        "spine:london-united-kingdom",
+        "spine:paris-france",
+        "spine:brussels-belgium",
+        "spine:amsterdam-netherlands",
+        "spine:frankfurt-germany"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "5 cities"
+    },
+    {
+      "id": "spine:eu-rhine",
+      "name": "Rhine / Central Europe Spine",
+      "region": "Europe",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 1,
+      "nodeSequence": [
+        "spine:amsterdam-netherlands",
+        "spine:frankfurt-germany",
+        "spine:munich-germany",
+        "spine:zurich-switzerland",
+        "spine:milan-italy"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "5 cities"
+    },
+    {
+      "id": "spine:eu-mediterranean",
+      "name": "Mediterranean Spine",
+      "region": "Europe",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 1,
+      "nodeSequence": [
+        "spine:barcelona-spain",
+        "spine:marseille-france",
+        "spine:milan-italy",
+        "spine:rome-italy",
+        "spine:naples-italy"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "5 cities"
+    },
+    {
+      "id": "spine:eu-uk-ireland",
+      "name": "UK / Ireland Spine",
+      "region": "Europe",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:london-united-kingdom",
+        "spine:birmingham-united-kingdom",
+        "spine:manchester-united-kingdom",
+        "spine:dublin-ireland"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:eu-eastern",
+      "name": "Eastern Europe Connector",
+      "region": "Europe",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:berlin-germany",
+        "spine:prague",
+        "spine:vienna-austria",
+        "spine:budapest-hungary",
+        "spine:warsaw-poland"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "5 cities"
+    },
+    {
+      "id": "spine:eu-nordic",
+      "name": "Nordic Connector",
+      "region": "Europe",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:copenhagen-denmark",
+        "spine:stockholm-sweden",
+        "spine:oslo-norway",
+        "spine:helsinki-finland"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:mea-gulf",
+      "name": "Gulf Spine",
+      "region": "Middle East",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 1,
+      "nodeSequence": [
+        "spine:dubai-united-arab-emirates",
+        "spine:abu-dhabi-united-arab-emirates",
+        "spine:doha-qatar",
+        "spine:riyadh-saudi-arabia",
+        "spine:kuwait-city-kuwait"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "5 cities"
+    },
+    {
+      "id": "spine:mea-saudi-red-sea",
+      "name": "Saudi Red Sea Corridor",
+      "region": "Middle East",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:riyadh-saudi-arabia",
+        "spine:jeddah-saudi-arabia",
+        "spine:neom-saudi-arabia",
+        "spine:aqaba-jordan"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:mea-levant",
+      "name": "Levant / Egypt Connector",
+      "region": "Middle East",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:tel-aviv-israel",
+        "spine:amman-jordan",
+        "spine:cairo-egypt"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "3 cities"
+    },
+    {
+      "id": "spine:mea-europe-connector",
+      "name": "Middle East-Europe Connector",
+      "region": "Middle East",
+      "corridorType": "intercontinental_connector",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:istanbul-turkey",
+        "spine:ankara-turkey",
+        "spine:beirut-lebanon",
+        "spine:tel-aviv-israel",
+        "spine:cairo-egypt"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "5 cities"
+    },
+    {
+      "id": "spine:as-china-coastal",
+      "name": "China Coastal Spine",
+      "region": "East Asia",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 1,
+      "nodeSequence": [
+        "spine:beijing-china",
+        "spine:shanghai-china",
+        "spine:hangzhou-china",
+        "spine:shenzhen-china",
+        "spine:guangzhou-china",
+        "spine:hong-kong-hong-kong"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "6 cities"
+    },
+    {
+      "id": "spine:as-japan-korea",
+      "name": "Japan / Korea Connector",
+      "region": "East Asia",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 1,
+      "nodeSequence": [
+        "spine:tokyo-japan",
+        "spine:nagoya-japan",
+        "spine:osaka-japan",
+        "spine:fukuoka-japan",
+        "spine:busan-south-korea",
+        "spine:seoul-south-korea"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "6 cities"
+    },
+    {
+      "id": "spine:as-india",
+      "name": "India Spine",
+      "region": "South Asia",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 1,
+      "nodeSequence": [
+        "spine:delhi-india",
+        "spine:mumbai-india",
+        "spine:bengaluru-india",
+        "spine:hyderabad-india",
+        "spine:chennai-india"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "5 cities"
+    },
+    {
+      "id": "spine:as-sea",
+      "name": "Southeast Asia Spine",
+      "region": "Southeast Asia",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 1,
+      "nodeSequence": [
+        "spine:bangkok-thailand",
+        "spine:ho-chi-minh-city-vietnam",
+        "spine:phnom-penh-cambodia",
+        "spine:kuala-lumpur-malaysia",
+        "spine:singapore-singapore",
+        "spine:jakarta-indonesia"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "6 cities"
+    },
+    {
+      "id": "spine:as-central-asia",
+      "name": "Central Asia Connector",
+      "region": "Central Asia",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:istanbul-turkey",
+        "spine:baku-azerbaijan",
+        "spine:tashkent-uzbekistan",
+        "spine:almaty-kazakhstan",
+        "spine:urumqi-china"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "5 cities"
+    },
+    {
+      "id": "spine:as-middle-east-connector",
+      "name": "Asia-Middle East Connector",
+      "region": "Middle East",
+      "corridorType": "intercontinental_connector",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:mumbai-india",
+        "spine:dubai-united-arab-emirates",
+        "spine:riyadh-saudi-arabia",
+        "spine:cairo-egypt"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:af-north",
+      "name": "North Africa Corridor",
+      "region": "Africa",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:casablanca-morocco",
+        "spine:algiers-algeria",
+        "spine:tunis-tunisia",
+        "spine:tripoli-libya",
+        "spine:cairo-egypt"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "5 cities"
+    },
+    {
+      "id": "spine:af-west",
+      "name": "West Africa Corridor",
+      "region": "Africa",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:dakar-senegal",
+        "spine:abidjan-c-te-d-ivoire",
+        "spine:accra-ghana",
+        "spine:lagos-nigeria"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:af-east",
+      "name": "East Africa Corridor",
+      "region": "Africa",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:addis-ababa-ethiopia",
+        "spine:nairobi-kenya",
+        "spine:dar-es-salaam-tanzania"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "3 cities"
+    },
+    {
+      "id": "spine:af-south",
+      "name": "Southern Africa Corridor",
+      "region": "Africa",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:johannesburg-south-africa",
+        "spine:pretoria-south-africa",
+        "spine:durban-south-africa",
+        "spine:cape-town-south-africa"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:af-resource",
+      "name": "Africa Resource Connector",
+      "region": "Africa",
+      "corridorType": "resource_corridor",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:lagos-nigeria",
+        "spine:kinshasa-congo-kinshasa",
+        "spine:lusaka-zambia",
+        "spine:johannesburg-south-africa"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:af-europe-connector",
+      "name": "Africa-Europe Connector",
+      "region": "Africa",
+      "corridorType": "intercontinental_connector",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:cairo-egypt",
+        "spine:alexandria-egypt",
+        "spine:athens-greece",
+        "spine:istanbul-turkey"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:sa-brazil",
+      "name": "Brazil Spine",
+      "region": "South America",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 1,
+      "nodeSequence": [
+        "spine:sao-paulo-brazil",
+        "spine:rio-de-janeiro-brazil",
+        "spine:belo-horizonte-brazil",
+        "spine:bras-lia-brazil"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:sa-southern-cone",
+      "name": "Southern Cone Connector",
+      "region": "South America",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:sao-paulo-brazil",
+        "spine:curitiba-brazil",
+        "spine:porto-alegre-brazil",
+        "spine:montevideo-uruguay",
+        "spine:buenos-aires-argentina",
+        "spine:santiago-chile"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "6 cities"
+    },
+    {
+      "id": "spine:sa-andes",
+      "name": "Andes Connector",
+      "region": "South America",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:bogot-colombia",
+        "spine:quito-ecuador",
+        "spine:lima-peru",
+        "spine:la-paz-bolivia",
+        "spine:santiago-chile"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "5 cities"
+    },
+    {
+      "id": "spine:sa-north",
+      "name": "Northern South America",
+      "region": "South America",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:bogot-colombia",
+        "spine:caracas-venezuela",
+        "spine:panama-city-panama"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "3 cities"
+    },
+    {
+      "id": "spine:oce-australia-east",
+      "name": "Australia East Coast Spine",
+      "region": "Oceania",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 1,
+      "nodeSequence": [
+        "spine:brisbane-australia",
+        "spine:sydney-australia",
+        "spine:canberra-australia",
+        "spine:melbourne-australia"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:oce-australia-resource",
+      "name": "Australia Resource Corridor",
+      "region": "Oceania",
+      "corridorType": "resource_corridor",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:melbourne-australia",
+        "spine:adelaide-australia",
+        "spine:perth-australia",
+        "spine:pilbara-australia"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    },
+    {
+      "id": "spine:oce-new-zealand",
+      "name": "New Zealand Connector",
+      "region": "Oceania",
+      "corridorType": "continental_spine",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:auckland-new-zealand",
+        "spine:wellington-new-zealand",
+        "spine:christchurch-new-zealand"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "3 cities"
+    },
+    {
+      "id": "spine:oce-pacific",
+      "name": "Oceania-Pacific Connector",
+      "region": "Oceania",
+      "corridorType": "intercontinental_connector",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:sydney-australia",
+        "spine:auckland-new-zealand",
+        "spine:honolulu-united-states",
+        "spine:los-angeles-united-states"
+      ],
+      "connectsTo": [],
+      "renderAs": "ground_path",
+      "status": "conceptual",
+      "notes": "4 cities"
+    }
+  ],
+  "intercontinentalConnectors": [
+    {
+      "id": "spine:ic-transatlantic",
+      "name": "Transatlantic Connector",
+      "corridorType": "intercontinental_connector",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:new-york-united-states",
+        "spine:london-united-kingdom",
+        "spine:paris-france",
+        "spine:frankfurt-germany"
+      ],
+      "renderAs": "ground_path",
+      "status": "long_term_conceptual",
+      "notes": "Intercontinental \u2014 4 nodes"
+    },
+    {
+      "id": "spine:ic-transpacific-north",
+      "name": "North Pacific Connector",
+      "corridorType": "intercontinental_connector",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:los-angeles-united-states",
+        "spine:honolulu-united-states",
+        "spine:tokyo-japan",
+        "spine:seoul-south-korea"
+      ],
+      "renderAs": "ground_path",
+      "status": "long_term_conceptual",
+      "notes": "Intercontinental \u2014 4 nodes"
+    },
+    {
+      "id": "spine:ic-europe-middle-east",
+      "name": "Europe-Middle East Connector",
+      "corridorType": "intercontinental_connector",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:london-united-kingdom",
+        "spine:paris-france",
+        "spine:istanbul-turkey",
+        "spine:dubai-united-arab-emirates"
+      ],
+      "renderAs": "ground_path",
+      "status": "long_term_conceptual",
+      "notes": "Intercontinental \u2014 4 nodes"
+    },
+    {
+      "id": "spine:ic-middle-east-asia",
+      "name": "Middle East-Asia Connector",
+      "corridorType": "intercontinental_connector",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:dubai-united-arab-emirates",
+        "spine:mumbai-india",
+        "spine:singapore-singapore"
+      ],
+      "renderAs": "ground_path",
+      "status": "long_term_conceptual",
+      "notes": "Intercontinental \u2014 3 nodes"
+    },
+    {
+      "id": "spine:ic-europe-africa",
+      "name": "Europe-Africa Connector",
+      "corridorType": "intercontinental_connector",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:madrid-spain",
+        "spine:casablanca-morocco",
+        "spine:cairo-egypt",
+        "spine:lagos-nigeria"
+      ],
+      "renderAs": "ground_path",
+      "status": "long_term_conceptual",
+      "notes": "Intercontinental \u2014 4 nodes"
+    },
+    {
+      "id": "spine:ic-africa-middle-east",
+      "name": "Africa-Middle East Connector",
+      "corridorType": "intercontinental_connector",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:cairo-egypt",
+        "spine:riyadh-saudi-arabia",
+        "spine:dubai-united-arab-emirates"
+      ],
+      "renderAs": "ground_path",
+      "status": "long_term_conceptual",
+      "notes": "Intercontinental \u2014 3 nodes"
+    },
+    {
+      "id": "spine:ic-americas",
+      "name": "Americas Connector",
+      "corridorType": "intercontinental_connector",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:sao-paulo-brazil",
+        "spine:panama-city-panama",
+        "spine:mexico-city-mexico",
+        "spine:los-angeles-united-states",
+        "spine:houston-united-states"
+      ],
+      "renderAs": "ground_path",
+      "status": "long_term_conceptual",
+      "notes": "Intercontinental \u2014 5 nodes"
+    },
+    {
+      "id": "spine:ic-asia-oceania",
+      "name": "Asia-Oceania Connector",
+      "corridorType": "intercontinental_connector",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:singapore-singapore",
+        "spine:jakarta-indonesia",
+        "spine:sydney-australia",
+        "spine:auckland-new-zealand"
+      ],
+      "renderAs": "ground_path",
+      "status": "long_term_conceptual",
+      "notes": "Intercontinental \u2014 4 nodes"
+    },
+    {
+      "id": "spine:ic-eurasian",
+      "name": "Eurasian Land Connector",
+      "corridorType": "intercontinental_connector",
+      "mode": "hyperloop",
+      "tier": 2,
+      "nodeSequence": [
+        "spine:london-united-kingdom",
+        "spine:paris-france",
+        "spine:berlin-germany",
+        "spine:warsaw-poland",
+        "spine:istanbul-turkey",
+        "spine:baku-azerbaijan",
+        "spine:tashkent-uzbekistan",
+        "spine:almaty-kazakhstan",
+        "spine:urumqi-china",
+        "spine:beijing-china"
+      ],
+      "renderAs": "ground_path",
+      "status": "long_term_conceptual",
+      "notes": "Intercontinental \u2014 10 nodes"
+    }
+  ],
+  "e2eTransferHubs": [
+    "spine:new-york-united-states",
+    "spine:toronto-canada",
+    "spine:chicago-united-states",
+    "spine:dallas-united-states",
+    "spine:houston-united-states",
+    "spine:san-francisco-united-states",
+    "spine:los-angeles-united-states",
+    "spine:mexico-city-mexico",
+    "spine:london-united-kingdom",
+    "spine:paris-france",
+    "spine:amsterdam-netherlands",
+    "spine:frankfurt-germany",
+    "spine:dubai-united-arab-emirates",
+    "spine:riyadh-saudi-arabia",
+    "spine:tel-aviv-israel",
+    "spine:istanbul-turkey",
+    "spine:shanghai-china",
+    "spine:hong-kong-hong-kong",
+    "spine:tokyo-japan",
+    "spine:seoul-south-korea",
+    "spine:delhi-india",
+    "spine:mumbai-india",
+    "spine:bangkok-thailand",
+    "spine:singapore-singapore",
+    "spine:lagos-nigeria",
+    "spine:johannesburg-south-africa",
+    "spine:sao-paulo-brazil",
+    "spine:buenos-aires-argentina",
+    "spine:sydney-australia",
+    "spine:melbourne-australia"
+  ],
+  "e2mConnectorHubs": [
+    "spine:new-york-united-states",
+    "spine:chicago-united-states",
+    "spine:dallas-united-states",
+    "spine:houston-united-states",
+    "spine:seattle-united-states",
+    "spine:los-angeles-united-states",
+    "spine:london-united-kingdom",
+    "spine:dubai-united-arab-emirates",
+    "spine:riyadh-saudi-arabia",
+    "spine:istanbul-turkey",
+    "spine:shanghai-china",
+    "spine:shenzhen-china",
+    "spine:guangzhou-china",
+    "spine:tokyo-japan",
+    "spine:delhi-india",
+    "spine:mumbai-india",
+    "spine:bangkok-thailand",
+    "spine:singapore-singapore",
+    "spine:jakarta-indonesia",
+    "spine:lagos-nigeria",
+    "spine:sao-paulo-brazil",
+    "spine:sydney-australia"
+  ],
+  "robotaxiEnabledHubs": [
+    "spine:boston-united-states",
+    "spine:new-york-united-states",
+    "spine:philadelphia-united-states",
+    "spine:washington-united-states",
+    "spine:toronto-canada",
+    "spine:detroit-united-states",
+    "spine:chicago-united-states",
+    "spine:minneapolis-united-states",
+    "spine:dallas-united-states",
+    "spine:austin-united-states",
+    "spine:san-antonio-united-states",
+    "spine:houston-united-states",
+    "spine:vancouver-canada",
+    "spine:seattle-united-states",
+    "spine:portland-united-states",
+    "spine:san-francisco-united-states",
+    "spine:los-angeles-united-states",
+    "spine:san-diego-united-states",
+    "spine:denver-united-states",
+    "spine:phoenix-united-states",
+    "spine:mexico-city-mexico",
+    "spine:ottawa-canada",
+    "spine:montreal-canada",
+    "spine:london-united-kingdom",
+    "spine:paris-france",
+    "spine:amsterdam-netherlands",
+    "spine:frankfurt-germany",
+    "spine:munich-germany",
+    "spine:barcelona-spain",
+    "spine:marseille-france",
+    "spine:rome-italy",
+    "spine:naples-italy",
+    "spine:berlin-germany",
+    "spine:dubai-united-arab-emirates",
+    "spine:riyadh-saudi-arabia",
+    "spine:jeddah-saudi-arabia",
+    "spine:tel-aviv-israel",
+    "spine:amman-jordan",
+    "spine:cairo-egypt",
+    "spine:istanbul-turkey",
+    "spine:ankara-turkey",
+    "spine:beijing-china",
+    "spine:shanghai-china",
+    "spine:hangzhou-china",
+    "spine:shenzhen-china",
+    "spine:guangzhou-china",
+    "spine:hong-kong-hong-kong",
+    "spine:tokyo-japan",
+    "spine:nagoya-japan",
+    "spine:osaka-japan",
+    "spine:fukuoka-japan",
+    "spine:busan-south-korea",
+    "spine:seoul-south-korea",
+    "spine:delhi-india",
+    "spine:mumbai-india",
+    "spine:hyderabad-india",
+    "spine:chennai-india",
+    "spine:bangkok-thailand",
+    "spine:ho-chi-minh-city-vietnam",
+    "spine:kuala-lumpur-malaysia",
+    "spine:singapore-singapore",
+    "spine:jakarta-indonesia",
+    "spine:casablanca-morocco",
+    "spine:algiers-algeria",
+    "spine:abidjan-c-te-d-ivoire",
+    "spine:lagos-nigeria",
+    "spine:addis-ababa-ethiopia",
+    "spine:nairobi-kenya",
+    "spine:dar-es-salaam-tanzania",
+    "spine:johannesburg-south-africa",
+    "spine:durban-south-africa",
+    "spine:cape-town-south-africa",
+    "spine:kinshasa-congo-kinshasa",
+    "spine:alexandria-egypt",
+    "spine:sao-paulo-brazil",
+    "spine:rio-de-janeiro-brazil",
+    "spine:belo-horizonte-brazil",
+    "spine:bras-lia-brazil",
+    "spine:curitiba-brazil",
+    "spine:porto-alegre-brazil",
+    "spine:buenos-aires-argentina",
+    "spine:santiago-chile",
+    "spine:bogot-colombia",
+    "spine:lima-peru",
+    "spine:sydney-australia",
+    "spine:melbourne-australia",
+    "spine:madrid-spain"
+  ],
+  "summary": {
+    "totalSpinalNodes": 137,
+    "totalCorridors": 37,
+    "totalIntercontinentalConnectors": 9,
+    "totalE2ETransferHubs": 30,
+    "totalE2MConnectorHubs": 22,
+    "totalRobotaxiEnabledHubs": 87,
+    "missingCoordinateCount": 0,
+    "regionsConnected": [
+      "Middle East",
+      "South America",
+      "Europe",
+      "North America",
+      "East Asia",
+      "South Asia",
+      "Central Asia",
+      "Oceania",
+      "Africa",
+      "Southeast Asia"
+    ],
+    "version": "1.4.0"
+  }
+}

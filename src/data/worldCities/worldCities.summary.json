@@ -1,0 +1,15 @@
+{
+  "totalCities": 33733,
+  "withCoordinates": 682,
+  "withoutCoordinates": 33051,
+  "top500Matched": 560,
+  "transportNodesMatched": 596,
+  "statusBreakdown": {
+    "index_only": 33051,
+    "transfer_hub": 28,
+    "official_network_node": 568,
+    "candidate": 86
+  },
+  "duplicateCityCountry": 1892,
+  "countriesRepresented": 244
+}
