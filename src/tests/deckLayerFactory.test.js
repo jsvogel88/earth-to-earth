@@ -24,10 +24,11 @@ describe('deckLayerFactory (Phase 4)', () => {
     },
     {
       mode: 'e2m',
-      route_type: 'feeder',
+      route_type: 'resource_corridor',
       origin_id: 'hub-1',
       destination_id: 'city-a',
       priority_score: 0.6,
+      distance_km: 3900,
     },
     {
       mode: 'loop',
@@ -51,21 +52,23 @@ describe('deckLayerFactory (Phase 4)', () => {
       edges.filter((e) => e.mode === 'e2e'),
       index
     );
-    const layers = createE2ELayers({ arcs, zoom: 2 });
+    const layers = createE2ELayers({ arcs, zoom: 5 });
     expect(layers.length).toBe(1);
     expect(layers[0].id).toBe(INTEGRATED_LAYER_IDS.E2E_ROUTES);
     expect(layers[0].props.data.length).toBe(1);
   });
 
-  it('creates E2M path layer for feeder edges', () => {
+  it('creates E2M arc layer for long-distance cargo routes', () => {
     const index = buildNodeCoordinateIndex(nodesWithB);
-    const { paths } = integratedEdgesToRenderData(
+    const { e2mArcs } = integratedEdgesToRenderData(
       edges.filter((e) => e.mode === 'e2m'),
       index
     );
-    const layers = createE2MLayers({ paths, zoom: 5 });
+    const layers = createE2MLayers({ arcs: e2mArcs, zoom: 5 });
     expect(layers[0].id).toBe(INTEGRATED_LAYER_IDS.E2M_ROUTES);
-    expect(layers[0].props.data[0].path.length).toBe(2);
+    expect(layers[0].props.greatCircle).toBe(true);
+    expect(layers[0].props.data[0].sourcePosition).toBeTruthy();
+    expect(layers[0].props.data[0].targetPosition).toBeTruthy();
   });
 
   it('does not create loop layers at global zoom', () => {

@@ -3,19 +3,17 @@
  */
 
 import { classifyRouteFamily } from './classifyRouteFamily.js';
+import { getCorridorMetadata } from '../data/corridorRouteRegistry.js';
+import { classifyE2MSubFamily, E2E_BASE_STYLE } from '../map/visualHierarchy.js';
+import { isHyperloopOceanCrossing } from './hyperloopGeometry.js';
 
 /**
- * Hyperloop ground paths should not cross oceans unless intercontinental.
  * @param {object} fromNode
  * @param {object} toNode
  * @param {object} edge
  */
-function isOceanCrossing(fromNode, toNode, edge) {
-  if (edge.mode !== 'hyperloop') return false;
-  if (edge.routeType === 'intercontinental_connector') return false;
-  const distKm = edge.distanceKm || 0;
-  const diffLon = Math.abs((fromNode.longitude || 0) - (toNode.longitude || 0));
-  return distKm > 5000 && diffLon > 60;
+function shouldSkipGroundSegment(fromNode, toNode, edge) {
+  return isHyperloopOceanCrossing(fromNode, toNode, edge);
 }
 
 /**
@@ -23,12 +21,18 @@ function isOceanCrossing(fromNode, toNode, edge) {
  * @param {object[]} visibleNodes
  * @param {Record<string, object>} nodesById
  */
-export function createRenderBuckets(visibleEdges, visibleNodes, nodesById) {
+export function createRenderBuckets(
+  visibleEdges,
+  visibleNodes,
+  nodesById,
+  edgeScoresById = null,
+  edgeSimulationById = null
+) {
   const arcs = [];
   const trunkPaths = [];
   const loopPaths = [];
   const feederPaths = [];
-  const cargoPaths = [];
+  const cargoArcs = [];
   const localZones = [];
 
   for (const edge of visibleEdges ?? []) {
@@ -37,11 +41,20 @@ export function createRenderBuckets(visibleEdges, visibleNodes, nodesById) {
     const toNode = nodesById[edge.toNodeId];
     if (!fromNode || !toNode) continue;
 
-    if (isOceanCrossing(fromNode, toNode, edge)) continue;
+    if (shouldSkipGroundSegment(fromNode, toNode, edge)) continue;
 
-    const ew = edge.economicWeight?.gdpGeometricMean || 0;
-    const width = ew >= 40 ? 4 : ew >= 15 ? 3 : ew >= 5 ? 2 : 1;
-    const opacity = ew >= 40 ? 0.9 : ew >= 15 ? 0.7 : ew >= 5 ? 0.55 : 0.4;
+    const routeScore = edgeScoresById?.get?.(edge.id) ?? null;
+    const sim = edgeSimulationById?.get?.(edge.id) ?? null;
+    const corridorMeta = getCorridorMetadata(edge);
+    const civ = routeScore?.civilizationImportance ?? corridorMeta.civilizationImportance ?? edge.economicWeight?.gdpGeometricMean ?? 0;
+    const ew = edge.economicWeight?.gdpGeometricMean || civ || 0;
+    let width = civ >= 75 ? 4.5 : civ >= 55 ? 3.5 : civ >= 35 ? 2.5 : civ >= 15 ? 2 : 1;
+    let opacity = civ >= 75 ? 0.95 : civ >= 55 ? 0.82 : civ >= 35 ? 0.68 : civ >= 15 ? 0.52 : 0.38;
+    if (sim) {
+      width *= 1 + (sim.utilization ?? 0) / 200;
+      opacity = Math.min(0.98, opacity * (1 + (sim.activeTraffic ?? 0) / 250));
+      if (sim.congestion >= 70) opacity = Math.min(0.98, opacity * 1.08);
+    }
 
     const base = {
       id: edge.id,
@@ -51,9 +64,18 @@ export function createRenderBuckets(visibleEdges, visibleNodes, nodesById) {
       toName: toNode.name,
       mode: edge.mode,
       routeType: edge.routeType,
+      corridorId: corridorMeta.corridorId,
+      e2mSubFamily: family === 'E2M_CARGO' ? classifyE2MSubFamily(edge) : undefined,
       tier: edge.tier,
       distanceKm: edge.distanceKm,
       economicWeight: ew,
+      civilizationImportance: civ,
+      routeImportance: routeScore?.routeImportance,
+      spinalTrunkClass: routeScore?.spinalTrunkClass,
+      economicCorridorType: routeScore?.economicCorridorType,
+      congestion: sim?.congestion,
+      activeTraffic: sim?.activeTraffic,
+      routeStress: sim?.routeStress,
       width,
       opacity,
     };
@@ -64,8 +86,8 @@ export function createRenderBuckets(visibleEdges, visibleNodes, nodesById) {
           ...base,
           sourcePosition: base.from,
           targetPosition: base.to,
-          sourceColor: [255, 107, 53, Math.round(opacity * 255)],
-          targetColor: [255, 107, 53, Math.round(opacity * 0.4 * 255)],
+          sourceColor: [...E2E_BASE_STYLE.color, Math.round(opacity * 255)],
+          targetColor: [...E2E_BASE_STYLE.color, Math.round(opacity * 0.4 * 255)],
         });
         break;
       case 'CONTINENTAL_SPINE':
@@ -78,7 +100,11 @@ export function createRenderBuckets(visibleEdges, visibleNodes, nodesById) {
         feederPaths.push(base);
         break;
       case 'E2M_CARGO':
-        cargoPaths.push(base);
+        cargoArcs.push({
+          ...base,
+          sourcePosition: base.from,
+          targetPosition: base.to,
+        });
         break;
       case 'ROBOTAXI_LOCAL':
         if (edge.distanceKm != null && edge.distanceKm <= 80) {
@@ -99,7 +125,9 @@ export function createRenderBuckets(visibleEdges, visibleNodes, nodesById) {
     trunkPaths,
     loopPaths,
     feederPaths,
-    cargoPaths,
+    cargoArcs,
+    /** @deprecated use cargoArcs */
+    cargoPaths: cargoArcs,
     localZones,
     tier1Nodes,
     tier2Nodes,

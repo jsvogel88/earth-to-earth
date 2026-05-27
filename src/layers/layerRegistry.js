@@ -22,6 +22,11 @@ export const LAYER_TYPES = {
   TRANSPORT_MODE: 'transport_mode',
   TOGGLE: 'toggle',
   OVERLAY: 'overlay',
+  PRESET_TOGGLE: 'preset_toggle',
+};
+
+export const LAYER_PRESET_IDS = {
+  STARBASE_VISION: 'starbase_vision',
 };
 
 export const LEGEND_GROUPS = {
@@ -500,22 +505,20 @@ export const MAP_LAYER_REGISTRY = [
   },
   {
     id: 'traffic_flow',
-    label: 'Traffic flow (sim preview)',
+    label: 'Mobility simulation overlay',
     group: LAYER_GROUPS.VISUALIZATION,
     layerType: LAYER_TYPES.TOGGLE,
     stateKey: 'showTrafficFlow',
     defaultVisible: false,
-    disabled: true,
     renderPriority: 62,
   },
   {
     id: 'gdp_weighting',
-    label: 'GDP weighting (sim preview)',
+    label: 'GDP / economic corridor overlay',
     group: LAYER_GROUPS.VISUALIZATION,
     layerType: LAYER_TYPES.TOGGLE,
     stateKey: 'showGdpWeighting',
     defaultVisible: false,
-    disabled: true,
     renderPriority: 63,
   },
   {
@@ -527,6 +530,62 @@ export const MAP_LAYER_REGISTRY = [
     defaultVisible: false,
     disabled: true,
     renderPriority: 64,
+  },
+
+  // —— Starbase hub system (Phase 9+) ——
+  {
+    id: 'starbase_vision_preview',
+    label: 'Show Starbase System (Vision Preview)',
+    group: LAYER_GROUPS.VISUALIZATION,
+    layerType: LAYER_TYPES.PRESET_TOGGLE,
+    presetId: LAYER_PRESET_IDS.STARBASE_VISION,
+    defaultVisible: false,
+    renderPriority: 69,
+    description:
+      'Enables Starbase hubs, labels, PETABOND highlights, and intermodal connectors. Off by default.',
+  },
+  {
+    id: 'starbase_hubs',
+    label: 'Starbase Hubs',
+    group: LAYER_GROUPS.VISUALIZATION,
+    layerType: LAYER_TYPES.TOGGLE,
+    stateKey: 'showStarbaseHubs',
+    defaultVisible: false,
+    legendGroup: LEGEND_GROUPS.FUTURE,
+    renderPriority: 70,
+    description: 'Strategic node intelligence layer (some conceptual).',
+  },
+  {
+    id: 'starbase_labels',
+    label: 'Starbase labels',
+    group: LAYER_GROUPS.VISUALIZATION,
+    layerType: LAYER_TYPES.TOGGLE,
+    stateKey: 'showStarbaseLabels',
+    defaultVisible: false,
+    renderPriority: 71,
+    dependsOn: ['starbase_hubs'],
+  },
+  {
+    id: 'starbase_connectivity',
+    label: 'Starbase connectivity',
+    group: LAYER_GROUPS.VISUALIZATION,
+    layerType: LAYER_TYPES.TOGGLE,
+    stateKey: 'showStarbaseConnectivity',
+    defaultVisible: false,
+    renderPriority: 72,
+    dependsOn: ['starbase_hubs'],
+    description: 'Thin intermodal connectors from Starbase hubs to E2E / RE2E / Hyperloop / Auto anchors.',
+  },
+  {
+    id: 'petabond_export',
+    label: 'PETABOND Export Packages',
+    group: LAYER_GROUPS.VISUALIZATION,
+    layerType: LAYER_TYPES.TOGGLE,
+    stateKey: 'showPetabondExportPackages',
+    defaultVisible: false,
+    renderPriority: 73,
+    dependsOn: ['starbase_hubs'],
+    description: 'Future-ready: highlight hubs eligible for PETABOND export.',
   },
 
   // —— Cargo / strategic access (placeholders) ——
@@ -794,7 +853,10 @@ export function getTransportModeLayers() {
 
 export function getLayersByGroup(groupId) {
   return MAP_LAYER_REGISTRY.filter(
-    (l) => l.group === groupId && l.layerType !== LAYER_TYPES.TRANSPORT_MODE && l.stateKey
+    (l) =>
+      l.group === groupId &&
+      l.layerType !== LAYER_TYPES.TRANSPORT_MODE &&
+      (l.stateKey || l.layerType === LAYER_TYPES.PRESET_TOGGLE)
   );
 }
 

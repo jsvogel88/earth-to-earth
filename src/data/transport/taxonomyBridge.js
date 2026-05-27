@@ -5,51 +5,58 @@
  * and need to map to the app's taxonomy constants.
  */
 
+import {
+  TRANSPORTATION_MODES,
+  NODE_TYPES,
+  ROUTE_TYPES,
+  CITY_STATUS,
+} from '../../transportation/registries/index.js';
+
 export const MODE_BRIDGE = {
   // Our canonical mode  → taxonomy mode(s)
-  hyperloop:     ['hyperloop_spine', 'feeder_route'],   // distinguish by routeType
-  regional_loop: ['regional_loop'],
-  e2e_starship:  ['e2e_starship'],
-  e2m:           ['e2m', 'cargo', 'logistics'],
-  port:          ['port'],
-  robotaxi:      ['robotaxi'],
-  rail:          ['rail'],
+  hyperloop:     [TRANSPORTATION_MODES.HYPERLOOP_SPINE, TRANSPORTATION_MODES.FEEDER_ROUTE], // distinguish by routeType
+  regional_loop: [TRANSPORTATION_MODES.REGIONAL_LOOP],
+  e2e_starship:  [TRANSPORTATION_MODES.E2E_STARSHIP],
+  e2m:           [TRANSPORTATION_MODES.E2M, TRANSPORTATION_MODES.CARGO, TRANSPORTATION_MODES.LOGISTICS],
+  port:          [TRANSPORTATION_MODES.PORT],
+  robotaxi:      [TRANSPORTATION_MODES.ROBOTAXI],
+  rail:          [TRANSPORTATION_MODES.RAIL],
 };
 
 export const NODE_TYPE_BRIDGE = {
   // Our nodeType        → taxonomy nodeType
-  city:             'official_network_node',
-  port:             'port_node',
-  airport:          'airport_node',
-  rail_terminal:    'rail_terminal',
-  energy_node:      'energy_node',
-  logistics_center: 'logistics_node',
-  mineral_node:     'mineral_node',
+  city:             NODE_TYPES.OFFICIAL_NETWORK_NODE,
+  port:             NODE_TYPES.PORT_NODE,
+  airport:          NODE_TYPES.AIRPORT_NODE,
+  rail_terminal:    NODE_TYPES.RAIL_TERMINAL,
+  energy_node:      NODE_TYPES.ENERGY_NODE,
+  logistics_center: NODE_TYPES.LOGISTICS_NODE,
+  mineral_node:     NODE_TYPES.MINERAL_NODE,
 };
 
 export const ROUTE_TYPE_BRIDGE = {
   // Our routeType          → taxonomy routeType
-  global_backbone:      'global_arc',
-  continental_spine:    'continental_spine',
-  regional_loop:        'regional_loop',
-  branch:               'feeder_route',
-  feeder:               'feeder_route',
-  cargo_spine:          'cargo_corridor',
-  resource_corridor:    'resource_corridor',
-  regional_spine:       'megaregion_spine',
-  intercontinental_connector: 'intercontinental_connector',
+  global_backbone:      ROUTE_TYPES.GLOBAL_ARC,
+  continental_spine:    ROUTE_TYPES.CONTINENTAL_SPINE,
+  regional_loop:        ROUTE_TYPES.REGIONAL_LOOP,
+  branch:               ROUTE_TYPES.FEEDER_ROUTE,
+  feeder:               ROUTE_TYPES.FEEDER_ROUTE,
+  cargo_spine:          ROUTE_TYPES.CARGO_CORRIDOR,
+  resource_corridor:    ROUTE_TYPES.RESOURCE_CORRIDOR,
+  regional_spine:       ROUTE_TYPES.MEGAREGION_SPINE,
+  intercontinental_connector: ROUTE_TYPES.INTERCONTINENTAL_CONNECTOR,
 };
 
 export const CITY_STATUS_BRIDGE = {
   // worldCities.generated cityStatus → taxonomy nodeType
-  transfer_hub:           'transfer_hub',
-  official_network_node:  'official_network_node',
-  candidate:              'candidate_city',
-  feeder_candidate:       'feeder_city',
-  planning_node:          'planning_node',
-  index_only:             'city_index_node',
-  parsed_overlay:         'parsed_city',
-  custom_overlay:         'custom_destination',
+  transfer_hub:           NODE_TYPES.TRANSFER_HUB,
+  official_network_node:  CITY_STATUS.OFFICIAL,
+  candidate:              CITY_STATUS.CANDIDATE,
+  feeder_candidate:       NODE_TYPES.FEEDER_CITY,
+  planning_node:          CITY_STATUS.PLANNING,
+  index_only:             CITY_STATUS.INDEX_ONLY,
+  parsed_overlay:         CITY_STATUS.PARSED,
+  custom_overlay:         CITY_STATUS.CUSTOM,
 };
 
 /**
@@ -58,8 +65,8 @@ export const CITY_STATUS_BRIDGE = {
  */
 export function getTaxonomyMode(mode, routeType) {
   if (mode === 'hyperloop') {
-    if (routeType === 'branch' || routeType === 'feeder') return 'feeder_route';
-    return 'hyperloop_spine';
+    if (routeType === 'branch' || routeType === 'feeder') return TRANSPORTATION_MODES.FEEDER_ROUTE;
+    return TRANSPORTATION_MODES.HYPERLOOP_SPINE;
   }
   return MODE_BRIDGE[mode] ? MODE_BRIDGE[mode][0] : mode;
 }
@@ -68,9 +75,9 @@ export function getTaxonomyMode(mode, routeType) {
  * Get taxonomy nodeType from a canonical transport node.
  */
 export function getTaxonomyNodeType(node) {
-  if (node.isE2EHub) return 'e2e_hub';
-  if (node.tags?.includes('transfer_hub')) return 'transfer_hub';
-  return NODE_TYPE_BRIDGE[node.nodeType] || 'official_network_node';
+  if (node.isE2EHub) return NODE_TYPES.E2E_HUB;
+  if (node.tags?.includes('transfer_hub')) return NODE_TYPES.TRANSFER_HUB;
+  return NODE_TYPE_BRIDGE[node.nodeType] || NODE_TYPES.OFFICIAL_NETWORK_NODE;
 }
 
 /**

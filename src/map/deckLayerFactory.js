@@ -12,6 +12,7 @@ import {
   INTEGRATED_VIEW_FOCUS,
 } from '../ui/integratedGridFilters.js';
 import { getRouteColor } from '../styles/hyperloopRouteStyles.js';
+import { ECONOMIC_OVERLAY_TINTS } from '../economics/economicOverlayClassifier.js';
 import { getHyperloopLineWidth } from '../data/hyperloopRouteClasses.js';
 import { getSkeletonPathWidthBoost } from '../graph/planetarySkeletonVisibility.js';
 import {
@@ -19,6 +20,46 @@ import {
   integratedEdgesToRenderData,
   edgeHasValidVisibilityZoom,
 } from './integratedEdgePaths.js';
+import { createSimulationOverlayLayers } from '../simulation/simulationDeckLayers.js';
+import adapter from '../data/canonicalTransportAdapter.js';
+import { getLayerVisibility } from './layerVisibility.js';
+import {
+  E2E_BASE_STYLE,
+  SPINE_STYLES,
+  LAYER_VISUAL_WEIGHT,
+  getE2EArcStyle,
+  getE2EArcTilt,
+  isPriorityE2EEdge,
+  classifyE2MSubFamily,
+  E2M_SUBFAMILIES,
+  getNodeVisualStyle,
+  getCorridorRouteColor,
+  shouldShowE2MLabel,
+  PLANETARY_LABEL_ALLOWLIST,
+} from './visualHierarchy.js';
+import {
+  expandE2MToArcs,
+  mergeE2MArcSources,
+  normalizeE2MArc,
+  shouldRenderE2MAsGroundPath,
+  toE2MGroundPath,
+  validateE2MRenderLayers,
+  validateE2MDeckLayers,
+} from './e2mGeometry.js';
+import {
+  rgbaFromRenderIntent,
+  widthFromRenderIntent,
+  geometryTypeFromRenderIntent,
+} from '../transportation/render/renderIntentDeckStyle.js';
+
+function isGroundPathMode(item) {
+  const mode = String(item?.mode ?? '').toLowerCase();
+  return mode !== 'e2m' && mode !== 'cargo' && mode !== 'logistics' && mode !== 'e2e_starship';
+}
+
+function groundPathsOnly(paths = []) {
+  return (paths ?? []).filter(isGroundPathMode);
+}
 
 export const INTEGRATED_LAYER_IDS = {
   HYPERLOOP_SPINE: 'integrated-hyperloop-spine',
@@ -30,6 +71,19 @@ export const INTEGRATED_LAYER_IDS = {
   E2E_LABELS: 'integrated-e2e-hub-labels',
   MINERAL_LABELS: 'integrated-mineral-hub-labels',
 };
+
+function applyEconomicTint(baseColor, datum, enabled) {
+  if (!enabled || !datum?.economicCorridorType) return baseColor;
+  const tint = ECONOMIC_OVERLAY_TINTS[datum.economicCorridorType];
+  if (!tint) return baseColor;
+  const blend = 0.22;
+  return [
+    Math.round(baseColor[0] * (1 - blend) + tint[0] * blend),
+    Math.round(baseColor[1] * (1 - blend) + tint[1] * blend),
+    Math.round(baseColor[2] * (1 - blend) + tint[2] * blend),
+    baseColor[3] ?? 255,
+  ];
+}
 
 function hexToRgba(hex, alpha = 255) {
   const h = String(hex ?? '#888888').replace('#', '');
@@ -43,7 +97,7 @@ function hexToRgba(hex, alpha = 255) {
 }
 
 const COLORS = {
-  e2e: hexToRgba(MODE_REGISTRY.e2e?.color ?? '#d4af37'),
+  e2e: E2E_BASE_STYLE.color,
   e2m: hexToRgba(MODE_REGISTRY.e2m?.color ?? '#ff6b35'),
   loop: hexToRgba(MODE_REGISTRY.loop?.color ?? '#00dcff'),
 };
@@ -74,34 +128,53 @@ export function createHyperloopSpineLayers({
   paths = [],
   zoom = 2,
   viewFocus = INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID,
+  economicOverlay = false,
   onRouteClick,
   onRouteHover,
 } = {}) {
-  if (!paths.length) return [];
+  const spinePaths = groundPathsOnly(paths);
+  if (!spinePaths.length) return [];
   const tier = getZoomTier(zoom);
   const spineFirst =
     viewFocus === INTEGRATED_VIEW_FOCUS.HYPERLOOP ||
     viewFocus === INTEGRATED_VIEW_FOCUS.LOOP ||
     viewFocus === INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID;
-  const opacity = spineFirst ? (tier === ZOOM_TIERS.GLOBAL ? 245 : 255) : 185;
-  const widthScale = spineFirst ? (tier === ZOOM_TIERS.GLOBAL ? 1.85 : 1.45) : 1.1;
+  const hyperWeight = LAYER_VISUAL_WEIGHT.HYPERLOOP;
+  const opacity = spineFirst
+    ? Math.round(hyperWeight.baseOpacity * 255)
+    : Math.round(hyperWeight.baseOpacity * 0.75 * 255);
+  const widthScale = spineFirst ? 1.5 : 1.05;
 
   return [
     new PathLayer({
       id: INTEGRATED_LAYER_IDS.HYPERLOOP_SPINE,
-      data: paths,
+      data: spinePaths,
       pickable: true,
-      widthMinPixels: spineFirst ? 2 : 1,
-      widthMaxPixels: spineFirst ? 10 : 6,
+      widthMinPixels: spineFirst ? 2.5 : 1,
+      widthMaxPixels: spineFirst ? 12 : 6,
       getPath: (d) => d.path,
       getColor: (d) => {
-        const base = getRouteColor(d.routeClass, d);
-        return [base[0], base[1], base[2], opacity];
+        const intentGeo = geometryTypeFromRenderIntent(d);
+        const base =
+          intentGeo === 'ground' && d?.visual?.colorKey
+            ? rgbaFromRenderIntent(d, opacity)
+            : getCorridorRouteColor(d, opacity);
+        return applyEconomicTint(base, d, economicOverlay);
       },
-      getWidth: (d) =>
-        getHyperloopLineWidth(d.edgeType, d.routeClass) *
-        getSkeletonPathWidthBoost(d, zoom) *
-        widthScale,
+      getWidth: (d) => {
+        const isGlobal =
+          d.routeType === 'global_spine' || d.routeClass === 'PLANETARY_TRUNK';
+        const baseW = isGlobal
+          ? SPINE_STYLES.global_spine.width
+          : SPINE_STYLES.continental_spine.width;
+        return (
+          baseW *
+          getSkeletonPathWidthBoost(d, zoom) *
+          widthScale *
+          (1 + (d.civilizationImportance ?? 0) / 250) *
+          (d.spinalTrunkClass === 'primary_civilization_trunk' ? 1.12 : 1)
+        );
+      },
       onClick: onRouteClick,
       onHover: onRouteHover,
     }),
@@ -123,30 +196,49 @@ export function createE2ELayers({
   const [r, g, b] = COLORS.e2e;
   const tier = getZoomTier(zoom);
   const e2eEmphasis = viewFocus === INTEGRATED_VIEW_FOCUS.E2E;
-  const opacity = e2eEmphasis
-    ? tier === ZOOM_TIERS.GLOBAL
-      ? 220
-      : 240
-    : tier === ZOOM_TIERS.GLOBAL
-      ? 110
-      : 175;
-  const maxWidth = e2eEmphasis ? 5 : tier === ZOOM_TIERS.GLOBAL ? 3 : 4;
+  const filteredArcs =
+    tier === ZOOM_TIERS.GLOBAL && !e2eEmphasis
+      ? arcs.filter((d) => isPriorityE2EEdge(d))
+      : arcs;
+
+  if (!filteredArcs.length) return [];
+
   return [
     new ArcLayer({
       id: INTEGRATED_LAYER_IDS.E2E_ROUTES,
-      data: arcs,
+      data: filteredArcs,
       pickable: true,
       greatCircle: true,
       widthMinPixels: 1,
-      widthMaxPixels: maxWidth,
+      widthMaxPixels: e2eEmphasis ? 4 : 3,
       getSourcePosition: (d) => d.sourcePosition,
       getTargetPosition: (d) => d.targetPosition,
-      getSourceColor: () => [r, g, b, opacity],
-      getTargetColor: () => [r, g, b, Math.round(opacity * 0.7)],
-      getWidth: (d) => {
-        const p = d.priority_score ?? 0.5;
-        return (e2eEmphasis ? 2.5 : 1.5) + p * (e2eEmphasis ? 2 : 1);
+      getSourceColor: (d) => {
+        if (d?.visual?.colorKey || d?.geometryType === 'arc') {
+          const { opacity } = getE2EArcStyle(d);
+          const alpha = Math.round((e2eEmphasis ? opacity * 1.15 : opacity) * 255);
+          return rgbaFromRenderIntent(d, alpha);
+        }
+        const { opacity } = getE2EArcStyle(d);
+        const alpha = Math.round((e2eEmphasis ? opacity * 1.15 : opacity) * 255);
+        return [r, g, b, alpha];
       },
+      getTargetColor: (d) => {
+        if (d?.visual?.colorKey || d?.geometryType === 'arc') {
+          const { opacity } = getE2EArcStyle(d);
+          const alpha = Math.round((e2eEmphasis ? opacity : opacity * 0.65) * 255);
+          return rgbaFromRenderIntent(d, Math.round(alpha * 0.85));
+        }
+        const { opacity } = getE2EArcStyle(d);
+        const alpha = Math.round((e2eEmphasis ? opacity : opacity * 0.65) * 255);
+        return [r, g, b, alpha];
+      },
+      getWidth: (d) => {
+        const { width } = getE2EArcStyle(d);
+        const w = d?.visual?.colorKey ? widthFromRenderIntent(d, width) : width;
+        return e2eEmphasis ? w * 1.35 : w;
+      },
+      getTilt: (d) => getE2EArcTilt(d),
       onClick: onRouteClick,
       onHover: onRouteHover,
     }),
@@ -157,25 +249,111 @@ export function createE2ELayers({
  * @param {object} params
  * @returns {import('@deck.gl/core').Layer[]}
  */
-export function createE2MLayers({ paths = [], zoom = 2, onRouteClick, onRouteHover } = {}) {
-  if (!paths.length) return [];
-  const [r, g, b] = COLORS.e2m;
+export function createE2MLayers({
+  arcs = [],
+  localGroundPaths = [],
+  zoom = 2,
+  onRouteClick,
+  onRouteHover,
+} = {}) {
   const tier = getZoomTier(zoom);
   const opacity = tier === ZOOM_TIERS.GLOBAL ? 160 : 210;
-  return [
-    new PathLayer({
-      id: INTEGRATED_LAYER_IDS.E2M_ROUTES,
-      data: paths,
-      pickable: true,
-      widthMinPixels: 1,
-      widthMaxPixels: 4,
-      getPath: (d) => d.path,
-      getColor: () => [r, g, b, opacity],
-      getWidth: (d) => 1.5 + (d.priority_score ?? 0.4) * 1.5,
-      onClick: onRouteClick,
-      onHover: onRouteHover,
-    }),
-  ];
+  const arcData = [];
+  const pathData = [];
+
+  for (const d of arcs) {
+    if (shouldRenderE2MAsGroundPath(d)) {
+      const ground = toE2MGroundPath(d);
+      if (ground) pathData.push(ground);
+      continue;
+    }
+    arcData.push(...expandE2MToArcs(d));
+  }
+
+  for (const d of localGroundPaths) {
+    const ground = toE2MGroundPath(d);
+    if (ground) pathData.push(ground);
+  }
+
+  validateE2MRenderLayers(arcData, pathData);
+
+  const layers = [];
+
+  if (arcData.length > 0) {
+    layers.push(
+      new ArcLayer({
+        id: INTEGRATED_LAYER_IDS.E2M_ROUTES,
+        data: arcData,
+        pickable: true,
+        greatCircle: true,
+        widthMinPixels: 1,
+        widthMaxPixels: 4,
+        getSourcePosition: (d) => d.sourcePosition,
+        getTargetPosition: (d) => d.targetPosition,
+        getSourceColor: (d) => {
+          if (d?.visual?.colorKey || d?.geometryType === 'arc') {
+            return rgbaFromRenderIntent(d, opacity);
+          }
+          const sub =
+            E2M_SUBFAMILIES[d.e2mSubFamily ?? classifyE2MSubFamily(d)] ??
+            E2M_SUBFAMILIES.CARGO_EXPORT;
+          return [...sub.color, opacity];
+        },
+        getTargetColor: (d) => {
+          if (d?.visual?.colorKey || d?.geometryType === 'arc') {
+            return rgbaFromRenderIntent(d, Math.round(opacity * 0.7));
+          }
+          const sub =
+            E2M_SUBFAMILIES[d.e2mSubFamily ?? classifyE2MSubFamily(d)] ??
+            E2M_SUBFAMILIES.CARGO_EXPORT;
+          return [...sub.color, Math.round(opacity * 0.7)];
+        },
+        getWidth: (d) => {
+          if (d?.visual?.thickness) {
+            const sub =
+              E2M_SUBFAMILIES[d.e2mSubFamily ?? classifyE2MSubFamily(d)] ??
+              E2M_SUBFAMILIES.CARGO_EXPORT;
+            return widthFromRenderIntent(d, sub.width);
+          }
+          const sub =
+            E2M_SUBFAMILIES[d.e2mSubFamily ?? classifyE2MSubFamily(d)] ??
+            E2M_SUBFAMILIES.CARGO_EXPORT;
+          return sub.width;
+        },
+        onClick: onRouteClick,
+        onHover: onRouteHover,
+      })
+    );
+  }
+
+  if (pathData.length > 0) {
+    layers.push(
+      new PathLayer({
+        id: `${INTEGRATED_LAYER_IDS.E2M_ROUTES}-local-ground`,
+        data: pathData,
+        pickable: true,
+        widthMinPixels: 1,
+        widthMaxPixels: 3,
+        getPath: (d) => d.path,
+        getColor: (d) => {
+          const sub =
+            E2M_SUBFAMILIES[d.e2mSubFamily ?? classifyE2MSubFamily(d)] ??
+            E2M_SUBFAMILIES.CARGO_EXPORT;
+          return [...sub.color, Math.round(opacity * 0.85)];
+        },
+        getWidth: (d) => {
+          const sub =
+            E2M_SUBFAMILIES[d.e2mSubFamily ?? classifyE2MSubFamily(d)] ??
+            E2M_SUBFAMILIES.CARGO_EXPORT;
+          return sub.width * 0.85;
+        },
+        onClick: onRouteClick,
+        onHover: onRouteHover,
+      })
+    );
+  }
+
+  return layers;
 }
 
 /**
@@ -189,27 +367,42 @@ export function createLoopLayers({
   onRouteClick,
   onRouteHover,
 } = {}) {
-  if (!paths.length) return [];
+  const loopPaths = groundPathsOnly(paths);
+  if (!loopPaths.length) return [];
   const tier = getZoomTier(zoom);
-  if (tier === ZOOM_TIERS.GLOBAL && viewFocus !== INTEGRATED_VIEW_FOCUS.LOOP) return [];
+  const loopFocus = viewFocus === INTEGRATED_VIEW_FOCUS.LOOP;
+  if (tier === ZOOM_TIERS.GLOBAL && !loopFocus) return [];
 
-  const [r, g, b] = COLORS.loop;
   return [
     new PathLayer({
       id: INTEGRATED_LAYER_IDS.LOOP_ROUTES,
-      data: paths,
+      data: loopPaths,
       pickable: true,
-      widthMinPixels: 1,
-      widthMaxPixels: 4,
+      widthMinPixels: loopFocus ? 2 : 1,
+      widthMaxPixels: loopFocus ? 6 : 4,
       getPath: (d) => d.path,
       getColor: (d) => {
-        const feeder = d.routeType === 'branch' || d.routeType === 'feeder' || d.routeType === 'feeder_route';
-        const alpha = feeder ? (tier === ZOOM_TIERS.REGIONAL ? 100 : 140) : tier === ZOOM_TIERS.REGIONAL ? 120 : 190;
-        return [r, g, b, alpha];
+        const feeder =
+          d.routeType === 'branch' ||
+          d.routeType === 'feeder' ||
+          d.routeType === 'feeder_route';
+        const alpha = loopFocus
+          ? feeder
+            ? 170
+            : 220
+          : feeder
+            ? tier === ZOOM_TIERS.REGIONAL
+              ? 100
+              : 140
+            : tier === ZOOM_TIERS.REGIONAL
+              ? 120
+              : 190;
+        return getCorridorRouteColor(d, alpha);
       },
       getWidth: (d) => {
         const scale = d.widthScale ?? 1;
-        return scale * (tier === ZOOM_TIERS.LOCAL ? 2 : 1.5);
+        const base = loopFocus ? 2.5 : tier === ZOOM_TIERS.LOCAL ? 2 : 1.5;
+        return scale * base;
       },
       onClick: onRouteClick,
       onHover: onRouteHover,
@@ -280,8 +473,8 @@ export function createIntegratedNodeLayers({
       },
       getLineColor: () => [255, 255, 255, 200],
       getRadius: (d) => {
-        const pop = d.metro_population ?? d.population ?? 0;
-        return 6 + Math.min(8, Math.log10(Math.max(pop, 1)) * 2);
+        const style = getNodeVisualStyle(d);
+        return style.r ?? 6;
       },
       onClick: onNodeClick,
       onHover: onNodeHover,
@@ -297,11 +490,11 @@ export function createIntegratedLabelLayers({ e2eHubNodes = [], mineralNodes = [
   const layers = [];
   const tier = getZoomTier(zoom);
 
-  if (tier === ZOOM_TIERS.GLOBAL || tier === ZOOM_TIERS.REGIONAL) {
+  if (zoom >= 3 && (tier === ZOOM_TIERS.GLOBAL || tier === ZOOM_TIERS.REGIONAL)) {
     const topMinerals = [...mineralNodes]
       .sort((a, b) => (b.strategic_score ?? 0) - (a.strategic_score ?? 0))
-      .slice(0, tier === ZOOM_TIERS.GLOBAL ? 12 : 24)
-      .filter((n) => n.lat != null && n.lon != null);
+      .slice(0, tier === ZOOM_TIERS.GLOBAL ? 8 : 24)
+      .filter((n) => n.lat != null && n.lon != null && shouldShowE2MLabel(n, zoom));
 
     if (topMinerals.length) {
       layers.push(
@@ -319,10 +512,15 @@ export function createIntegratedLabelLayers({ e2eHubNodes = [], mineralNodes = [
     }
   }
 
-  if (zoom >= 5) {
+  if (zoom >= 2) {
     const labelHubs = e2eHubNodes
-      .filter((n) => n.lat != null && n.lon != null)
-      .slice(0, tier === ZOOM_TIERS.CITY || tier === ZOOM_TIERS.LOCAL ? 40 : 18);
+      .filter((n) => {
+        if (n.lat == null && n.latitude == null) return false;
+        const id = String(n.id ?? n.networkCityId ?? '').replace(/^node:city:/, '').replace(/^net:/, '');
+        if (zoom < 3 && !PLANETARY_LABEL_ALLOWLIST.has(id.split(':')[0])) return false;
+        return true;
+      })
+      .slice(0, zoom < 3 ? 20 : tier === ZOOM_TIERS.CITY || tier === ZOOM_TIERS.LOCAL ? 40 : 18);
 
     if (labelHubs.length) {
       layers.push(
@@ -357,7 +555,9 @@ export function createIntegratedGraphLayers({
   canonicalLoopPaths = null,
   canonicalSpinePaths = null,
   canonicalGridArcs = null,
+  canonicalE2mArcs = null,
   canonicalE2mPaths = null,
+  simulationState = null,
   selectedLocation = null,
   zoom = 2,
   onNodeClick,
@@ -367,6 +567,7 @@ export function createIntegratedGraphLayers({
 } = {}) {
   const f = mergeIntegratedFilterDefaults(activeFilters);
   const viewFocus = activeFilters.integratedViewFocus ?? INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID;
+  const layerVis = getLayerVisibility(viewFocus);
   const renderNodes = visibleNodes?.length ? visibleNodes : nodes;
   const renderEdgeList = edgesForRender(
     visibleEdges?.length ? visibleEdges : edges,
@@ -375,7 +576,8 @@ export function createIntegratedGraphLayers({
   );
 
   const nodeIndex = buildNodeCoordinateIndex(nodes.length ? nodes : renderNodes);
-  const { arcs: edgeArcs, paths: modePaths } = integratedEdgesToRenderData(renderEdgeList, nodeIndex, {
+  const { arcs: edgeArcs, paths: modePaths, e2mArcs: edgeE2mArcs } =
+    integratedEdgesToRenderData(renderEdgeList, nodeIndex, {
     modes: ['e2e', 'e2m', 'loop', 'hyperloop'],
   });
 
@@ -384,19 +586,30 @@ export function createIntegratedGraphLayers({
     arcs = [];
   }
 
-  const graphHyperloopPaths = modePaths.filter((d) => d.mode === 'hyperloop');
+  const graphHyperloopPaths = groundPathsOnly(modePaths.filter((d) => d.mode === 'hyperloop'));
   const useCanonicalSpine = canonicalSpinePaths != null;
-  const spinePaths = useCanonicalSpine
-    ? canonicalSpinePaths
-    : [...(hyperloopSpinePaths ?? []), ...graphHyperloopPaths];
-  const e2mPaths =
-    canonicalE2mPaths != null && canonicalE2mPaths.length > 0
-      ? canonicalE2mPaths
-      : modePaths.filter((d) => d.mode === 'e2m');
-  const loopPaths =
+  const spinePaths = groundPathsOnly(
+    useCanonicalSpine
+      ? canonicalSpinePaths
+      : [...(hyperloopSpinePaths ?? []), ...graphHyperloopPaths]
+  );
+
+  const legacyE2mArcs = edgeE2mArcs.map((d) => normalizeE2MArc(d));
+  const pipelineE2mArcs = (canonicalE2mArcs ?? [])
+    .filter(Boolean)
+    .flatMap((d) => expandE2MToArcs(d));
+  const fallbackE2mArcs = (canonicalE2mPaths ?? [])
+    .filter(Boolean)
+    .flatMap((d) => expandE2MToArcs(d));
+  const e2mArcs =
+    pipelineE2mArcs.length > 0 || legacyE2mArcs.length > 0
+      ? mergeE2MArcSources(pipelineE2mArcs, legacyE2mArcs)
+      : fallbackE2mArcs;
+  const loopPaths = groundPathsOnly(
     canonicalLoopPaths != null && canonicalLoopPaths.length > 0
       ? canonicalLoopPaths
-      : modePaths.filter((d) => d.mode === 'loop');
+      : modePaths.filter((d) => d.mode === 'loop')
+  );
 
   const mineralNodes = renderNodes
     .filter((n) => n.mineral_hub_id)
@@ -419,29 +632,30 @@ export function createIntegratedGraphLayers({
 
   const layers = [];
 
-  if (f.showIntegratedHyperloop !== false) {
+  if (f.showIntegratedHyperloop !== false && layerVis.showSpines) {
     layers.push(
       ...createHyperloopSpineLayers({
         paths: spinePaths,
         zoom,
         viewFocus,
+        economicOverlay: f.showGdpWeighting === true,
         onRouteClick,
         onRouteHover,
       })
     );
   }
 
-  if (f.showIntegratedE2M !== false) {
-    layers.push(...createE2MLayers({ paths: e2mPaths, zoom, onRouteClick, onRouteHover }));
+  if (f.showIntegratedE2M !== false && layerVis.showE2MArcs) {
+    layers.push(...createE2MLayers({ arcs: e2mArcs, zoom, onRouteClick, onRouteHover }));
   }
 
-  if (f.showIntegratedLoop !== false) {
+  if (f.showIntegratedLoop !== false && layerVis.showLoops) {
     layers.push(
       ...createLoopLayers({ paths: loopPaths, zoom, viewFocus, onRouteClick, onRouteHover })
     );
   }
 
-  if (f.showIntegratedE2E !== false) {
+  if (f.showIntegratedE2E !== false && layerVis.showE2EArcs) {
     layers.push(
       ...createE2ELayers({ arcs, zoom, viewFocus, onRouteClick, onRouteHover })
     );
@@ -475,6 +689,20 @@ export function createIntegratedGraphLayers({
       zoom,
     })
   );
+
+  if (f.showTrafficFlow === true && simulationState) {
+    const overlayPaths = [...spinePaths, ...loopPaths];
+    layers.push(
+      ...createSimulationOverlayLayers({
+        simulation: simulationState,
+        pathData: overlayPaths,
+        nodesById: adapter.nodesById ?? {},
+        enabled: true,
+      })
+    );
+  }
+
+  validateE2MDeckLayers(layers);
 
   return layers.filter(Boolean);
 }

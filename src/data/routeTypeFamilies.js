@@ -70,11 +70,20 @@ export function routeTypeInFamily(routeType, family) {
   return types.includes(routeType);
 }
 
+function isArcOnlyTransportMode(item) {
+  const mode = String(item?.mode ?? '').toLowerCase();
+  return mode === 'e2m' || mode === 'cargo' || mode === 'logistics' || mode === 'e2e_starship';
+}
+
 /**
  * @param {{ routeType?: string, route_type?: string, mode?: string }} item
  * @param {keyof typeof ROUTE_TYPE_FAMILIES | (keyof typeof ROUTE_TYPE_FAMILIES)[]} families
  */
 export function matchesRouteFamilies(item, families) {
+  if (isArcOnlyTransportMode(item)) {
+    return false;
+  }
+
   const rt = item?.routeType ?? item?.route_type;
   if (!rt) {
     if (families.includes('REGIONAL_LOOP') && item?.mode === 'regional_loop') return true;

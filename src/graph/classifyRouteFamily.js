@@ -47,7 +47,25 @@ export function classifyRouteFamily(item) {
     return ROUTE_FAMILIES.REGIONAL_LOOP;
   }
 
+  const e2mRouteTypes = new Set([
+    'cargo_spine',
+    'orbital_logistics',
+    'resource_corridor',
+    'cargo_corridor',
+    'mining_corridor',
+    'energy_corridor',
+    'port_connector',
+    'cargo',
+    'logistics',
+    'resource',
+    'industrial',
+  ]);
+
   if (mode === 'e2m' || mode === 'cargo' || mode === 'logistics') {
+    return ROUTE_FAMILIES.E2M_CARGO;
+  }
+
+  if (e2mRouteTypes.has(routeType) && mode !== 'hyperloop' && mode !== 'e2e_starship') {
     return ROUTE_FAMILIES.E2M_CARGO;
   }
 

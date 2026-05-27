@@ -35,6 +35,19 @@ export function isMineralHubPayload(raw) {
 export function resolveSelectedLocation(raw) {
   if (!raw) return null;
 
+  if (raw.isStarbaseHub && raw.starbaseDetail) {
+    const hub = raw.starbaseDetail;
+    return {
+      ...hub,
+      name: hub.name ?? raw.name,
+      lat: raw.lat ?? hub.coordinates?.[1],
+      lon: raw.lon ?? hub.coordinates?.[0],
+      locationType: 'starbase_hub',
+      isStarbaseHub: true,
+      starbaseDetail: hub,
+    };
+  }
+
   if (raw.mineral_hub_id) {
     const hub = getMineralHubById(raw.mineral_hub_id) ?? raw;
     return classifyMineralHub(normalizeMineralRecord(hub));

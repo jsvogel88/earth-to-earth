@@ -3,6 +3,7 @@ import { buildRobotaxiServiceZones } from '../data/robotaxiLayer.js';
 import { buildE2MOrbitalNodes } from '../data/e2mOrbitalNodes.js';
 import { isHubMobilityOverlayActive } from '../layers/robotaxiVisibility.js';
 import { TRANSPORT_MODES } from '../data/transportOperatingSystem.js';
+import { INTEGRATED_VIEW_FOCUS } from '../ui/integratedGridFilters.js';
 
 describe('robotaxi hub zones', () => {
   it('generates zones around E2E and E2M hubs', () => {
@@ -21,19 +22,25 @@ describe('robotaxi hub zones', () => {
     expect(zones.some((z) => z.industrialConnector)).toBe(true);
   });
 
-  it('hub mobility overlay active in civilization grid preset', () => {
+  it('hub mobility overlay only in Auto focus (Phase 7C)', () => {
     expect(
       isHubMobilityOverlayActive(
-        { showRobotaxiLayer: true },
+        { showRobotaxiLayer: true, integratedViewFocus: INTEGRATED_VIEW_FOCUS.AUTO },
         TRANSPORT_MODES.CIVILIZATION_GRID
       )
     ).toBe(true);
     expect(
       isHubMobilityOverlayActive(
-        { showPlanetarySkeleton: true },
+        { showRobotaxiLayer: true, integratedViewFocus: INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID },
+        TRANSPORT_MODES.CIVILIZATION_GRID
+      )
+    ).toBe(false);
+    expect(
+      isHubMobilityOverlayActive(
+        { showRobotaxiLayer: true, integratedViewFocus: INTEGRATED_VIEW_FOCUS.E2E },
         TRANSPORT_MODES.E2E_STARSHIP
       )
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('zones are planning-only geometry', () => {

@@ -9,11 +9,16 @@ import {
 } from '../data/transportOperatingSystem.js';
 import {
   LAYER_GROUPS,
+  LAYER_TYPES,
   GROUP_SECTION_TITLES,
   SIDEBAR_GROUP_ORDER,
   getTransportModeLayers,
   getLayersByGroup,
 } from '../layers/layerRegistry.js';
+import {
+  applyStarbaseVisionPreview,
+  isStarbaseVisionPreviewActive,
+} from '../layers/starbaseLayerPresets.js';
 import {
   INTEGRATED_VIEW_FOCUS,
   INTEGRATED_VIEW_FOCUS_LABELS,
@@ -83,9 +88,39 @@ function RegistryGroupSection({
   const layers = getLayersByGroup(groupId);
   if (!layers.length) return null;
 
+  const presetLayers = layers.filter((l) => l.layerType === LAYER_TYPES.PRESET_TOGGLE);
+  const toggleLayers = layers.filter(
+    (l) => l.layerType === LAYER_TYPES.TOGGLE || l.layerType === LAYER_TYPES.OVERLAY
+  );
+
   return (
     <Section title={GROUP_SECTION_TITLES[groupId]} defaultOpen={defaultOpen}>
-      {layers.map((layer) => (
+      {presetLayers.map((layer) => {
+        const on = isStarbaseVisionPreviewActive(layerState);
+        return (
+          <label
+            key={layer.id}
+            className={`transport-os-check transport-os-check-preset ${on ? 'is-on' : ''}`}
+            title={layer.description || ''}
+            data-testid="layer-preset-starbase-vision"
+          >
+            <input
+              type="checkbox"
+              checked={on}
+              onChange={(e) => {
+                const next = applyStarbaseVisionPreview(layerState, e.target.checked);
+                Object.entries(next).forEach(([key, value]) => {
+                  if (key.startsWith('showStarbase') || key === 'showPetabondExportPackages') {
+                    setLayerFlag(key, value);
+                  }
+                });
+              }}
+            />
+            {labelOverrides[layer.id] || layer.label}
+          </label>
+        );
+      })}
+      {toggleLayers.map((layer) => (
         <LayerCheck
           key={layer.id}
           layerKey={layer.stateKey}
@@ -154,6 +189,7 @@ export default function TransportControlPanel({
     if (groupId === LAYER_GROUPS.SPACE_E2M) return isE2M;
     if (groupId === LAYER_GROUPS.AUTONOMOUS_MOBILITY) return isRobotaxi;
     if (groupId === LAYER_GROUPS.PLANNING_TOOLS) return isCiv || customDestinationCount > 0;
+    if (groupId === LAYER_GROUPS.VISUALIZATION) return isCiv;
     return GROUP_DEFAULT_OPEN[groupId] ?? false;
   };
 

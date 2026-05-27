@@ -13,7 +13,9 @@
     "source": "internal_strategy_model",
     "status": "conceptual",
     "economicTier": 1,
-    "avgCorridorEconomicWeight": 53.8
+    "avgCorridorEconomicWeight": 53.8,
+    "corridorId": "atlantic_spine",
+    "civilizationImportance": 97
   },
   {
     "id": "route:e2e_starship:transatlantic-south",
@@ -4596,5 +4598,88 @@
     "economicTier": 3,
     "avgCorridorEconomicWeight": null,
     "renderNote": "pods split off individually at junction \u2014 rail branch topology"
+  },
+  {
+    "id": "route:hyperloop:european-gulf-bridge",
+    "name": "European\u2013Gulf Bridge",
+    "mode": "hyperloop",
+    "routeType": "continental_spine",
+    "tier": 1,
+    "confidence": "high",
+    "nodeIds": [
+      "node:city:istanbul-turkey",
+      "node:city:baghdad-iraq",
+      "node:city:dubai-united-arab-emirates"
+    ],
+    "source": "phase8_intercontinental_bridge",
+    "status": "conceptual",
+    "economicTier": 1,
+    "avgCorridorEconomicWeight": 88,
+    "corridorId": "eurasian_trunk",
+    "civilizationImportance": 88
+  },
+  {
+    "id": "route:hyperloop:gulf-india-bridge",
+    "name": "Gulf\u2013India Bridge",
+    "mode": "hyperloop",
+    "routeType": "continental_spine",
+    "tier": 1,
+    "confidence": "high",
+    "nodeIds": [
+      "node:city:dubai-united-arab-emirates",
+      "node:city:mumbai-india",
+      "node:city:chennai-india",
+      "node:city:singapore-singapore"
+    ],
+    "source": "phase8_intercontinental_bridge",
+    "status": "conceptual",
+    "economicTier": 1,
+    "avgCorridorEconomicWeight": 86,
+    "corridorId": "gulf_india",
+    "civilizationImportance": 86
+  },
+  {
+    "id": "route:hyperloop:india-eastasia-bridge",
+    "name": "India\u2013East Asia Bridge",
+    "mode": "hyperloop",
+    "routeType": "global_spine",
+    "tier": 1,
+    "confidence": "high",
+    "nodeIds": [
+      "node:city:singapore-singapore",
+      "node:city:kuala-lumpur-malaysia",
+      "node:city:ho-chi-minh-city-vietnam",
+      "node:city:hong-kong-hong-kong",
+      "node:city:shanghai-china",
+      "node:city:beijing-china"
+    ],
+    "source": "phase8_intercontinental_bridge",
+    "status": "conceptual",
+    "economicTier": 1,
+    "avgCorridorEconomicWeight": 88,
+    "corridorId": "pacific_spine",
+    "civilizationImportance": 88
+  },
+  {
+    "id": "route:hyperloop:us-interior-trunk",
+    "name": "US Interior Trunk",
+    "mode": "hyperloop",
+    "routeType": "continental_spine",
+    "tier": 1,
+    "confidence": "high",
+    "nodeIds": [
+      "node:city:new-york-united-states",
+      "node:city:philadelphia-united-states",
+      "node:city:pittsburgh-united-states",
+      "node:city:chicago-united-states",
+      "node:city:denver-united-states",
+      "node:city:los-angeles-united-states"
+    ],
+    "source": "phase8_us_interior",
+    "status": "conceptual",
+    "economicTier": 1,
+    "avgCorridorEconomicWeight": 74,
+    "corridorId": "north_american_grid",
+    "civilizationImportance": 74
   }
 ]

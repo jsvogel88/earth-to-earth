@@ -41,9 +41,13 @@ export function getSimulationEraLabel(year) {
  */
 export function getSimulationMilestones(year) {
   const milestones = [];
+  if (year <= 2025) milestones.push('Sparse trunk + early E2E backbone');
+  if (year >= 2030) milestones.push('Regional loops expand; cargo corridors strengthen');
   if (year >= 2030) milestones.push('Hyperloop corridor densification');
+  if (year >= 2040) milestones.push('Autonomous mobility saturation; secondary spine growth');
   if (year >= 2040) milestones.push('Lunar logistics staging');
+  if (year >= 2050) milestones.push('Global intermodal civilization network');
   if (year >= 2050) milestones.push('Mars transport windows');
-  if (year >= 2075) milestones.push('Civilization-scale grid maturity');
+  if (year >= 2075) milestones.push('Mature planetary mobility grid');
   return milestones;
 }

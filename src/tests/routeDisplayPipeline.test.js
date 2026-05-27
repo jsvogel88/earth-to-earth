@@ -46,8 +46,8 @@ describe('filterRoutesByView', () => {
 describe('filterRoutesByZoom', () => {
   const edges = adapter.getAllEdges();
 
-  it('hides feeders at planetary zoom', () => {
-    const visible = filterRoutesByZoom(edges, 2, classifyRouteFamily);
+  it('hides feeders at planetary zoom in grid mode', () => {
+    const visible = filterRoutesByZoom(edges, 2, classifyRouteFamily, 'CIVILIZATION_GRID');
     expect(visible.every((e) => classifyRouteFamily(e) !== 'FEEDER_BRANCH')).toBe(true);
   });
 });
@@ -65,12 +65,17 @@ describe('buildRouteDisplayPipeline', () => {
   it('returns paths and arcs for grid view at regional zoom', () => {
     const result = buildRouteDisplayPipeline({ viewMode: 'CIVILIZATION_GRID', zoom: 7 });
     expect(result.arcs.length).toBeGreaterThan(0);
+    expect(result.cargoArcs.length).toBeGreaterThan(0);
     expect(result.trunkPaths.length + result.loopPaths.length).toBeGreaterThan(0);
     expect(result.stats.visibleEdges).toBeGreaterThan(0);
   });
 
   it('loop view has no E2E arcs and includes feeder paths at zoom 7', () => {
-    const result = buildRouteDisplayPipeline({ viewMode: 'LOOP', zoom: 7 });
+    const result = buildRouteDisplayPipeline({
+      viewMode: 'LOOP',
+      zoom: 7,
+      simulationYear: 2075,
+    });
     expect(result.arcs.length).toBe(0);
     expect(result.feederPaths.length).toBeGreaterThan(100);
     expect(result.loopPaths.length).toBeGreaterThan(50);

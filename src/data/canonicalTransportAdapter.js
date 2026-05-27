@@ -34,7 +34,10 @@ import routesRaw from './transport/routes.json';
 import layersRaw from './transport/layers.json';
 import { MODES, getModeVisibility } from './transport/modeRegistry.js';
 import { getTaxonomyMode, getTaxonomyNodeType } from './transport/taxonomyBridge.js';
+import { validateEdgeTaxonomy, validateNodeTaxonomy } from '../transportation/validators/taxonomyValidation.js';
+import { normalizeRenderIntent } from '../transportation/render/renderIntent.js';
 import { matchesRouteFamilies, routeTypeInFamily } from './routeTypeFamilies.js';
+import { enrichRouteRecord, enrichEdgeRecord } from './corridorRouteRegistry.js';
 
 // ─── Internal indexes (built once) ──────────────────────────────────────────
 
@@ -159,12 +162,24 @@ export function getIntegratedGraph(modeFilter = null) {
       // Economics (NEW — available to any consumer)
       economics:    n.economics || null,
       economicWeight: n.economics?.economic_weight || 0,
+      taxonomyErrors:
+        (typeof import.meta !== 'undefined' && import.meta.env?.DEV)
+          ? validateNodeTaxonomy({
+              cityStatus: n.cityStatus,
+              nodeTypes: n.nodeTypes,
+              nodeType: n.nodeType,
+            })
+          : [],
     })),
 
     edges: filteredEdges.map(e => {
       const from = _nodesById[e.fromNodeId];
       const to   = _nodesById[e.toNodeId];
-      return {
+      const taxonomyMode = getTaxonomyMode(e.mode, e.routeType);
+      const taxonomyRouteType = (e.routeType && typeof e.routeType === 'string')
+        ? getTaxonomyMode(e.mode, e.routeType)
+        : null;
+      const baseEdge = {
         // Integrated graph edge shape (integratedGraphTypes.js)
         id:            e.id,
         fromNodeId:    e.fromNodeId,
@@ -175,7 +190,8 @@ export function getIntegratedGraph(modeFilter = null) {
         toName:        to?.name   || '',
         mode:          _canonicalToIntegratedMode(e.mode),
         route_type:    e.routeType || 'trunk',
-        taxonomyRouteType: getTaxonomyMode(e.mode, e.routeType),
+        taxonomyMode,
+        taxonomyRouteType: taxonomyRouteType ?? taxonomyMode,
         corridor_type: e.mode === 'e2m' ? 'freight' : 'passenger',
         tier:          e.tier || 2,
         status:        e.status || 'conceptual',
@@ -184,7 +200,15 @@ export function getIntegratedGraph(modeFilter = null) {
         render:        e.render || { altitudeMode: 'ground', lineStyle: 'solid' },
         // Economics
         economicWeight: e.economicWeight || null,
+        taxonomyErrors:
+          (typeof import.meta !== 'undefined' && import.meta.env?.DEV)
+            ? validateEdgeTaxonomy({
+                mode: taxonomyMode,
+                routeType: taxonomyRouteType,
+              })
+            : [],
       };
+      return { ...baseEdge, ...normalizeRenderIntent(baseEdge) };
     }).filter(e => e.from && e.to),  // drop orphan edges
   };
 }
@@ -209,13 +233,21 @@ function coordsFromRoute(route) {
     .map((n) => [n.longitude, n.latitude]);
 }
 
+function isArcOnlyTransportMode(item) {
+  const mode = String(item?.mode ?? '').toLowerCase();
+  return mode === 'e2m' || mode === 'cargo' || mode === 'logistics' || mode === 'e2e_starship';
+}
+
 function pathRecordFromRoute(route, options = {}) {
+  if (isArcOnlyTransportMode(route)) return null;
+
   const pathCoords = coordsFromRoute(route);
   if (pathCoords.length < 2) return null;
 
   const isFeeder = matchesRouteFamilies(route, 'FEEDER');
   const isLoop = matchesRouteFamilies(route, 'REGIONAL_LOOP');
   const tier = route.tier || 2;
+  const enriched = enrichRouteRecord(route);
 
   return {
     path: pathCoords,
@@ -224,6 +256,8 @@ function pathRecordFromRoute(route, options = {}) {
     mode: route.mode,
     routeType: route.routeType,
     tier,
+    corridorId: enriched.corridorId,
+    civilizationImportance: enriched.civilizationImportance,
     economicTier: route.economicTier || tier,
     avgEconomicWeight: route.avgCorridorEconomicWeight || 0,
     widthScale: isFeeder ? 1 : tier === 1 ? 3 : tier === 2 ? 2 : 1.5,
@@ -314,7 +348,12 @@ export function getLoopSpineConnectorPaths(options = {}) {
  * PathLayer-ready deck objects from canonical path records.
  */
 export function canonicalPathsToDeckPaths(paths, { deckMode = 'hyperloop' } = {}) {
-  return (paths ?? []).map((p, i) => {
+  return (paths ?? [])
+    .filter((p) => {
+      const mode = String(p?.mode ?? '').toLowerCase();
+      return mode !== 'e2m' && mode !== 'cargo' && mode !== 'logistics';
+    })
+    .map((p, i) => {
     const isSpine = p.renderFamily === 'SPINE' || routeTypeInFamily(p.routeType, 'SPINE');
     return {
       id: p.routeId || `canonical-path-${i}`,
@@ -401,30 +440,21 @@ export function getLoopViewData(options = {}) {
 }
 
 /**
- * Grid view: E2E arcs + spine/loop/feeder paths + E2M paths.
+ * Grid view: E2E arcs + spine/loop/feeder paths + E2M orbital arcs (not ground paths).
  */
 export function getGridViewData(options = {}) {
   const paths = getConnectedGridPaths(options);
   const arcs = getConnectedGridArcs(options);
-  const e2mPaths = getPathLayerData('e2m');
+  const e2mArcs = getArcLayerData('e2m').map((a) => ({
+    ...a,
+    mode: 'e2m',
+    renderFamily: 'E2M',
+  }));
   const routes = routesMatchingFamilies('GRID_PATH', options);
   const nodeIds = new Set();
   for (const route of routes) {
     for (const id of resolveRouteNodeIds(route)) nodeIds.add(id);
   }
-  const allPaths = [
-    ...paths,
-    ...e2mPaths.map((p) => ({
-      path: p.path,
-      routeId: p.id,
-      name: p.name,
-      mode: 'e2m',
-      routeType: p.routeType,
-      tier: p.tier,
-      widthScale: p.widthScale,
-      renderFamily: 'E2M',
-    })),
-  ];
 
   return withViewStats({
     nodes: nodesForIds(nodeIds),
@@ -445,7 +475,8 @@ export function getGridViewData(options = {}) {
         .filter((e) => e.from && e.to)
     ),
     arcs,
-    paths: allPaths,
+    e2mArcs,
+    paths,
     routes,
   });
 }
@@ -534,18 +565,8 @@ export function getArcLayerData(mode = null) {
  */
 export function getPathLayerData(mode = null) {
   if (mode === 'e2m') {
-    return buildPathsFromRoutes(_routesByMode.e2m || [], {}).map((p) => ({
-      id: p.routeId,
-      path: p.path,
-      name: p.name,
-      mode: 'e2m',
-      routeType: p.routeType,
-      tier: p.tier,
-      economicTier: p.economicTier,
-      economicWeight: p.avgEconomicWeight,
-      widthScale: p.widthScale,
-      color: [255, 107, 53, 180],
-    }));
+    console.warn('[canonical-transport] getPathLayerData("e2m") is deprecated — use getArcLayerData("e2m")');
+    return [];
   }
 
   const families =
@@ -741,9 +762,9 @@ function _canonicalToAppModeKey(id) {
   return map[id] || id.toUpperCase();
 }
 
-/** All canonical edges (raw transport graph). */
+/** All canonical edges (raw transport graph) with corridor metadata. */
 export function getAllEdges() {
-  return edgesRaw;
+  return edgesRaw.map(enrichEdgeRecord);
 }
 
 // ─── Default export: everything bundled ──────────────────────────────────────

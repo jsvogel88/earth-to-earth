@@ -104,7 +104,8 @@ export const TRANSPORT_MODE_UI_REGISTRY = {
     displayName: 'E2M Orbital',
     shortLabel: 'E2M',
     icon: '◉',
-    tagline: 'Orbital logistics — refueling, launch, Mars-window staging',
+    tagline:
+      'E2M — Earth-to-Moon/Mars orbital legs (distinct from RE2E rare-earth corridors on the grid)',
     themeId: 'e2m',
     palette: {
       accent: '#ffb84d',

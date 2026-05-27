@@ -26,10 +26,12 @@ describe('canonicalTransportAdapter view data', () => {
     }
   });
 
-  it('getGridViewData includes arcs and paths', () => {
+  it('getGridViewData includes arcs, e2m arcs, and ground paths only for spine/loop', () => {
     const data = getGridViewData();
     expect(data.arcs.length).toBeGreaterThan(0);
+    expect(data.e2mArcs.length).toBeGreaterThan(0);
     expect(data.paths.length).toBeGreaterThan(0);
+    expect(data.paths.every((p) => p.renderFamily !== 'E2M')).toBe(true);
     expect(data.stats.arcCount).toBe(data.arcs.length);
     expect(data.stats.pathCount).toBe(data.paths.length);
   });

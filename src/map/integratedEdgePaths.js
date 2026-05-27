@@ -71,12 +71,13 @@ export function integratedEdgeToDeckDatum(edge, nodeIndex) {
  * @param {object[]} edges
  * @param {Map<string, { lat: number, lon: number, node: object }>} nodeIndex
  * @param {object} [options]
- * @returns {{ arcs: object[], paths: object[] }}
+ * @returns {{ arcs: object[], paths: object[], e2mArcs: object[] }}
  */
 export function integratedEdgesToRenderData(edges, nodeIndex, options = {}) {
   const modes = options.modes ?? ['e2e', 'e2m', 'loop'];
   const arcs = [];
   const paths = [];
+  const e2mArcs = [];
 
   for (const edge of edges ?? []) {
     const mode = edge?.mode ?? edge?.edgeMode;
@@ -86,9 +87,19 @@ export function integratedEdgesToRenderData(edges, nodeIndex, options = {}) {
     const datum = integratedEdgeToDeckDatum(edge, nodeIndex);
     if (!datum) continue;
 
-    if (mode === 'e2e') arcs.push(datum);
-    else paths.push(datum);
+    if (mode === 'e2e') {
+      arcs.push(datum);
+    } else if (mode === 'e2m') {
+      e2mArcs.push({
+        ...datum,
+        mode: 'e2m',
+        routeType: edge.route_type ?? edge.routeType,
+        distanceKm: edge.distance_km ?? edge.distanceKm,
+      });
+    } else {
+      paths.push(datum);
+    }
   }
 
-  return { arcs, paths };
+  return { arcs, paths, e2mArcs };
 }

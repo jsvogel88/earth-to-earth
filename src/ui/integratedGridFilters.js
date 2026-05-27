@@ -181,7 +181,23 @@ export function filterIntegratedGraph(nodes, edges, filters) {
 }
 
 /**
- * Apply a view-focus preset onto layer flags (non-destructive merge).
+ * True when canonical integrated-grid pipeline owns E2M/spine rendering (suppress legacy PathLayer cargo).
+ * @param {{ showIntegratedMapLayers?: boolean, integratedGraphError?: string | null, layerState?: object }} params
+ */
+export function isIntegratedGridPipelineActive({
+  showIntegratedMapLayers = false,
+  integratedGraphError = null,
+  layerState = {},
+} = {}) {
+  return (
+    showIntegratedMapLayers &&
+    !integratedGraphError &&
+    (layerState.integratedViewFocus ?? INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID) ===
+      INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID
+  );
+}
+
+/**
  * @param {string} focus
  * @returns {Record<string, boolean>}
  */
@@ -202,6 +218,8 @@ export function getViewFocusLayerPatch(focus) {
         showIntegratedLoop: true,
         showIntegratedMineralHubs: true,
         showE2MHubsOnly: false,
+        showRemoteCargoRoutes: false,
+        showExtendedRuralLayer: false,
       };
     case INTEGRATED_VIEW_FOCUS.E2E:
       return {
@@ -276,8 +294,8 @@ export const INTEGRATED_GRID_PRESET = {
   showRemoteCorridorSpines: true,
   showFutureHighPopulationHubs: true,
   showExtendedGlobalCoverageNodes: true,
-  showExtendedRuralLayer: true,
-  showRemoteCargoRoutes: true,
+  showExtendedRuralLayer: false,
+  showRemoteCargoRoutes: false,
   showE2MLayer: true,
   showRobotaxiLayer: true,
   showRobotaxiServiceZones: true,

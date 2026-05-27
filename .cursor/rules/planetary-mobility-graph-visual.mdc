@@ -1,0 +1,134 @@
+---
+description: Planetary Mobility OS — graph intelligence, arc/corridor visuals
+alwaysApply: true
+---
+
+# Planetary Mobility OS — Graph Model, Arc/Corridor Visual System
+
+## Core principle
+
+- **Backend/data model**: one unified, typed **node/edge graph**
+- **Frontend/visual model**: routes render as **arcs, corridors, loops, halos, connectors** based on declared semantics
+
+**“Grid” means intelligence + structure, not square mesh.**
+
+## Canonical taxonomy (required)
+
+Every node and edge must be classified by:
+
+- **`mode`**: transportation type
+- **`nodeType`**: what the location is
+- **`routeType`**: what kind of connection it is
+- **`cityStatus`**: index-only, candidate, official, custom, parsed, planning, debug
+
+Do not add ad-hoc modes/types without updating the registries and tests.
+
+## Absolute geometry rules (non-negotiable)
+
+### E2E Starship (passenger)
+
+- **Data**: `mode: "e2e_starship"`
+- **Render**: **ArcLayer only**
+- **Look**: **blue** curved orbital arcs
+- **Never**: ground PathLayer lines
+
+### E2M / RE2E (cargo/resources)
+
+- **Data**: `mode: "e2m"` (internal compatibility); UI label may be “E2M / RE2E”
+- **Long-range render**: **ArcLayer only** (orange/amber)
+- **Never**: long-distance PathLayer lines
+- **PathLayer exception**: only for explicit *local* connector routeTypes below
+
+Allowed ground connector routeTypes (PathLayer only):
+
+- `local_port_connector`
+- `terminal_ground_connector`
+- `short_logistics_feeder`
+
+Distance rule:
+
+- PathLayer allowed **only if** `distanceKm < 100`
+
+### Hyperloop (terrestrial spine)
+
+- **Data**: `mode: "hyperloop_spine"` (or existing hyperloop mode, but normalize taxonomy)
+- **Render**: **PathLayer only** (cyan/blue)
+- **Never**: ocean jumps, Mercator wrap artifacts, trans-ocean straight chords
+- **Intercontinental**: only if explicitly `routeType: "intercontinental_connector"`
+
+### Auto/FSD / Robotaxi
+
+- **Render**: **halos/zones + short local connectors only**
+- **Never**: long-distance routes
+- **Visibility**: only in Auto mode unless explicitly enabled
+
+## Rendering is separate from graph logic
+
+Graph membership must NOT dictate geometry. Every edge should carry explicit render intent:
+
+```js
+{
+  id,
+  from,
+  to,
+  mode,
+  routeType,
+
+  geometryType: "arc" | "ground" | "halo" | "connector" | "dashed_planning",
+  renderAsArc: true,
+  arcHeight: "low" | "medium" | "high" | "interplanetary",
+
+  visual: {
+    colorKey: "e2e_blue" | "e2m_orange" | "hyperloop_cyan" | "auto_teal",
+    thickness: "thin" | "medium" | "thick",
+    opacity: 0.8,
+    dashed: false,
+    glow: true
+  }
+}
+```
+
+Renderer chooses geometry by:
+
+- `edge.geometryType`
+- `edge.mode`
+- `edge.routeType`
+- `edge.renderAsArc`
+- `edge.visual`
+
+## Civilization Grid mode behavior
+
+“Full Civilization Grid” means “show the whole connected system” while preserving semantics:
+
+- E2E remains **blue arcs**
+- E2M/RE2E remains **orange arcs/corridors**
+- Hyperloop remains **cyan ground corridors**
+- Feeders remain **thin subordinate connectors**
+- Auto remains **local halos**
+- Planning is **dashed/preview**
+- Custom/Parsed remain **separate** and **not auto-promoted**
+
+## Custom + parsed safety
+
+Do not auto-promote:
+
+- `custom_destination`
+- `parsed_city`
+
+Promotion is explicit user action only (future workflow).
+
+## Testing expectations
+
+Add/maintain tests to ensure:
+
+- Valid `mode`, `nodeType`, `routeType`, `cityStatus`
+- No duplicate IDs
+- No missing coords
+- Routes cannot reference missing nodes
+- **E2E PathLayer violations = 0**
+- **E2M long-distance PathLayer violations = 0**
+- **Hyperloop ocean/warp violations = 0**
+- **Auto line violations = 0**
+- Presets/toggles do not break map
+- Build passes
+

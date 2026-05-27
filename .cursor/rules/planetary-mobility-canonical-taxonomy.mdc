@@ -1,0 +1,52 @@
+---
+description: Planetary Mobility OS — canonical taxonomy registries (modes/types/status)
+alwaysApply: true
+---
+
+# Planetary Mobility OS — Canonical Taxonomy Registries
+
+## Goal
+
+Prevent taxonomy drift as the codebase grows. The system must have **one source of truth** for:
+
+- `mode` (transportation type)
+- `nodeType` (node classification)
+- `routeType` (edge classification)
+- `cityStatus` (node lifecycle/status)
+
+## Rules
+
+- **Single source of truth**: define canonical registries in one place (or a small folder) and import them everywhere.
+- **No ad-hoc strings**: do not introduce new `mode/nodeType/routeType/cityStatus` string literals in random files.
+  - If a new value is needed, add it to the registry + validator + tests in the same PR.
+- **Normalization boundary**: if legacy data uses older values (e.g. `mode: "e2m"` while UI calls it “RE2E”), normalize in one adapter/bridge layer. Do not scatter alias logic across renderers.
+- **Validation**:
+  - validate that every node/edge uses known registry values
+  - validate uniqueness of IDs
+  - validate coordinate presence where required
+  - validate edges reference existing nodes
+- **Rendering semantics must be registry-driven**:
+  - geometry selection must be based on `mode/routeType/geometryType` (see `planetary-mobility-graph-visual.mdc`)
+  - do not “guess” E2E/E2M/Hyperloop visuals from color alone
+
+## Recommended (non-binding) layout
+
+Use any structure that fits the repo, but keep it centralized, e.g.:
+
+- `src/transportation/registries/*`
+  - `modes`
+  - `nodeTypes`
+  - `routeTypes`
+  - `cityStatus`
+  - `validators`
+
+Or reuse existing registries if already present; the key requirement is **centralization + reuse**.
+
+## Testing expectations
+
+Add/maintain tests that fail loudly when:
+
+- a new taxonomy value is used without registry update
+- a route references a missing node
+- invalid modes/types/statuses appear in canonical adapters
+

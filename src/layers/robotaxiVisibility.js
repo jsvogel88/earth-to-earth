@@ -4,10 +4,11 @@
 
 import { isLayerVisibleAtZoom } from './layerRegistry.js';
 import {
-  isCivilizationGridMode,
   isRobotaxiMode,
   normalizeTransportMode,
 } from '../data/transportOperatingSystem.js';
+import { INTEGRATED_VIEW_FOCUS } from '../ui/integratedGridFilters.js';
+import { shouldShowRobotaxiOverlay } from '../map/layerVisibility.js';
 
 /**
  * @param {object} layerState
@@ -23,10 +24,11 @@ export function isRobotaxiLayerActive(layerState) {
  */
 export function isHubMobilityOverlayActive(layerState, transportMode) {
   const mode = normalizeTransportMode(transportMode);
+  const focus = layerState?.integratedViewFocus;
+  if (shouldShowRobotaxiOverlay(focus, layerState)) return true;
   if (isRobotaxiMode(mode)) return layerState?.showRobotaxiLayer !== false;
-  if (isCivilizationGridMode(mode)) return layerState?.showRobotaxiLayer !== false;
-  if (layerState?.showPlanetarySkeleton) return true;
-  return layerState?.showRobotaxiLayer === true;
+  if (focus === INTEGRATED_VIEW_FOCUS.AUTO) return layerState?.showRobotaxiLayer !== false;
+  return false;
 }
 
 /**

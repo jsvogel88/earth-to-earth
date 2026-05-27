@@ -30,6 +30,20 @@ import {
 } from '../data/transportOperatingSystem.js';
 import { buildRobotaxiServiceZones } from '../data/robotaxiLayer.js';
 import {
+  listEarthStarbaseHubs,
+  shouldRenderStarbaseAtZoom,
+  getPetabondExportHubs,
+  countOffWorldStarbaseHubs,
+  STARBASE_CLASSES,
+  STARBASE_STATUS,
+} from '../data/starbaseHubs.js';
+import { generateStarbaseConnectivity } from '../graph/starbaseConnectivity.js';
+import { STARBASE_HUB_COLORS, STARBASE_CONNECTOR_COLORS } from '../transportation/starbase/starbaseVisualTokens.js';
+import {
+  applyStarbaseVisionPreview,
+  isStarbaseVisionPreviewActive,
+} from '../layers/starbaseLayerPresets.js';
+import {
   filterRobotaxiHubDots,
   filterRobotaxiZoneFeatures,
   filterRobotaxiPickupDropoff,
@@ -93,18 +107,27 @@ import {
   getValidationReport,
   getGridViewData,
   getLoopViewData,
+  getSpinePaths,
   canonicalPathsToDeckPaths,
   debugLogViewStatsOnce,
   validateLoopPathsOnce,
 } from '../data/canonicalTransportAdapter.js';
+import { INTERCONTINENTAL_BRIDGE_ROUTES } from '../data/corridorRouteRegistry.js';
 import { buildRouteDisplayPipeline } from '../graph/buildRouteDisplayPipeline.js';
 import { integratedViewToPipelineMode } from '../graph/integratedViewToPipelineMode.js';
 import { pipelineBucketsToCanonicalDeck } from '../graph/pipelineDeckBridge.js';
+import { getEconomicDebugRankings } from '../economics/economicScoringEngine.js';
+import { getSimulationState, getSimulationDebugRankings } from '../simulation/simulationEngine.js';
+import {
+  SIMULATION_MODES,
+  defaultSimulationModeForView,
+} from '../simulation/simulationModes.js';
 import { filterIntegratedGraph as filterIntegratedGraphForRender } from '../graph/integratedGridFilters.js';
 import {
   createIntegratedGraphLayers,
   INTEGRATED_LAYER_IDS,
 } from '../map/deckLayerFactory.js';
+import { normalizeE2MArc } from '../map/e2mGeometry.js';
 import {
   resolveSelectedLocation,
   getConnectedEdgesForLocation,
@@ -112,6 +135,7 @@ import {
 } from '../ui/resolveSelectedLocation.js';
 import {
   getViewFocusLayerPatch,
+  isIntegratedGridPipelineActive,
   isNodeVisibleInIntegratedFilters,
   INTEGRATED_VIEW_FOCUS,
 } from '../ui/integratedGridFilters.js';
@@ -343,6 +367,12 @@ export default function FuturisticTransportMap({
   const showGlobalConnectivityCorridors = layerState.showGlobalConnectivityCorridors !== false;
   const showIntegratedMineralHubs = layerState.showIntegratedMineralHubs !== false;
   const showIntermodalHubHalos = layerState.showIntermodalHubHalos !== false;
+  const showStarbaseHubs = layerState.showStarbaseHubs === true;
+  const showStarbaseLabels = layerState.showStarbaseLabels === true;
+  const showStarbaseConnectivity = layerState.showStarbaseConnectivity === true;
+  const showPetabondExportPackages = layerState.showPetabondExportPackages === true;
+  const starbaseVisionPreviewOn = isStarbaseVisionPreviewActive(layerState);
+  const offWorldStarbaseCount = countOffWorldStarbaseHubs();
 
   const mapScenarios = useMapScenarios();
 
@@ -456,10 +486,35 @@ export default function FuturisticTransportMap({
     [integratedRenderView.visibleNodes]
   );
 
+  const starbaseConnectivityPaths = useMemo(() => {
+    if (!showStarbaseConnectivity || !showStarbaseHubs) return [];
+    const earthHubs = listEarthStarbaseHubs().filter((h) => shouldRenderStarbaseAtZoom(h, zoom));
+    return generateStarbaseConnectivity(earthHubs, integratedRenderView.visibleNodes);
+  }, [showStarbaseConnectivity, showStarbaseHubs, zoom, integratedRenderView.visibleNodes]);
+
   const selectedLocation = useMemo(
     () => (selectedCity ? resolveSelectedLocation(selectedCity) : null),
     [selectedCity]
   );
+
+  const simulationMode = useMemo(() => {
+    if (layerState.showTrafficFlow) return SIMULATION_MODES.CONGESTION;
+    return defaultSimulationModeForView(
+      layerState.integratedViewFocus ?? INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID
+    );
+  }, [layerState.showTrafficFlow, layerState.integratedViewFocus]);
+
+  const simulationState = useMemo(() => {
+    if (!showIntegratedMapLayers) return null;
+    try {
+      return getSimulationState({ year: simulationYear, mode: simulationMode });
+    } catch (err) {
+      if (import.meta.env?.DEV) {
+        console.warn('[simulation] state build failed', err);
+      }
+      return null;
+    }
+  }, [showIntegratedMapLayers, simulationYear, simulationMode]);
 
   const routeDisplayPipeline = useMemo(() => {
     if (!showIntegratedMapLayers) return null;
@@ -471,6 +526,8 @@ export default function FuturisticTransportMap({
         viewMode,
         zoom,
         regionFilter: selectedLocation?.region ?? null,
+        simulationYear,
+        simulationMode,
       });
     } catch (err) {
       if (import.meta.env?.DEV) {
@@ -483,6 +540,8 @@ export default function FuturisticTransportMap({
     layerState.integratedViewFocus,
     zoom,
     selectedLocation?.region,
+    simulationYear,
+    simulationMode,
   ]);
 
   const integratedDiagnosticsEnriched = useMemo(
@@ -492,8 +551,14 @@ export default function FuturisticTransportMap({
       renderedVisibleEdgeCount: integratedRenderView.visibleEdges.length,
       currentZoomTier: integratedRenderView.zoomTier,
       routePipeline: routeDisplayPipeline?.stats ?? null,
+      economicDebug:
+        import.meta.env?.DEV && routeDisplayPipeline
+          ? getEconomicDebugRankings()
+          : null,
+      simulationDebug:
+        import.meta.env?.DEV && simulationState ? getSimulationDebugRankings(simulationState) : null,
     }),
-    [integratedGraph.diagnostics, integratedRenderView, routeDisplayPipeline]
+    [integratedGraph.diagnostics, integratedRenderView, routeDisplayPipeline, simulationState]
   );
 
   const selectedConnectedEdges = useMemo(
@@ -718,6 +783,15 @@ export default function FuturisticTransportMap({
   ]);
 
   const visibleRemoteCargoPaths = useMemo(() => {
+    if (
+      isIntegratedGridPipelineActive({
+        showIntegratedMapLayers,
+        integratedGraphError: integratedGraph.error,
+        layerState,
+      })
+    ) {
+      return [];
+    }
     if (!showRemoteCargoRoutes || zoom < PLANNING_DEMO_MIN_ZOOM) return [];
     return planetaryGraph.paths.filter(
       (p) =>
@@ -726,6 +800,9 @@ export default function FuturisticTransportMap({
         filterPlanetaryPath(p)
     );
   }, [
+    showIntegratedMapLayers,
+    integratedGraph.error,
+    layerState,
     showRemoteCargoRoutes,
     zoom,
     filterPlanetaryPath,
@@ -898,7 +975,7 @@ export default function FuturisticTransportMap({
 
     const layers = ['hub-cities'];
 
-    if (showE2MLayer && (isE2MMode || isOverviewMode)) {
+    if (showE2MLayer && isE2MMode) {
       layers.push('e2m-orbital-routes', 'e2m-orbital-nodes');
     }
 
@@ -923,7 +1000,10 @@ export default function FuturisticTransportMap({
       }
     }
 
-    if (hubMobilityActive) {
+    const integratedFocus = layerState.integratedViewFocus ?? INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID;
+    const autoOnlyOverlay = integratedFocus === INTEGRATED_VIEW_FOCUS.AUTO;
+
+    if (hubMobilityActive && autoOnlyOverlay) {
       if (robotaxiData.hubDots.length > 0) layers.push('robotaxi-hub-availability');
       if (robotaxiData.zoneFeatures.length > 0) layers.push('robotaxi-service-zones');
       if (robotaxiData.pickupDropoff.length > 0) layers.push('robotaxi-pickup-dropoff');
@@ -932,14 +1012,28 @@ export default function FuturisticTransportMap({
     if (showGlobalConnectivityCorridors && globalConnectivityPaths.length > 0) {
       layers.push('global-connectivity-corridors');
     }
-    if (showIntermodalHubHalos && intermodalHalos.length > 0) {
+    if (autoOnlyOverlay && showIntermodalHubHalos && intermodalHalos.length > 0) {
       layers.push('intermodal-hub-halos');
     }
-    if (showIntermodalHubHalos && e2eHubHalos.length > 0) {
+    if (autoOnlyOverlay && showIntermodalHubHalos && e2eHubHalos.length > 0) {
       layers.push('e2e-hub-halos');
     }
 
+    if (showStarbaseHubs) {
+      layers.push('starbase-hubs');
+      if (showStarbaseLabels) layers.push('starbase-labels');
+      if (showStarbaseConnectivity && starbaseConnectivityPaths.length > 0) {
+        layers.push('starbase-connectivity');
+      }
+    }
+
     if (isOverviewMode && !isHyperloopWebMode) {
+      const useIntegratedGridPipeline = isIntegratedGridPipelineActive({
+        showIntegratedMapLayers,
+        integratedGraphError: integratedGraph.error,
+        layerState,
+      });
+
       const useLegacySpine =
         webRenderablePaths.length > 0 &&
         (!showIntegratedMapLayers || integratedGraph.error);
@@ -949,8 +1043,11 @@ export default function FuturisticTransportMap({
       if (roiHubs.length > 0) layers.push('planetary-skeleton-hubs');
       if (visibleFutureHighPopHubs.length > 0) layers.push('future-high-population-hubs');
       if (visibleRareEarthHubs.length > 0) layers.push('rare-earth-hub-candidates');
-      if (visibleRemoteCargoPaths.length > 0) layers.push('remote-cargo-critical-minerals-routes');
+      if (!useIntegratedGridPipeline && visibleRemoteCargoPaths.length > 0) {
+        layers.push('remote-cargo-critical-minerals-routes');
+      }
       if (
+        !useIntegratedGridPipeline &&
         (showExtendedRuralLayer || showRemoteCorridorSpines) &&
         ruralVisiblePaths.length > 0
       ) {
@@ -1271,20 +1368,36 @@ export default function FuturisticTransportMap({
   const canonicalViewDeck = useMemo(() => {
     if (!showIntegratedMapLayers) return null;
 
+    const buildLoopViewDeck = () => {
+      const data = getLoopViewData();
+      if (import.meta.env?.DEV) {
+        console.info('[LOOP DEBUG]', {
+          nodes: data.nodes?.length,
+          paths: data.paths?.length,
+          spinePaths: data.spinePaths?.length,
+          routes: data.routes?.length,
+          firstPath: data.paths?.[0],
+        });
+      }
+      validateLoopPathsOnce(data.paths);
+      debugLogViewStatsOnce('loop', data.stats);
+      const loopPaths = canonicalPathsToDeckPaths(
+        [...(data.paths ?? []), ...(data.spinePaths ?? [])],
+        { deckMode: 'loop' }
+      );
+      return {
+        canonicalLoopPaths: loopPaths,
+        canonicalSpinePaths: [],
+        canonicalGridArcs: [],
+        canonicalE2mArcs: null,
+        canonicalE2mPaths: null,
+      };
+    };
+
     const buildLegacyViewDeck = () => {
       const focus = layerState.integratedViewFocus ?? INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID;
       if (focus === INTEGRATED_VIEW_FOCUS.LOOP) {
-        const data = getLoopViewData();
-        validateLoopPathsOnce(data.paths);
-        debugLogViewStatsOnce('loop', data.stats);
-        return {
-          canonicalLoopPaths: canonicalPathsToDeckPaths(data.paths, { deckMode: 'loop' }),
-          canonicalSpinePaths: canonicalPathsToDeckPaths(data.spinePaths ?? [], {
-            deckMode: 'hyperloop',
-          }),
-          canonicalGridArcs: null,
-          canonicalE2mPaths: null,
-        };
+        return buildLoopViewDeck();
       }
       if (
         focus === INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID ||
@@ -1300,7 +1413,8 @@ export default function FuturisticTransportMap({
           canonicalLoopPaths: canonicalPathsToDeckPaths(loopAndFeeder, { deckMode: 'loop' }),
           canonicalSpinePaths: canonicalPathsToDeckPaths(spine, { deckMode: 'hyperloop' }),
           canonicalGridArcs: data.arcs,
-          canonicalE2mPaths: null,
+          canonicalE2mArcs: data.e2mArcs ?? [],
+          canonicalE2mPaths: [],
         };
       }
       return null;
@@ -1313,7 +1427,7 @@ export default function FuturisticTransportMap({
           deck.canonicalGridArcs.length > 0 ||
           deck.canonicalSpinePaths.length > 0 ||
           deck.canonicalLoopPaths.length > 0 ||
-          deck.canonicalE2mPaths.length > 0;
+          deck.canonicalE2mArcs.length > 0;
 
         if (hasPipelineData) {
           if (import.meta.env?.DEV) {
@@ -1321,13 +1435,39 @@ export default function FuturisticTransportMap({
           }
           const focus = layerState.integratedViewFocus ?? INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID;
           if (focus === INTEGRATED_VIEW_FOCUS.LOOP) {
+            const loopDeck = buildLoopViewDeck();
+            const pipelineLoops = deck.canonicalLoopPaths ?? [];
             return {
-              ...deck,
-              canonicalGridArcs: [],
-              canonicalSpinePaths: [],
+              ...loopDeck,
+              canonicalLoopPaths:
+                loopDeck.canonicalLoopPaths.length > 0
+                  ? loopDeck.canonicalLoopPaths
+                  : pipelineLoops,
             };
           }
-          return deck;
+            // Phase 8 — intercontinental spine continuity at planetary zoom.
+            // Pipeline spine paths are edge-driven; bridge tissue is route-driven.
+            if (zoom < 3 && deck?.canonicalSpinePaths?.length != null) {
+              const bridgeRouteIds = Object.values(INTERCONTINENTAL_BRIDGE_ROUTES);
+              const legacySpinePaths = getSpinePaths();
+              const bridgePaths = (legacySpinePaths ?? []).filter((p) =>
+                bridgeRouteIds.includes(p.routeId ?? p.id)
+              );
+
+              if (bridgePaths.length > 0) {
+                const merged = new Map();
+                for (const p of deck.canonicalSpinePaths ?? []) {
+                  merged.set(p.id ?? p.routeId, p);
+                }
+                for (const p of bridgePaths) {
+                  const key = p.id ?? p.routeId;
+                  if (!merged.has(key)) merged.set(key, p);
+                }
+                return { ...deck, canonicalSpinePaths: [...merged.values()] };
+              }
+            }
+
+            return deck;
         }
       }
       return buildLegacyViewDeck();
@@ -1355,7 +1495,9 @@ export default function FuturisticTransportMap({
         canonicalLoopPaths: canonicalViewDeck?.canonicalLoopPaths,
         canonicalSpinePaths: canonicalViewDeck?.canonicalSpinePaths,
         canonicalGridArcs: canonicalViewDeck?.canonicalGridArcs,
+        canonicalE2mArcs: canonicalViewDeck?.canonicalE2mArcs,
         canonicalE2mPaths: canonicalViewDeck?.canonicalE2mPaths,
+        simulationState: routeDisplayPipeline?.simulation ?? simulationState,
         selectedLocation,
         zoom,
         onNodeClick: handleIntegratedNodePick,
@@ -1374,6 +1516,8 @@ export default function FuturisticTransportMap({
     layerState,
     hyperloopSpinePaths,
     canonicalViewDeck,
+    routeDisplayPipeline,
+    simulationState,
     selectedLocation,
     zoom,
     handleIntegratedNodePick,
@@ -1384,17 +1528,22 @@ export default function FuturisticTransportMap({
     const layerList = [];
 
     if (visibleLayers.includes('e2m-orbital-routes')) {
+      const orbitalArcs = (e2mOrbitalData.paths ?? [])
+        .map((d) => normalizeE2MArc(d))
+        .filter((d) => d.sourcePosition && d.targetPosition);
       layerList.push(
-        new PathLayer({
+        new ArcLayer({
           id: 'e2m-orbital-routes',
-          data: e2mOrbitalData.paths,
+          data: orbitalArcs,
           pickable: true,
+          greatCircle: true,
           widthMinPixels: 2,
           widthMaxPixels: 5,
-          getPath: (d) => d.path,
-          getColor: () => [210, 150, 50, 210],
+          getSourcePosition: (d) => d.sourcePosition,
+          getTargetPosition: (d) => d.targetPosition,
+          getSourceColor: () => [210, 150, 50, 210],
+          getTargetColor: () => [210, 150, 50, 120],
           getWidth: 3,
-          ...routePathDashProps,
         })
       );
     }
@@ -1605,15 +1754,15 @@ export default function FuturisticTransportMap({
           id: 'intermodal-hub-halos',
           data: intermodalHalos,
           pickable: false,
-          opacity: 0.55,
+          opacity: zoom < 3 ? 0.35 : 0.45,
           stroked: true,
           filled: true,
-          radiusMinPixels: 6,
-          radiusMaxPixels: 14,
+          radiusMinPixels: 4,
+          radiusMaxPixels: zoom < 3 ? 10 : 12,
           getPosition: (d) => [d.lon, d.lat],
-          getFillColor: [100, 200, 255, 50],
-          getLineColor: [140, 220, 255, 160],
-          getRadius: (d) => d.radius,
+          getFillColor: [100, 200, 255, zoom < 3 ? 28 : 40],
+          getLineColor: [140, 220, 255, zoom < 3 ? 90 : 120],
+          getRadius: (d) => d.radius * (zoom < 3 ? 0.75 : 0.9),
         })
       );
     }
@@ -1624,13 +1773,13 @@ export default function FuturisticTransportMap({
           id: 'e2e-hub-halos',
           data: e2eHubHalos,
           pickable: false,
-          opacity: 0.65,
+          opacity: 0.5,
           stroked: true,
           filled: true,
           getPosition: (d) => [d.lon, d.lat],
-          getFillColor: [255, 215, 80, 45],
-          getLineColor: [255, 230, 120, 180],
-          getRadius: (d) => d.radius,
+          getFillColor: [255, 215, 80, zoom < 3 ? 35 : 45],
+          getLineColor: [255, 230, 120, zoom < 3 ? 100 : 140],
+          getRadius: (d) => d.radius * (zoom < 3 ? 0.8 : 1),
         })
       );
     }
@@ -1967,6 +2116,106 @@ export default function FuturisticTransportMap({
       );
     }
 
+    if (visibleLayers.includes('starbase-connectivity') && starbaseConnectivityPaths.length > 0) {
+      layerList.push(
+        new PathLayer({
+          id: 'starbase-connectivity',
+          data: starbaseConnectivityPaths,
+          pickable: false,
+          widthMinPixels: 1,
+          widthMaxPixels: 2,
+          getPath: (d) => d.path,
+          getColor: (d) =>
+            STARBASE_CONNECTOR_COLORS[d.systemType] ?? STARBASE_CONNECTOR_COLORS.default,
+          getWidth: 1,
+          dashJustified: true,
+          dashArray: [6, 4],
+        })
+      );
+    }
+
+    if (visibleLayers.includes('starbase-hubs')) {
+      const hubs = listEarthStarbaseHubs()
+        .filter((h) => shouldRenderStarbaseAtZoom(h, zoom))
+        .map((h) => ({
+          ...h,
+          lon: h.coordinates?.[0],
+          lat: h.coordinates?.[1],
+          isPetabond: (h.hubRoles ?? []).includes('PETABOND_EXPORT'),
+        }))
+        .filter((h) => h.earthRenderable && h.lat != null && h.lon != null);
+
+      const petabondIds = showPetabondExportPackages
+        ? new Set(getPetabondExportHubs().filter((h) => h.earthRenderable).map((h) => h.id))
+        : null;
+
+      layerList.push(
+        new ScatterplotLayer({
+          id: 'starbase-hubs',
+          data: hubs,
+          pickable: true,
+          opacity: 0.95,
+          stroked: true,
+          filled: true,
+          radiusMinPixels: 5,
+          radiusMaxPixels: 14,
+          lineWidthMinPixels: 2,
+          getPosition: (d) => [d.lon, d.lat],
+          getFillColor: (d) => {
+            if (petabondIds?.has(d.id)) return STARBASE_HUB_COLORS.petabond;
+            if (d.starbaseClass === STARBASE_CLASSES.PRIME) return STARBASE_HUB_COLORS.prime;
+            if (d.starbaseClass === STARBASE_CLASSES.PASSENGER) return STARBASE_HUB_COLORS.passenger;
+            if (d.starbaseClass === STARBASE_CLASSES.INDUSTRIAL) return STARBASE_HUB_COLORS.industrial;
+            if (d.starbaseClass === STARBASE_CLASSES.RESOURCE) return STARBASE_HUB_COLORS.resource;
+            return STARBASE_HUB_COLORS.default;
+          },
+          getLineColor: (d) => {
+            if (d.status === STARBASE_STATUS.CONCEPTUAL) return [180, 180, 200, 200];
+            if (petabondIds?.has(d.id)) return [255, 255, 200, 255];
+            return [220, 240, 255, 240];
+          },
+          getRadius: (d) =>
+            d.starbaseClass === STARBASE_CLASSES.PRIME ? 10 : d.starbaseClass === STARBASE_CLASSES.PASSENGER ? 8 : 7,
+          onClick: (info) => {
+            if (!info?.object) return;
+            setSelectedCity({
+              name: info.object.name,
+              isStarbaseHub: true,
+              starbaseDetail: info.object,
+              lat: info.object.lat,
+              lon: info.object.lon,
+            });
+          },
+        })
+      );
+    }
+
+    if (visibleLayers.includes('starbase-labels')) {
+      const hubs = listEarthStarbaseHubs()
+        .filter((h) => shouldRenderStarbaseAtZoom(h, zoom))
+        .map((h) => ({
+          ...h,
+          lon: h.coordinates?.[0],
+          lat: h.coordinates?.[1],
+        }))
+        .filter((h) => h.earthRenderable && h.lat != null && h.lon != null);
+
+      layerList.push(
+        new TextLayer({
+          id: 'starbase-labels',
+          data: hubs,
+          pickable: false,
+          getPosition: (d) => [d.lon, d.lat],
+          getText: (d) => d.name,
+          getSize: 11,
+          getColor: [230, 240, 255, 230],
+          getTextAnchor: 'middle',
+          getAlignmentBaseline: 'center',
+          getPixelOffset: [0, -16],
+        })
+      );
+    }
+
     if (visibleLayers.includes('custom-connection-preview')) {
       const previewStyle = PREVIEW_LINE_STYLE;
       layerList.push(
@@ -2110,6 +2359,8 @@ export default function FuturisticTransportMap({
     visibleMineralHubs,
     integratedDeckLayers,
     showIntegratedMapLayers,
+    starbaseConnectivityPaths,
+    showPetabondExportPackages,
   ]);
 
   const handleLayerClick = useCallback(
@@ -2289,6 +2540,52 @@ export default function FuturisticTransportMap({
         data-testid="transport-map-container"
         style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'auto' }}
       />
+
+      <div
+        data-testid="starbase-preview-controls"
+        style={{
+          position: 'absolute',
+          bottom: 12,
+          left: 12,
+          zIndex: 4,
+          pointerEvents: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6,
+          padding: '8px 10px',
+          borderRadius: 8,
+          background: 'rgba(13, 20, 45, 0.92)',
+          border: '1px solid rgba(100, 200, 255, 0.35)',
+          fontSize: 11,
+          maxWidth: 220,
+        }}
+      >
+        <div style={{ color: '#8899cc', fontSize: 10, letterSpacing: '0.04em' }}>STARBASE VISION</div>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            data-testid="starbase-vision-preview"
+            checked={starbaseVisionPreviewOn}
+            onChange={(e) => {
+              const next = applyStarbaseVisionPreview(layerState, e.target.checked);
+              Object.entries(next).forEach(([key, value]) => {
+                if (
+                  key.startsWith('showStarbase') ||
+                  key === 'showPetabondExportPackages'
+                ) {
+                  setLayerFlag(key, value);
+                }
+              });
+            }}
+          />
+          Show Starbase System
+        </label>
+        {offWorldStarbaseCount > 0 && (
+          <span style={{ color: '#b8a8ff', fontSize: 10, lineHeight: 1.35 }}>
+            Off-World pending: {offWorldStarbaseCount} (not on Earth map)
+          </span>
+        )}
+      </div>
 
       {isMobileLayout && mobileSheet && (
         <button

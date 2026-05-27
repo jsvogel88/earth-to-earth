@@ -7,6 +7,18 @@ import { normalizeCityKey } from '../data/hyperloopPhase1Cities.js';
 import { CORRIDOR_STATUS, CORRIDOR_TYPES } from '../data/corridorPlanningSchema.js';
 import { getValidatedGlobalCorridors } from '../data/globalConnectivityCorridors.js';
 import { isOverlayVisibleAtZoom, PLANNING_DECK_LAYER_IDS } from './overlayRegistry.js';
+import { CIVILIZATION_ANCHORS, PLANETARY_LABEL_ALLOWLIST } from '../map/visualHierarchy.js';
+import { PLANETARY_HALO_TIER_MAX } from '../graph/planetaryRouteCap.js';
+
+const ANCHOR_KEYS = new Set(Object.keys(CIVILIZATION_ANCHORS));
+
+function isPlanetaryAnchor(hub) {
+  const id = String(hub?.id ?? hub?.networkCityId ?? hub?.name ?? '')
+    .toLowerCase()
+    .replace(/^node:city:/, '')
+    .replace(/\s+/g, '_');
+  return ANCHOR_KEYS.has(id) || [...PLANETARY_LABEL_ALLOWLIST].some((k) => id.includes(k));
+}
 
 export const PLANNING_CORRIDOR_STYLES = {
   [CORRIDOR_TYPES.GLOBAL_TRUNK]: {
@@ -132,8 +144,14 @@ export function filterPlanningPathsByZoom(paths, zoom) {
  */
 export function buildIntermodalHubHalos(hubs, zoom) {
   if (zoom > 5.5) return [];
+  const z = Number(zoom) || 2;
+  const planetary = z < 3;
   return hubs
     .filter((h) => h.lat != null && h.lon != null)
+    .filter((h) => {
+      if (!planetary) return true;
+      return isPlanetaryAnchor(h) || (h.tier ?? 3) <= PLANETARY_HALO_TIER_MAX;
+    })
     .map((h) => ({
       id: `halo-${h.id || h.name}`,
       name: h.name,
@@ -142,21 +160,23 @@ export function buildIntermodalHubHalos(hubs, zoom) {
       isE2EHub: Boolean(h.isE2EHub),
       isIntermodal: Boolean(h.isE2EHub || h.isSwitchNode || h.e2mLayer),
       previewOnly: true,
-      radius: h.isE2EHub ? 28000 : h.isSwitchNode ? 20000 : 14000,
+      radius: h.isE2EHub ? 22000 : h.isSwitchNode ? 16000 : 11000,
     }));
 }
 
 export function buildE2EHubHalos(activeHubs, zoom) {
   if (zoom > 4) return [];
+  const z = Number(zoom) || 2;
   return activeHubs
     .filter((h) => h.lat != null && h.lon != null)
+    .filter((h) => (z >= 3 ? true : isPlanetaryAnchor(h)))
     .map((h) => ({
       id: `e2e-halo-${h.id}`,
       name: h.name,
       lat: h.lat,
       lon: h.lon,
       previewOnly: true,
-      radius: 32000,
+      radius: 24000,
     }));
 }
 

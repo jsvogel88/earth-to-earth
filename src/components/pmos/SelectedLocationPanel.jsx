@@ -10,6 +10,9 @@ import {
 import { MODE_REGISTRY } from '../../modes/modeRegistry.js';
 import IntegratedGridDiagnostics from './IntegratedGridDiagnostics.jsx';
 import { INTEGRATED_MAP_LEGEND } from '../../ui/integratedMapLegend.js';
+import StarbaseDetailCard from './StarbaseDetailCard.jsx';
+import { formatModeLabelForUI } from '../../ui/re2eDisplayLabels.js';
+import { countOffWorldStarbaseHubs } from '../../data/starbaseHubs.js';
 
 const MODE_CHIP_COLORS = {
   auto: MODE_REGISTRY.auto?.color ?? '#7dff9a',
@@ -27,9 +30,7 @@ function formatPopulation(pop) {
 }
 
 function formatModeLabel(mode) {
-  if (mode === 'e2e') return 'E2E';
-  if (mode === 'e2m') return 'E2M';
-  return mode.charAt(0).toUpperCase() + mode.slice(1);
+  return formatModeLabelForUI(mode);
 }
 
 function ModeChips({ modes }) {
@@ -305,6 +306,7 @@ export default function SelectedLocationPanel({
 
   const panelDiagnostics = diagnostics ?? integratedGraph?.diagnostics ?? null;
   const panelError = graphError ?? integratedGraph?.error ?? null;
+  const offWorldPending = countOffWorldStarbaseHubs();
 
   if (!selectedLocation) {
     return (
@@ -332,6 +334,12 @@ export default function SelectedLocationPanel({
               <span style={{ color: '#8899cc' }}>{item.label}</span>
             </li>
           ))}
+          {offWorldPending > 0 && (
+            <li style={{ marginTop: 8, color: '#b8a8ff', fontSize: 10 }}>
+              Off-World System Pending: {offWorldPending} hub
+              {offWorldPending === 1 ? '' : 's'} (orbit / moon / mars) — Planet View later
+            </li>
+          )}
         </ul>
         <IntegratedGridDiagnostics
           diagnostics={panelDiagnostics}
@@ -345,6 +353,7 @@ export default function SelectedLocationPanel({
   }
 
   const isMineral = isMineralHubPayload(selectedLocation);
+  const isStarbase = Boolean(selectedLocation?.isStarbaseHub);
 
   return (
     <aside
@@ -352,13 +361,15 @@ export default function SelectedLocationPanel({
       data-testid="selected-location-panel"
       aria-label="Selected location"
     >
-      {onClose && (
+      {onClose && !isStarbase && (
         <button type="button" className="pmos-context-close" onClick={onClose} aria-label="Close">
           ×
         </button>
       )}
 
-      {isMineral ? (
+      {isStarbase ? (
+        <StarbaseDetailCard hub={selectedLocation.starbaseDetail ?? selectedLocation} onClose={onClose} />
+      ) : isMineral ? (
         <MineralHubView
           location={selectedLocation}
           connectedEdges={connectedEdges}
