@@ -6,15 +6,10 @@
 import { useMemo } from 'react';
 import { generateIntegratedRoutes } from '../graph/generateIntegratedRoutes.js';
 import { getIntegratedGraph } from '../data/canonicalTransportAdapter.js';
+import { mergeGraphBackbone } from '../graph/planetaryMobilityGraphEngine.js';
 import { classifyCity } from '../modes/classifyLocation.js';
 import { DEFAULT_MINERAL_HUBS } from '../data/mineralHubs.js';
 import { filterIntegratedGraph } from '../ui/integratedGridFilters.js';
-
-function edgeDedupKey(edge) {
-  const from = edge.fromNodeId ?? edge.origin_id ?? edge.from;
-  const to = edge.toNodeId ?? edge.destination_id ?? edge.to;
-  return `${from}|${to}|${edge.mode ?? ''}`;
-}
 
 /**
  * Canonical backbone (E2E/hyperloop) + legacy E2M/loop/mineral enrichment.
@@ -22,32 +17,9 @@ function edgeDedupKey(edge) {
  * @param {{ nodes: object[], edges: object[], diagnostics: object }} legacy
  */
 function mergeCanonicalIntegratedGraph(canonical, legacy) {
-  const nodeById = new Map();
-  for (const n of legacy.nodes ?? []) {
-    if (n?.id) nodeById.set(n.id, n);
-  }
-  for (const n of canonical.nodes ?? []) {
-    if (n?.id && !nodeById.has(n.id)) nodeById.set(n.id, n);
-  }
-
-  const edgeMap = new Map();
-  for (const e of canonical.edges ?? []) {
-    if (e.mode === 'hyperloop' || e.mode === 'e2e') {
-      edgeMap.set(edgeDedupKey(e), e);
-    }
-  }
-  for (const e of legacy.edges ?? []) {
-    if (e.mode === 'e2m' || e.mode === 'loop' || e.mode === 'auto') {
-      edgeMap.set(edgeDedupKey(e), e);
-    }
-  }
-  for (const e of legacy.edges ?? []) {
-    if (!edgeMap.has(edgeDedupKey(e))) edgeMap.set(edgeDedupKey(e), e);
-  }
-
+  const merged = mergeGraphBackbone(canonical, legacy);
   return {
-    nodes: [...nodeById.values()],
-    edges: [...edgeMap.values()],
+    ...merged,
     diagnostics: {
       ...legacy.diagnostics,
       warnings: [

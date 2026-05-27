@@ -33,6 +33,46 @@ function formatModeLabel(mode) {
   return formatModeLabelForUI(mode);
 }
 
+function TaxonomyDetail({ location }) {
+  const nodeTypes = location?.nodeTypes ?? (location?.nodeType ? [location.nodeType] : []);
+  const cityStatus = location?.cityStatus ?? location?.city_status;
+  const membership = location?.graphMembership;
+  const hubRoles = location?.hubRoles;
+
+  if (!nodeTypes.length && !cityStatus && !membership && !hubRoles?.length) {
+    return null;
+  }
+
+  return (
+    <div style={{ marginTop: 10 }} data-testid="location-taxonomy-detail">
+      <span className="pmos-label">Taxonomy</span>
+      {cityStatus && (
+        <p className="pmos-subtitle" style={{ margin: '4px 0 0' }}>
+          Status: <code>{cityStatus}</code>
+          {membership ? ` · ${membership}` : ''}
+        </p>
+      )}
+      {nodeTypes.length > 0 && (
+        <p className="pmos-subtitle" style={{ margin: '4px 0 0' }}>
+          Node types: {nodeTypes.slice(0, 6).join(', ')}
+          {nodeTypes.length > 6 ? ' …' : ''}
+        </p>
+      )}
+      {hubRoles?.length > 0 && (
+        <p className="pmos-subtitle" style={{ margin: '4px 0 0' }}>
+          Hub roles: {hubRoles.join(' · ')}
+        </p>
+      )}
+      {(location?.tier != null || location?.priority != null) && (
+        <p className="pmos-subtitle" style={{ margin: '4px 0 0' }}>
+          Tier {location.tier ?? '—'}
+          {location.priority != null ? ` · priority ${location.priority}` : ''}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function ModeChips({ modes }) {
   if (!modes?.length) return <span className="pmos-subtitle">None</span>;
   return (
@@ -114,6 +154,8 @@ function CityLocationView({ location, connectedEdges, connectedNodes, allNodes, 
           {supportLabels.length ? ` · ${supportLabels.join(' · ')}` : ''}
         </p>
       </div>
+
+      <TaxonomyDetail location={location} />
 
       <div style={{ marginTop: 10 }}>
         <span className="pmos-label">Population</span>

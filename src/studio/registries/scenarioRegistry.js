@@ -1,0 +1,98 @@
+/**
+ * Scenario presets — metadata shell for Phase 1.
+ */
+
+export const SCENARIOS = [
+  {
+    id: 'current-default-network',
+    label: 'Current Default Network',
+    objective: 'Explore the integrated baseline: E2E, RE2E, Hyperloop, and local mobility.',
+    recommendedModes: ['e2e', 'e2m', 'hyperloop', 'auto'],
+    recommendedHubTypes: ['e2e_hub', 'hyperloop_hub', 'starbase_launch'],
+    recommendedPayloads: [],
+    recommendedManufacturingPackages: [],
+    defaultLayers: [],
+    notes: 'Preserves existing Civilization Grid defaults.',
+  },
+  {
+    id: 'mars-civilization-network',
+    label: 'Mars Civilization Network',
+    objective: 'Earth industrial export to Mars with staging, feeders, and settlement hubs.',
+    recommendedModes: ['e2m', 'e2e', 'hyperloop', 'cargo'],
+    recommendedHubTypes: ['starbase_launch', 'mars_settlement', 'gigafactory_hub'],
+    recommendedPayloads: ['habitat_modules', 'settlers'],
+    recommendedManufacturingPackages: ['gigafactory', 'terafab', 'petabond'],
+    defaultLayers: [],
+    notes: 'Applies RE2E focus + Starbase vision overlays.',
+  },
+  {
+    id: 'million-people-to-mars',
+    label: 'Million People to Mars / 20 Years',
+    objective: 'Long-horizon passenger and industrial buildout to Mars.',
+    recommendedModes: ['e2e', 'e2m', 'hyperloop'],
+    recommendedHubTypes: ['e2e_hub', 'starbase_launch', 'mars_settlement'],
+    recommendedPayloads: ['passengers', 'settlers', 'habitat_modules'],
+    recommendedManufacturingPackages: ['kilaplant', 'megaline', 'gigafactory', 'terafab', 'petabond'],
+    defaultLayers: [],
+    notes: 'Full-grid + Starbase/PetaBond highlights for long-horizon Mars buildout.',
+  },
+  {
+    id: 'petabond-export-package',
+    label: 'PetaBond Export Package',
+    objective: 'Highlight planetary deployment package flows Earth → launch → Moon/Mars.',
+    recommendedModes: ['e2m', 'cargo'],
+    recommendedHubTypes: ['petabond_deployment', 'terafab_hub', 'starbase_launch'],
+    recommendedPayloads: ['petabond_package'],
+    recommendedManufacturingPackages: ['petabond'],
+    defaultLayers: ['showPetabondExportPackages', 'showStarbaseHubs'],
+    notes: 'Uses existing Starbase/PETABOND toggles where available.',
+  },
+  {
+    id: 'gigafactory-export-network',
+    label: 'GigaFactory Export Network',
+    objective: 'Regional factories feeding launch hubs.',
+    recommendedModes: ['cargo', 'hyperloop'],
+    recommendedHubTypes: ['gigafactory_hub', 'rail_terminal'],
+    recommendedPayloads: ['general_freight', 'batteries'],
+    recommendedManufacturingPackages: ['gigafactory'],
+    defaultLayers: [],
+    notes: null,
+  },
+  {
+    id: 'terafab-heavy-industry-network',
+    label: 'TeraFab Heavy Industry Network',
+    objective: 'Heavy fabrication corridors to Starbase-class hubs.',
+    recommendedModes: ['cargo', 'rail', 'e2m'],
+    recommendedHubTypes: ['terafab_hub', 'starbase_launch'],
+    recommendedPayloads: ['heavy_machinery'],
+    recommendedManufacturingPackages: ['terafab'],
+    defaultLayers: [],
+    notes: null,
+  },
+  {
+    id: 'kilaplant-deployment-network',
+    label: 'KilaPlant Deployment Network',
+    objective: 'Starter packages to frontier sites.',
+    recommendedModes: ['cargo', 'e2m'],
+    recommendedHubTypes: ['kilaplant_hub', 'mars_settlement'],
+    recommendedPayloads: ['robotics_kits'],
+    recommendedManufacturingPackages: ['kilaplant'],
+    defaultLayers: [],
+    notes: null,
+  },
+  {
+    id: 'megaline-deployment-network',
+    label: 'MegaLine Deployment Network',
+    objective: 'Modular lines scaling regional production.',
+    recommendedModes: ['hyperloop', 'cargo'],
+    recommendedHubTypes: ['megaline_hub'],
+    recommendedPayloads: ['modular_assembly'],
+    recommendedManufacturingPackages: ['megaline'],
+    defaultLayers: [],
+    notes: null,
+  },
+];
+
+export function getScenarioById(id) {
+  return SCENARIOS.find((s) => s.id === id) ?? null;
+}

@@ -152,6 +152,10 @@
   margin-left: 4px;
 }
 
+.pmos-dock-panel-inner:has(.pls-sidebar) {
+  min-width: min(420px, calc(100vw - 120px));
+}
+
 .pmos-dock-panel-inner {
   width: min(280px, calc(100vw - 80px));
   max-height: calc(100vh - 140px);

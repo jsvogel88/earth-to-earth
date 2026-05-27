@@ -300,6 +300,8 @@ export const INTEGRATED_GRID_PRESET = {
   showRobotaxiLayer: true,
   showRobotaxiServiceZones: true,
   showRobotaxiRemoteLastMile: true,
+  showIndustrialLogisticsReach: false,
+  showIndustrialExchangeHubs: true,
   showPlanetarySkeleton: true,
   showGlobalConnectivityCorridors: true,
   showIntermodalHubHalos: true,

@@ -8,15 +8,17 @@ import { filterRoutesByZoom } from './filterRoutesByZoom.js';
 import { filterRoutesByTier } from './filterRoutesByTier.js';
 import { createRenderBuckets } from './createRenderBuckets.js';
 import adapter from '../data/canonicalTransportAdapter.js';
+import { normalizeGraphEdge } from './normalizeGraphMember.js';
 import { getEconomicIntelligence } from '../economics/economicScoringEngine.js';
 import { filterRoutesByEconomicPriority } from '../economics/filterRoutesByEconomicPriority.js';
 import { getSimulationState } from '../simulation/simulationEngine.js';
 import { SIMULATION_MODES } from '../simulation/simulationModes.js';
 import { DEFAULT_SIMULATION_YEAR } from '../ui/simulationTimeline.js';
 import { computePlanetaryValidation } from '../map/planetaryValidation.js';
+import { filterEdgesByPayloadFocus } from '../studio/payloadRouteFilter.js';
 
 /**
- * @param {{ viewMode: string, zoom: number, regionFilter?: string | null, simulationYear?: number, simulationMode?: string }} params
+ * @param {{ viewMode: string, zoom: number, regionFilter?: string | null, simulationYear?: number, simulationMode?: string, payloadFocusId?: string | null }} params
  */
 export function buildRouteDisplayPipeline({
   viewMode,
@@ -24,8 +26,9 @@ export function buildRouteDisplayPipeline({
   regionFilter = null,
   simulationYear = DEFAULT_SIMULATION_YEAR,
   simulationMode = SIMULATION_MODES.CIVILIZATION,
+  payloadFocusId = null,
 }) {
-  const allEdges = adapter.getAllEdges();
+  const allEdges = adapter.getAllEdges().map((e) => normalizeGraphEdge(e));
   const allNodes = adapter.nodes;
   const nodesById =
     adapter.nodesById ||
@@ -47,6 +50,11 @@ export function buildRouteDisplayPipeline({
   const simulation = getSimulationState({ year: simulationYear, mode: simulationMode });
   const beforeTimeline = visible.length;
   visible = visible.filter((e) => simulation.timelineVisibleEdgeIds.has(e.id));
+
+  const beforePayload = visible.length;
+  if (payloadFocusId) {
+    visible = filterEdgesByPayloadFocus(visible, payloadFocusId, classifyRouteFamily);
+  }
 
   if (regionFilter) {
     visible = visible.filter((e) => {
@@ -85,6 +93,8 @@ export function buildRouteDisplayPipeline({
     visibleEdges: visible.length,
     economicPruned: beforeEconomic - visible.length,
     timelinePruned: beforeTimeline - visible.length,
+    payloadPruned: payloadFocusId ? beforePayload - visible.length : 0,
+    payloadFocusId: payloadFocusId ?? null,
     simulationYear,
     simulationEra: simulation.stats?.eraLabel,
     arcs: buckets.arcs.length,

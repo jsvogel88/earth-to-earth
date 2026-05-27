@@ -6,6 +6,7 @@
 import { networkCityId } from './worldCities.js';
 import { normalizeCityKey } from './hyperloopPhase1Cities.js';
 import { E2M_NODE_TYPES } from './e2mOrbitalNodes.js';
+import { isHubOnLand } from './autonomous/autonomousLandFilter.js';
 
 export const ROBOTAXI_MODE = 'ROBOTAXI';
 
@@ -176,7 +177,10 @@ export function buildRobotaxiServiceZones({
   const seen = new Set();
 
   const addHub = (hub, opts = {}) => {
-    if (!hub?.lat || hub.lon == null) return;
+    const lat = hub?.lat ?? hub?.latitude;
+    const lng = hub?.lng ?? hub?.longitude ?? hub?.lon;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    if (!isHubOnLand({ ...hub, lat, lng })) return;
     const key = normalizeCityKey(hub.name);
     if (seen.has(key)) return;
     seen.add(key);

@@ -42,8 +42,15 @@ export const NODE_TYPES = {
   ROAD_GATEWAY: 'road_gateway',
 
   INDUSTRIAL_NODE: 'industrial_node',
+  MAINTENANCE_DEPOT: 'maintenance_depot',
+  CHARGING_DEPOT: 'charging_depot',
+  CONTROL_CENTER: 'control_center',
+  CUSTOMS_NODE: 'customs_node',
+  BORDER_GATEWAY: 'border_gateway',
+  ISLAND_CONNECTOR: 'island_connector',
   REMOTE_HUB: 'remote_hub',
   STRATEGIC_NODE: 'strategic_node',
+  CONSTRUCTION_CANDIDATE: 'construction_candidate',
 
   PLANNING_NODE: 'planning_node',
   CUSTOM_DESTINATION: 'custom_destination',

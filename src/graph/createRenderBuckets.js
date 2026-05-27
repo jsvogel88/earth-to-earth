@@ -111,6 +111,10 @@ export function createRenderBuckets(
           localZones.push(base);
         }
         break;
+      case 'MULTIMODAL_GROUND':
+      case 'ENERGY_GRID':
+        feederPaths.push({ ...base, width: Math.max(1, (base.width ?? 2) * 0.75) });
+        break;
       default:
         break;
     }

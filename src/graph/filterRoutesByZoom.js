@@ -4,7 +4,7 @@
  */
 
 import { classifyRouteFamily } from './classifyRouteFamily.js';
-import { isPriorityE2EEdge } from '../map/visualHierarchy.js';
+import { isGlobalPlanetaryE2EArc } from '../map/visualHierarchy.js';
 import { applyPlanetaryRouteCap } from './planetaryRouteCap.js';
 import { filterUnownedPlanetaryRoutes } from './planetaryTopology.js';
 
@@ -67,7 +67,7 @@ export function filterRoutesByZoom(items, zoom, classifyFn, viewMode = null) {
         if ((item.tier ?? 2) > 1 && imp < 8) return false;
         return true;
       }
-      if (family === 'E2E_GLOBAL_ARC' && !isPriorityE2EEdge(item)) return false;
+      if (family === 'E2E_GLOBAL_ARC' && !isGlobalPlanetaryE2EArc(item)) return false;
       return family === 'E2E_GLOBAL_ARC' || family === 'CONTINENTAL_SPINE';
     });
 

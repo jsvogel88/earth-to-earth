@@ -32,6 +32,26 @@ export const PRIORITY_E2E_IDS = new Set([
 ]);
 
 /** Loose match when canonical edge ids differ by slug */
+const LONG_E2E_DISTANCE_KM = 2500;
+const EXTRA_LONG_E2E_DISTANCE_KM = 5000;
+
+/**
+ * E2E arcs visible at planetary / default zoom (priority trunk + long starship legs).
+ * @param {object} arc
+ */
+export function isGlobalPlanetaryE2EArc(arc) {
+  if (isPriorityE2EEdge(arc)) return true;
+  const km = Number(arc?.distanceKm);
+  if (Number.isFinite(km)) {
+    if (km >= EXTRA_LONG_E2E_DISTANCE_KM) return true;
+    if (km >= LONG_E2E_DISTANCE_KM) return true;
+    if (km >= 1500 && (arc?.tier ?? 2) === 1) return true;
+  }
+  const ew = arc?.economicWeight ?? 0;
+  if (ew >= 15) return true;
+  return false;
+}
+
 export function isPriorityE2EEdge(edge) {
   const id = String(edge?.id ?? '').toLowerCase();
   const from = String(edge?.fromNodeId ?? edge?.from ?? '').toLowerCase();

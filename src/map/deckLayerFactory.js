@@ -29,7 +29,7 @@ import {
   LAYER_VISUAL_WEIGHT,
   getE2EArcStyle,
   getE2EArcTilt,
-  isPriorityE2EEdge,
+  isGlobalPlanetaryE2EArc,
   classifyE2MSubFamily,
   E2M_SUBFAMILIES,
   getNodeVisualStyle,
@@ -198,7 +198,7 @@ export function createE2ELayers({
   const e2eEmphasis = viewFocus === INTEGRATED_VIEW_FOCUS.E2E;
   const filteredArcs =
     tier === ZOOM_TIERS.GLOBAL && !e2eEmphasis
-      ? arcs.filter((d) => isPriorityE2EEdge(d))
+      ? arcs.filter((d) => isGlobalPlanetaryE2EArc(d))
       : arcs;
 
   if (!filteredArcs.length) return [];

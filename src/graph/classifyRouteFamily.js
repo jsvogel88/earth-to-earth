@@ -9,6 +9,9 @@ export const ROUTE_FAMILIES = {
   FEEDER_BRANCH: 'FEEDER_BRANCH',
   E2M_CARGO: 'E2M_CARGO',
   ROBOTAXI_LOCAL: 'ROBOTAXI_LOCAL',
+  MULTIMODAL_GROUND: 'MULTIMODAL_GROUND',
+  ENERGY_GRID: 'ENERGY_GRID',
+  PLANNING_OVERLAY: 'PLANNING_OVERLAY',
 };
 
 /**
@@ -19,7 +22,7 @@ export function classifyRouteFamily(item) {
   const mode = item?.mode ?? '';
   const routeType = item?.routeType ?? item?.route_type ?? '';
 
-  if (mode === 'e2e_starship') return ROUTE_FAMILIES.E2E_GLOBAL_ARC;
+  if (mode === 'e2e_starship' || mode === 'e2e') return ROUTE_FAMILIES.E2E_GLOBAL_ARC;
 
   if (
     mode === 'hyperloop' &&
@@ -47,6 +50,24 @@ export function classifyRouteFamily(item) {
     return ROUTE_FAMILIES.REGIONAL_LOOP;
   }
 
+  const multimodalModes = new Set(['port', 'rail', 'road', 'air', 'airport']);
+  const multimodalRouteTypes = new Set([
+    'port_connector',
+    'rail_connector',
+    'road_connector',
+    'airport_connector',
+    'local_port_connector',
+    'terminal_ground_connector',
+    'short_logistics_feeder',
+  ]);
+  if (multimodalModes.has(mode) || multimodalRouteTypes.has(routeType)) {
+    return ROUTE_FAMILIES.MULTIMODAL_GROUND;
+  }
+
+  if (mode === 'energy') {
+    return ROUTE_FAMILIES.ENERGY_GRID;
+  }
+
   const e2mRouteTypes = new Set([
     'cargo_spine',
     'orbital_logistics',
@@ -54,7 +75,6 @@ export function classifyRouteFamily(item) {
     'cargo_corridor',
     'mining_corridor',
     'energy_corridor',
-    'port_connector',
     'cargo',
     'logistics',
     'resource',
@@ -71,6 +91,17 @@ export function classifyRouteFamily(item) {
 
   if (mode === 'robotaxi' || mode === 'autonomous_auto') {
     return ROUTE_FAMILIES.ROBOTAXI_LOCAL;
+  }
+
+  if (
+    mode === 'planning' ||
+    mode === 'custom' ||
+    mode === 'parsed' ||
+    routeType === 'planning_edge' ||
+    routeType === 'custom_route' ||
+    routeType === 'parsed_route'
+  ) {
+    return ROUTE_FAMILIES.PLANNING_OVERLAY;
   }
 
   return ROUTE_FAMILIES.REGIONAL_LOOP;

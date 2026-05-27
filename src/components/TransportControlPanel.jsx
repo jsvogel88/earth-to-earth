@@ -19,6 +19,7 @@ import {
   applyStarbaseVisionPreview,
   isStarbaseVisionPreviewActive,
 } from '../layers/starbaseLayerPresets.js';
+import { LAYER_VIEW_PRESETS, applyLayerViewPreset } from '../ui/layerViewPresets.js';
 import {
   INTEGRATED_VIEW_FOCUS,
   INTEGRATED_VIEW_FOCUS_LABELS,
@@ -172,6 +173,7 @@ export default function TransportControlPanel({
   onSaveDestination,
   onAddToScenario,
   onCloseSelectedLocation,
+  studioLayersEmbed = false,
 }) {
   const mode = normalizeTransportMode(mapDisplayMode);
   const isHyperloop = isHyperloopCoreMode(mode);
@@ -222,7 +224,8 @@ export default function TransportControlPanel({
     }
   };
 
-  const useSimpleSidebar = isCiv && !hideModeSelector;
+  const useSimpleSidebar = (isCiv && !hideModeSelector) || studioLayersEmbed;
+  const skipSelectedPanel = studioLayersEmbed;
 
   return (
     <div data-testid="transport-control-panel">
@@ -266,24 +269,46 @@ export default function TransportControlPanel({
               <p className="transport-os-helper" style={{ marginTop: 8 }}>
                 Cyan lines = ground tube spine. Gold arcs = E2E jumps. Orange = mining logistics.
               </p>
+              <div className="transport-os-view-grid" style={{ marginTop: 10 }}>
+                {LAYER_VIEW_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    data-testid={`layer-preset-${preset.id}`}
+                    className="transport-os-view-btn"
+                    title={preset.description}
+                    onClick={() => {
+                      const applied = applyLayerViewPreset(preset.id, layerState);
+                      if (!applied?.layerState) return;
+                      Object.entries(applied.layerState).forEach(([key, value]) => {
+                        setLayerFlag(key, value);
+                      });
+                    }}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
             </Section>
 
-            <Section title="Selected" defaultOpen={Boolean(selectedLocation)}>
-              <SelectedLocationPanel
-                selectedLocation={selectedLocation}
-                integratedGraph={integratedGraph}
-                connectedEdges={connectedEdges}
-                connectedNodes={connectedNodes}
-                allNodes={allNodes}
-                diagnostics={integratedDiagnostics}
-                graphError={integratedGraphError}
-                onSaveDestination={onSaveDestination}
-                onAddToScenario={onAddToScenario}
-                onClose={onCloseSelectedLocation}
-              />
-            </Section>
+            {!skipSelectedPanel && (
+              <Section title="Selected" defaultOpen={Boolean(selectedLocation)}>
+                <SelectedLocationPanel
+                  selectedLocation={selectedLocation}
+                  integratedGraph={integratedGraph}
+                  connectedEdges={connectedEdges}
+                  connectedNodes={connectedNodes}
+                  allNodes={allNodes}
+                  diagnostics={integratedDiagnostics}
+                  graphError={integratedGraphError}
+                  onSaveDestination={onSaveDestination}
+                  onAddToScenario={onAddToScenario}
+                  onClose={onCloseSelectedLocation}
+                />
+              </Section>
+            )}
 
-            <Section title="Advanced" defaultOpen={false}>
+            <Section title="Advanced" defaultOpen={studioLayersEmbed}>
               <Section title="Filters" defaultOpen={false}>
                 <LayerCheck
                   layerKey="showIntegratedHyperloop"
@@ -407,20 +432,22 @@ export default function TransportControlPanel({
               </Section>
             )}
 
-            <Section title="Selected" defaultOpen={Boolean(selectedLocation)}>
-              <SelectedLocationPanel
-                selectedLocation={selectedLocation}
-                integratedGraph={integratedGraph}
-                connectedEdges={connectedEdges}
-                connectedNodes={connectedNodes}
-                allNodes={allNodes}
-                diagnostics={integratedDiagnostics}
-                graphError={integratedGraphError}
-                onSaveDestination={onSaveDestination}
-                onAddToScenario={onAddToScenario}
-                onClose={onCloseSelectedLocation}
-              />
-            </Section>
+            {!skipSelectedPanel && (
+              <Section title="Selected" defaultOpen={Boolean(selectedLocation)}>
+                <SelectedLocationPanel
+                  selectedLocation={selectedLocation}
+                  integratedGraph={integratedGraph}
+                  connectedEdges={connectedEdges}
+                  connectedNodes={connectedNodes}
+                  allNodes={allNodes}
+                  diagnostics={integratedDiagnostics}
+                  graphError={integratedGraphError}
+                  onSaveDestination={onSaveDestination}
+                  onAddToScenario={onAddToScenario}
+                  onClose={onCloseSelectedLocation}
+                />
+              </Section>
+            )}
 
             {sidebarGroups
               .filter((gid) => gid !== LAYER_GROUPS.TRANSPORT_MODES)

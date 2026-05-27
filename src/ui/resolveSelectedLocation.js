@@ -74,6 +74,12 @@ export function resolveSelectedLocation(raw) {
     locationType: classified.isE2EHub ? 'e2e_hub' : 'city',
     enabledModes: getEnabledModes(classified),
     transfer_hub: isTransferHub(classified),
+    nodeTypes: raw.nodeTypes ?? classified.nodeTypes,
+    cityStatus: raw.cityStatus ?? classified.cityStatus,
+    graphMembership: raw.graphMembership,
+    taxonomyNodeType: raw.taxonomyNodeType,
+    hubRoles: raw.hubRoles,
+    priority: raw.priority ?? classified.priority,
   };
 }
 

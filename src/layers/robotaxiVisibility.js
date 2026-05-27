@@ -4,6 +4,7 @@
 
 import { isLayerVisibleAtZoom } from './layerRegistry.js';
 import {
+  isCivilizationGridMode,
   isRobotaxiMode,
   normalizeTransportMode,
 } from '../data/transportOperatingSystem.js';
@@ -28,6 +29,8 @@ export function isHubMobilityOverlayActive(layerState, transportMode) {
   if (shouldShowRobotaxiOverlay(focus, layerState)) return true;
   if (isRobotaxiMode(mode)) return layerState?.showRobotaxiLayer !== false;
   if (focus === INTEGRATED_VIEW_FOCUS.AUTO) return layerState?.showRobotaxiLayer !== false;
+  if (isCivilizationGridMode(mode) && layerState?.showRobotaxiLayer) return true;
+  if (layerState?.showPlanetarySkeleton && layerState?.showRobotaxiLayer) return true;
   return false;
 }
 
@@ -87,6 +90,93 @@ export function filterRobotaxiZoneFeatures(zones, layerState, zoom, transportMod
     .filter(Boolean);
 }
 
+/** Robotaxi service ring zoom thresholds (render-only). */
+export const ROBOTAXI_SERVICE_ZONE_ZOOM = {
+  HIDDEN_MAX: 4,
+  STROKE_ONLY_MAX: 6,
+};
+
+export const ROBOTAXI_RING_LINE_RGB = [100, 200, 255];
+export const ROBOTAXI_RING_FILL_TRANSPARENT = [0, 0, 0, 0];
+
+/**
+ * @param {number} zoom
+ * @returns {'hidden' | 'stroke_only' | 'full'}
+ */
+export function getRobotaxiServiceZoneRenderTier(zoom) {
+  const z = Number(zoom) || 2;
+  if (z < ROBOTAXI_SERVICE_ZONE_ZOOM.HIDDEN_MAX) return 'hidden';
+  if (z < ROBOTAXI_SERVICE_ZONE_ZOOM.STROKE_ONLY_MAX) return 'stroke_only';
+  return 'full';
+}
+
+/**
+ * Deck.gl props for robotaxi rings — uses existing zoom-tier pattern.
+ * @param {number} zoom
+ */
+export function getRobotaxiServiceZoneDeckStyle(zoom) {
+  const tier = getRobotaxiServiceZoneRenderTier(zoom);
+  if (tier === 'hidden') {
+    return {
+      tier,
+      visible: false,
+      filled: false,
+      stroked: false,
+      lineColor: [...ROBOTAXI_RING_LINE_RGB, 0],
+      fillColor: ROBOTAXI_RING_FILL_TRANSPARENT,
+      lineWidthMinPixels: 1.5,
+      layerOpacity: 0,
+    };
+  }
+  if (tier === 'stroke_only') {
+    return {
+      tier,
+      visible: true,
+      filled: false,
+      stroked: true,
+      lineColor: [...ROBOTAXI_RING_LINE_RGB, Math.round(255 * 0.25)],
+      fillColor: ROBOTAXI_RING_FILL_TRANSPARENT,
+      lineWidthMinPixels: 1.5,
+      layerOpacity: 1,
+    };
+  }
+  return {
+    tier,
+    visible: true,
+    filled: false,
+    stroked: true,
+    lineColor: [100, 200, 255, 120],
+    fillColor: ROBOTAXI_RING_FILL_TRANSPARENT,
+    lineWidthMinPixels: 1.5,
+    layerOpacity: 1,
+  };
+}
+
+/**
+ * @param {number} zoom
+ */
+export function isRobotaxiServiceRingLayerVisible(zoom) {
+  return getRobotaxiServiceZoneRenderTier(zoom) !== 'hidden';
+}
+
+/**
+ * GeoJSON polygon rings → PathLayer paths (stroke-only render, no fill stacking).
+ * @param {object[]} features
+ */
+export function robotaxiFeaturesToRingPaths(features = []) {
+  return features
+    .map((feature, index) => {
+      const ring = feature?.geometry?.coordinates?.[0];
+      if (!Array.isArray(ring) || ring.length < 2) return null;
+      return {
+        id: feature?.properties?.id ?? `robotaxi-ring-${index}`,
+        path: ring,
+        ringKind: feature?.properties?.ring ?? null,
+      };
+    })
+    .filter(Boolean);
+}
+
 export function filterRobotaxiPickupDropoff(zones, layerState, zoom, transportMode) {
   if (!layerState.showRobotaxiPickupDropoff || !isHubMobilityOverlayActive(layerState, transportMode)) {
     return [];
@@ -102,8 +192,8 @@ export function filterRobotaxiPickupDropoff(zones, layerState, zoom, transportMo
 }
 
 export const ROBOTAXI_COLORS = {
-  zoneFill: [160, 255, 120, 28],
-  zoneLine: [200, 255, 180, 140],
+  zoneFill: [160, 255, 120, Math.round(255 * 0.08)],
+  zoneLine: [200, 255, 180, Math.round(255 * 0.45)],
   hubDot: [220, 255, 200, 220],
   pickupFill: [140, 255, 100, 200],
   pickupLine: [255, 255, 255, 200],

@@ -4,10 +4,14 @@ import MissionDock from './MissionDock.jsx';
 import ContextPanel from './ContextPanel.jsx';
 import TimelineBar from './TimelineBar.jsx';
 import DynamicLegend from './DynamicLegend.jsx';
+import IntelligentLegendShell from '../../studio/IntelligentLegendShell.jsx';
+import TopMissionBar from '../../studio/TopMissionBar.jsx';
+import BottomIntelligenceBar from '../../studio/BottomIntelligenceBar.jsx';
 import { getTransportModeUI, getModeThemeClass } from '../../ui/transportModeRegistry.js';
 import { DEFAULT_SIMULATION_YEAR } from '../../ui/simulationTimeline.js';
 import '../../styles/pmos-design-system.css';
 import '../../styles/pmos-shell.css';
+import '../../styles/logistics-studio.css';
 
 export default function PlanetaryMobilityShell({
   mapDisplayMode,
@@ -43,6 +47,18 @@ export default function PlanetaryMobilityShell({
   mobileSheet,
   onMobileSheetChange,
   children,
+  studioEnabled = false,
+  studioState,
+  onStudioPatch,
+  onMissionModeChange,
+  onViewModeChange,
+  onStudioSave,
+  onStudioRestore,
+  onStudioCompare,
+  onStudioExport,
+  visibleSystems,
+  routeCount,
+  hubCount,
 }) {
   const modeUI = getTransportModeUI(mapDisplayMode);
   const themeClass = getModeThemeClass(modeUI.themeId);
@@ -65,9 +81,25 @@ export default function PlanetaryMobilityShell({
         layoutModes={layoutModeLabels}
       />
 
-      <p className="pmos-mode-tagline pmos-glass" style={{ padding: '4px 16px', border: 'none', boxShadow: 'none' }}>
-        {modeUI.tagline}
-      </p>
+      {studioEnabled && studioState && (
+        <TopMissionBar
+          activeScenarioId={studioState.activeScenarioId}
+          missionModeId={studioState.missionModeId}
+          viewModeId={studioState.viewModeId}
+          onMissionModeChange={onMissionModeChange}
+          onViewModeChange={onViewModeChange}
+          onSave={onStudioSave}
+          onRestore={onStudioRestore}
+          onCompare={onStudioCompare}
+          onExport={onStudioExport}
+        />
+      )}
+
+      {!studioEnabled && (
+        <p className="pmos-mode-tagline pmos-glass" style={{ padding: '4px 16px', border: 'none', boxShadow: 'none' }}>
+          {modeUI.tagline}
+        </p>
+      )}
 
       <MissionDock
         activeSection={dockSection}
@@ -103,7 +135,22 @@ export default function PlanetaryMobilityShell({
         />
       )}
 
-      {legendProps && <DynamicLegend {...legendProps} />}
+      {legendProps &&
+        (studioEnabled && studioState ? (
+          <IntelligentLegendShell studioState={studioState} legendProps={legendProps} />
+        ) : (
+          <DynamicLegend {...legendProps} />
+        ))}
+
+      {studioEnabled && studioState && (
+        <BottomIntelligenceBar
+          studioState={studioState}
+          visibleSystems={visibleSystems}
+          routeCount={routeCount}
+          hubCount={hubCount}
+          simulationYear={simulationYear}
+        />
+      )}
 
       <TimelineBar year={simulationYear} onYearChange={onSimulationYearChange} />
 

@@ -1,4 +1,5 @@
-import { TRANSPORTATION_MODES, ROUTE_TYPES } from '../registries/index.js';
+import { TRANSPORTATION_MODES, ROUTE_TYPES, GEOMETRY_TYPES } from '../registries/index.js';
+import { isE2MLocalGroundRoute } from '../../map/e2mGeometry.js';
 
 /**
  * Normalize edge render intent so graph logic stays separate from map geometry.
@@ -10,18 +11,35 @@ export function normalizeRenderIntent(edge) {
   const routeType = edge?.taxonomyRouteType ?? edge?.routeType ?? edge?.route_type;
 
   const legacyAltitude = edge?.render?.altitudeMode ?? null;
-  const isArc =
-    legacyAltitude === 'arc' ||
-    mode === TRANSPORTATION_MODES.E2E_STARSHIP ||
+
+  let geometryType = GEOMETRY_TYPES.GROUND;
+  if (legacyAltitude === 'arc') {
+    geometryType = GEOMETRY_TYPES.ARC;
+  } else if (mode === TRANSPORTATION_MODES.E2E_STARSHIP || mode === 'e2e') {
+    geometryType = GEOMETRY_TYPES.ARC;
+  } else if (
     mode === TRANSPORTATION_MODES.E2M ||
     mode === TRANSPORTATION_MODES.CARGO ||
-    mode === TRANSPORTATION_MODES.LOGISTICS;
+    mode === TRANSPORTATION_MODES.LOGISTICS ||
+    mode === 'e2m'
+  ) {
+    geometryType = isE2MLocalGroundRoute(edge) ? GEOMETRY_TYPES.GROUND : GEOMETRY_TYPES.ARC;
+  } else if (
+    mode === TRANSPORTATION_MODES.ROBOTAXI ||
+    mode === TRANSPORTATION_MODES.AUTONOMOUS_AUTO
+  ) {
+    geometryType = GEOMETRY_TYPES.HALO;
+  } else if (mode === TRANSPORTATION_MODES.PLANNING) {
+    geometryType = GEOMETRY_TYPES.DASHED_PLANNING;
+  } else if (
+    routeType === ROUTE_TYPES.FEEDER_ROUTE ||
+    routeType === ROUTE_TYPES.LOCAL_CONNECTOR ||
+    routeType === ROUTE_TYPES.LAST_MILE
+  ) {
+    geometryType = GEOMETRY_TYPES.CONNECTOR;
+  }
 
-  const geometryType = isArc
-    ? 'arc'
-    : mode === TRANSPORTATION_MODES.ROBOTAXI || mode === TRANSPORTATION_MODES.AUTONOMOUS_AUTO
-      ? 'halo'
-      : 'ground';
+  const isArc = geometryType === GEOMETRY_TYPES.ARC;
 
   const arcHeight =
     mode === TRANSPORTATION_MODES.E2E_STARSHIP
@@ -39,7 +57,17 @@ export function normalizeRenderIntent(edge) {
           ? 'hyperloop_cyan'
           : mode === TRANSPORTATION_MODES.ROBOTAXI || mode === TRANSPORTATION_MODES.AUTONOMOUS_AUTO
             ? 'auto_teal'
-            : 'default';
+            : mode === TRANSPORTATION_MODES.PORT
+              ? 'port_slate'
+              : mode === TRANSPORTATION_MODES.RAIL
+                ? 'rail_amber'
+                : mode === TRANSPORTATION_MODES.ROAD
+                  ? 'road_gray'
+                  : mode === TRANSPORTATION_MODES.AIR
+                    ? 'air_silver'
+                    : mode === TRANSPORTATION_MODES.ENERGY
+                      ? 'energy_green'
+                      : 'default';
 
   const thickness =
     mode === TRANSPORTATION_MODES.E2E_STARSHIP

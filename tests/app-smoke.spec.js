@@ -37,7 +37,20 @@ async function toggleLayer(page, stateKey) {
 }
 
 async function openDockSection(page, label) {
-  await page.getByRole('button', { name: label, exact: true }).click({ force: true });
+  await page.locator('.pmos-dock-rail').getByRole('button', { name: label, exact: true }).click({ force: true });
+}
+
+/** Mission Dock → Layers → studio Layers tab (Vision is default). */
+async function openStudioLayersPanel(page) {
+  await openDockSection(page, 'Layers');
+  const pinDock = page.locator('.pmos-dock-rail').getByTitle('Pin dock open');
+  if (await pinDock.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await pinDock.click({ force: true });
+  }
+  const studioLayersTab = page.getByTestId('studio-tab-layers');
+  await expect(studioLayersTab).toBeVisible({ timeout: 15_000 });
+  await studioLayersTab.click({ force: true });
+  await expect(page.getByTestId('studio-layers-panel')).toBeVisible({ timeout: 15_000 });
 }
 
 test.describe('Transport Map — browser smoke', () => {
@@ -77,7 +90,7 @@ test.describe('Transport Map — browser smoke', () => {
   test('layer toggles and sidebar sections work', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('transport-map-root')).toBeVisible({ timeout: 60_000 });
-    await openDockSection(page, 'Layers');
+    await openStudioLayersPanel(page);
     await expect(page.getByTestId('transport-control-panel')).toBeVisible({ timeout: 60_000 });
 
     await selectMode(page, 'mode_civilization_grid');
@@ -122,7 +135,7 @@ test.describe('Transport Map — browser smoke', () => {
     await page.goto('/');
     await expect(page.getByTestId('transport-map-root')).toBeVisible({ timeout: 60_000 });
     await selectMode(page, 'mode_civilization_grid');
-    await openDockSection(page, 'Layers');
+    await openStudioLayersPanel(page);
     await expect(page.getByTestId('transport-control-panel')).toBeVisible({ timeout: 60_000 });
     const diag = page.getByTestId('integrated-grid-diagnostics');
     if (await diag.isVisible({ timeout: 5000 }).catch(() => false)) {

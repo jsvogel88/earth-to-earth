@@ -154,7 +154,11 @@ describe('App + FuturisticTransportMap integration', () => {
     await user.click(screen.getByTestId('pmos-mode-mode_hyperloop_core'));
     await user.click(screen.getByTestId('pmos-mode-mode_e2e_starship'));
     const dock = await screen.findByTestId('pmos-mission-dock');
-    await user.click(within(dock).getByTitle('Layers'));
+    const dockRail = within(dock).getByRole('navigation', { name: /Dock sections/i });
+    await user.click(within(dockRail).getByRole('button', { name: 'Layers' }));
+    expect(await screen.findByTestId('logistics-studio-sidebar')).toBeInTheDocument();
+    expect(screen.getByTestId('studio-vision-panel')).toBeInTheDocument();
+    await user.click(screen.getByTestId('studio-tab-layers'));
     const panel = await screen.findByTestId('transport-control-panel');
     const rareEarth = within(panel).queryByTestId('layer-toggle-showRareEarthHubs');
     if (rareEarth) await user.click(rareEarth);

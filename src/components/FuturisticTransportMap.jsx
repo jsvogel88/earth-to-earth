@@ -30,6 +30,16 @@ import {
 } from '../data/transportOperatingSystem.js';
 import { buildRobotaxiServiceZones } from '../data/robotaxiLayer.js';
 import {
+  FEATURE_FLAGS,
+  AUTONOMOUS_ROBOTAXI_COLORS,
+  buildAutonomousTransportSystem,
+  selectAutonomousLayers,
+  selectRobotaxiServiceAreas,
+} from '../data/autonomous/index.js';
+import { DEFAULTS as AUTONOMOUS_DEFAULTS } from '../data/autonomous/autonomousConstants.js';
+import { isGlobalPlanetaryE2EArc } from '../map/visualHierarchy.js';
+import canonicalTransportAdapter from '../data/canonicalTransportAdapter.js';
+import {
   listEarthStarbaseHubs,
   shouldRenderStarbaseAtZoom,
   getPetabondExportHubs,
@@ -49,6 +59,9 @@ import {
   filterRobotaxiPickupDropoff,
   ROBOTAXI_COLORS,
   isHubMobilityOverlayActive,
+  getRobotaxiServiceZoneDeckStyle,
+  isRobotaxiServiceRingLayerVisible,
+  robotaxiFeaturesToRingPaths,
 } from '../layers/robotaxiVisibility.js';
 import {
   buildGlobalConnectivityPaths,
@@ -85,6 +98,35 @@ import {
 } from '../data/e2mOrbitalNodes.js';
 import { isPriorityRemoteCorridorVisible } from '../graph/corridorPriorityScore.js';
 import TransportControlPanel from './TransportControlPanel.jsx';
+import LogisticsStudioSidebar from '../studio/LogisticsStudioSidebar.jsx';
+import { useStudioState } from '../studio/useStudioState.js';
+import {
+  buildLayerStateForScenario,
+  buildLayerStateForMissionMode,
+  MISSION_MODE_SCENARIO_ID,
+} from '../studio/scenarioLayerEngine.js';
+import { applyManufacturingPackageToLayerState } from '../studio/manufacturingLayerBridge.js';
+import {
+  saveStudioVersion,
+  getStudioVersion,
+  diffLayerStateAgainstVersion,
+  exportStudioVersionsJson,
+} from '../studio/studioVersionStore.js';
+import {
+  applyTransportModeFocus,
+  applyHubTypeFocus,
+  applyPayloadFocus,
+} from '../studio/focusLayerBridge.js';
+import { applyViewModeFocus } from '../studio/viewModeBridge.js';
+import { applyStudioLayerQuickGroup } from '../studio/studioLayerQuickGroups.js';
+import { STUDIO_TABS } from '../studio/registries/studioTabs.js';
+import { applyPlanetLogisticsFocus } from '../studio/planetLayerBridge.js';
+import { getSimulationPresetById } from '../studio/simulationStudioBridge.js';
+import { buildVersionCompareDetail } from '../studio/versionCompareDetail.js';
+import { buildMissionPackageExport, downloadMissionPackage } from '../studio/studioMissionExport.js';
+import { saveStudioSession, loadStudioSession } from '../studio/studioSessionStore.js';
+import { diffScenarioAgainstCurrent } from '../studio/scenarioCompareEngine.js';
+import { pushCopilotHistory } from '../studio/copilotHistoryStore.js';
 import NetworkControlCenter from './NetworkControlCenter.jsx';
 import AddDestinationPanel from './AddDestinationPanel.jsx';
 import PlanetaryMobilityShell from './pmos/PlanetaryMobilityShell.jsx';
@@ -318,6 +360,15 @@ export default function FuturisticTransportMap({
     buildDefaultLayerState(DEFAULT_MAP_DISPLAY_MODE)
   );
 
+  const {
+    studioState,
+    setActiveTab,
+    applyScenario,
+    patchStudio,
+    refreshVersions,
+    refreshCopilotHistory,
+  } = useStudioState();
+
   const hubRegistry = useE2EHubRegistry();
   const {
     destinations: customDestinations,
@@ -398,6 +449,297 @@ export default function FuturisticTransportMap({
   const setLayerFlag = useCallback((key, value) => {
     setLayerState((prev) => ({ ...prev, [key]: value }));
   }, []);
+
+  const handleApplyStudioScenario = useCallback(
+    (scenarioId) => {
+      const applied = applyScenario(scenarioId);
+      if (!applied) return;
+      const { layerState: nextLayers, missionModeId, statusMessage } = buildLayerStateForScenario(
+        scenarioId,
+        { transportMode, missionModeId: studioState.missionModeId }
+      );
+      setLayerState(nextLayers);
+      patchStudio({ missionModeId, statusMessage });
+    },
+    [applyScenario, patchStudio, transportMode, studioState.missionModeId]
+  );
+
+  const handleMissionModeChange = useCallback(
+    (missionModeId) => {
+      const scenarioId = MISSION_MODE_SCENARIO_ID[missionModeId] ?? 'current-default-network';
+      const { layerState: nextLayers, statusMessage } = buildLayerStateForMissionMode(missionModeId, {
+        transportMode,
+      });
+      setLayerState(nextLayers);
+      applyScenario(scenarioId);
+      patchStudio({ missionModeId, statusMessage });
+    },
+    [applyScenario, patchStudio, transportMode]
+  );
+
+  const handleApplyManufacturingPackage = useCallback(
+    (packageId) => {
+      const result = applyManufacturingPackageToLayerState(packageId, layerState);
+      if (!result) return;
+      setLayerState(result.layerState);
+      patchStudio({
+        selectedManufacturingPackageId: packageId,
+        statusMessage: result.statusMessage,
+      });
+    },
+    [layerState, patchStudio]
+  );
+
+  const handleStudioSaveVersion = useCallback(() => {
+    const entry = saveStudioVersion({ layerState, studioState, simulationYear });
+    refreshVersions();
+    patchStudio({ statusMessage: `Saved: ${entry.label}`, previewingVersionId: null, layerPreviewBackup: null });
+  }, [layerState, studioState, simulationYear, refreshVersions, patchStudio]);
+
+  const handleStudioRestoreVersion = useCallback(
+    (versionId) => {
+      const version = getStudioVersion(versionId);
+      if (!version) return;
+      setLayerState(version.layerState ?? {});
+      if (version.simulationYear != null) setSimulationYear(version.simulationYear);
+      patchStudio({
+        ...(version.studioState ?? {}),
+        statusMessage: `Restored: ${version.label}`,
+        compareVersionId: null,
+        previewingVersionId: null,
+        layerPreviewBackup: null,
+      });
+      if (version.studioState?.activeScenarioId) {
+        applyScenario(version.studioState.activeScenarioId);
+      }
+    },
+    [applyScenario, patchStudio]
+  );
+
+  const handleStudioCompareVersion = useCallback(
+    (versionId) => {
+      const detail = buildVersionCompareDetail(layerState, versionId);
+      if (!detail.version) return;
+      patchStudio({
+        compareVersionId: versionId,
+        compareDiffKeys: detail.changedKeys,
+        compareDetailRows: detail.rows,
+        compareDetailTruncated: detail.truncated,
+        statusMessage: `Compare ${detail.version.label}: ${detail.changedKeys.length} layer flag(s) differ`,
+      });
+    },
+    [layerState, patchStudio]
+  );
+
+  const handleStudioClearCompare = useCallback(() => {
+    patchStudio({
+      compareVersionId: null,
+      compareDiffKeys: [],
+      compareDetailRows: [],
+      compareDetailTruncated: false,
+      statusMessage: 'Compare cleared',
+    });
+  }, [patchStudio]);
+
+  const handleViewModeChange = useCallback(
+    (viewModeId) => {
+      const result = applyViewModeFocus(viewModeId, layerState, {
+        transportMode,
+        payloadId: studioState.selectedPayloadId,
+      });
+      if (!result) return;
+      if (!result.plannedOnly && result.layerState) {
+        setLayerState(result.layerState);
+      }
+      if (result.simulationYear != null) setSimulationYear(result.simulationYear);
+      if (result.mapViewPatch) {
+        setViewState((prev) => ({ ...prev, ...result.mapViewPatch }));
+      } else if (viewModeId === 'earth_map') {
+        setViewState((prev) => ({
+          ...prev,
+          pitch: DEFAULT_VIEW.pitch,
+          bearing: DEFAULT_VIEW.bearing,
+        }));
+      }
+      if (result.navigateTab) {
+        setActiveTab(result.navigateTab);
+      }
+      patchStudio({
+        viewModeId,
+        statusMessage: result.statusMessage,
+        ...(result.simulationModeOverride != null
+          ? { simulationModeOverride: result.simulationModeOverride }
+          : {}),
+        ...(result.payloadFilterActive != null
+          ? { payloadFilterActive: result.payloadFilterActive }
+          : {}),
+        ...(result.selectedManufacturingPackageId
+          ? { selectedManufacturingPackageId: result.selectedManufacturingPackageId }
+          : {}),
+        ...(result.missionModeId ? { missionModeId: result.missionModeId } : {}),
+        ...(result.activePlanetId ? { activePlanetId: result.activePlanetId } : {}),
+      });
+    },
+    [layerState, patchStudio, transportMode, setActiveTab, studioState.selectedPayloadId]
+  );
+
+  const handleApplyModeFocus = useCallback(
+    (modeId) => {
+      const result = applyTransportModeFocus(modeId, layerState, { transportMode });
+      if (!result) return;
+      if (!result.plannedOnly) setLayerState(result.layerState);
+      patchStudio({
+        selectedModeId: modeId,
+        statusMessage: result.statusMessage,
+      });
+    },
+    [layerState, patchStudio, transportMode]
+  );
+
+  const handleApplyHubFocus = useCallback(
+    (hubTypeId) => {
+      const result = applyHubTypeFocus(hubTypeId, layerState, { transportMode });
+      if (!result) return;
+      if (!result.plannedOnly) setLayerState(result.layerState);
+      patchStudio({
+        selectedHubTypeId: hubTypeId,
+        statusMessage: result.statusMessage,
+      });
+    },
+    [layerState, patchStudio, transportMode]
+  );
+
+  const handleApplyPayloadFocus = useCallback(
+    (payloadId) => {
+      const result = applyPayloadFocus(payloadId, layerState, { transportMode });
+      if (!result) return;
+      setLayerState(result.layerState);
+      patchStudio({
+        selectedPayloadId: payloadId,
+        payloadFilterActive: true,
+        statusMessage: `${result.statusMessage} — route filter on`,
+      });
+    },
+    [layerState, patchStudio, transportMode]
+  );
+
+  const handleTogglePayloadRouteFilter = useCallback(
+    (active) => {
+      patchStudio({
+        payloadFilterActive: active,
+        statusMessage: active
+          ? `Route filter: ${studioState.selectedPayloadId}`
+          : 'Route filter off',
+      });
+    },
+    [patchStudio, studioState.selectedPayloadId]
+  );
+
+  const handleApplyPlanetFocus = useCallback(
+    (planetId) => {
+      const result = applyPlanetLogisticsFocus(planetId, layerState, { transportMode });
+      if (!result) return;
+      setLayerState(result.layerState);
+      if (result.missionModeId) {
+        applyScenario(MISSION_MODE_SCENARIO_ID[result.missionModeId] ?? 'current-default-network');
+      }
+      patchStudio({
+        activePlanetId: planetId,
+        missionModeId: result.missionModeId ?? studioState.missionModeId,
+        viewModeId: 'planet_view',
+        statusMessage: result.statusMessage,
+      });
+    },
+    [layerState, patchStudio, transportMode, applyScenario, studioState.missionModeId]
+  );
+
+  const handleApplySimulationPreset = useCallback(
+    (presetId) => {
+      const preset = getSimulationPresetById(presetId);
+      if (!preset) return;
+      setSimulationYear(preset.year);
+      handleApplyStudioScenario(preset.scenarioId);
+      patchStudio({
+        activeSimulationPresetId: presetId,
+        simulationModeOverride: preset.simulationMode,
+        missionModeId: preset.missionModeId,
+        statusMessage: `Timeline: ${preset.label}`,
+      });
+    },
+    [handleApplyStudioScenario, patchStudio]
+  );
+
+  const handleApplyCopilotAction = useCallback(
+    (action) => {
+      if (!action) return;
+      if (action.type === 'apply_scenario') {
+        handleApplyStudioScenario(action.scenarioId);
+        patchStudio({ statusMessage: action.explanation });
+        return;
+      }
+      if (action.type === 'apply_mission') {
+        handleMissionModeChange(action.missionModeId);
+        patchStudio({ statusMessage: action.explanation });
+        return;
+      }
+      if (action.type === 'layer_hint' && action.scenarioId) {
+        handleApplyStudioScenario(action.scenarioId);
+        patchStudio({ statusMessage: action.explanation });
+        return;
+      }
+      if (action.type === 'apply_planet') {
+        handleApplyPlanetFocus(action.planetId);
+        patchStudio({ statusMessage: action.explanation });
+        return;
+      }
+      if (action.type === 'apply_timeline') {
+        handleApplySimulationPreset(action.presetId);
+        patchStudio({ statusMessage: action.explanation });
+        return;
+      }
+      patchStudio({ statusMessage: action.explanation });
+    },
+    [
+      handleApplyStudioScenario,
+      handleMissionModeChange,
+      handleApplyPlanetFocus,
+      handleApplySimulationPreset,
+      patchStudio,
+    ]
+  );
+
+  const handleApplyLayerQuickGroup = useCallback(
+    (groupId) => {
+      const result = applyStudioLayerQuickGroup(groupId, layerState);
+      if (!result) return;
+      setLayerState(result.layerState);
+      patchStudio({ statusMessage: result.statusMessage });
+    },
+    [layerState, patchStudio]
+  );
+
+  const handleStudioExportVersions = useCallback(() => {
+    const json = exportStudioVersionsJson();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'planetary-logistics-studio-versions.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    patchStudio({ statusMessage: 'Exported version history JSON' });
+  }, [patchStudio]);
+
+  const studioVisibleSystems = useMemo(() => {
+    const systems = [];
+    if (layerState.showIntegratedE2E !== false) systems.push('E2E');
+    if (layerState.showIntegratedE2M !== false) systems.push('RE2E');
+    if (layerState.showIntegratedHyperloop !== false) systems.push('Hyperloop');
+    if (layerState.showIntegratedLoop !== false) systems.push('Loop');
+    if (layerState.showRobotaxiLayer) systems.push('Auto');
+    if (layerState.showStarbaseHubs) systems.push('Starbase');
+    return systems;
+  }, [layerState]);
 
   const isHyperloopWebMode = isHyperloopCoreMode(transportMode);
   const isE2EMode = isE2EStarshipMode(transportMode);
@@ -498,11 +840,16 @@ export default function FuturisticTransportMap({
   );
 
   const simulationMode = useMemo(() => {
+    if (studioState.simulationModeOverride) return studioState.simulationModeOverride;
     if (layerState.showTrafficFlow) return SIMULATION_MODES.CONGESTION;
     return defaultSimulationModeForView(
       layerState.integratedViewFocus ?? INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID
     );
-  }, [layerState.showTrafficFlow, layerState.integratedViewFocus]);
+  }, [
+    studioState.simulationModeOverride,
+    layerState.showTrafficFlow,
+    layerState.integratedViewFocus,
+  ]);
 
   const simulationState = useMemo(() => {
     if (!showIntegratedMapLayers) return null;
@@ -528,6 +875,10 @@ export default function FuturisticTransportMap({
         regionFilter: selectedLocation?.region ?? null,
         simulationYear,
         simulationMode,
+        payloadFocusId:
+          studioState.payloadFilterActive && studioState.selectedPayloadId
+            ? studioState.selectedPayloadId
+            : null,
       });
     } catch (err) {
       if (import.meta.env?.DEV) {
@@ -542,7 +893,95 @@ export default function FuturisticTransportMap({
     selectedLocation?.region,
     simulationYear,
     simulationMode,
+    studioState.payloadFilterActive,
+    studioState.selectedPayloadId,
   ]);
+
+  const handleStudioExportMission = useCallback(() => {
+    const pkg = buildMissionPackageExport({
+      studioState,
+      layerState,
+      simulationYear,
+      routeStats: routeDisplayPipeline?.stats ?? null,
+    });
+    downloadMissionPackage(pkg);
+    patchStudio({ statusMessage: 'Exported mission package JSON' });
+  }, [studioState, layerState, simulationYear, routeDisplayPipeline?.stats, patchStudio]);
+
+  const handleStudioRestoreSession = useCallback(() => {
+    const session = loadStudioSession();
+    if (!session?.layerState) {
+      const latest = studioState.versions?.[0];
+      if (latest) handleStudioRestoreVersion(latest.id);
+      else patchStudio({ statusMessage: 'No saved session or versions to restore' });
+      return;
+    }
+    setLayerState(session.layerState);
+    if (session.simulationYear != null) setSimulationYear(session.simulationYear);
+    patchStudio({
+      ...(session.studioState ?? {}),
+      statusMessage: `Restored session from ${new Date(session.savedAt).toLocaleString()}`,
+      previewingVersionId: null,
+      layerPreviewBackup: null,
+    });
+    if (session.studioState?.activeScenarioId) {
+      applyScenario(session.studioState.activeScenarioId);
+    }
+  }, [applyScenario, patchStudio, studioState.versions, handleStudioRestoreVersion]);
+
+  const handleDiffScenario = useCallback(
+    (scenarioId) => {
+      const diff = diffScenarioAgainstCurrent(scenarioId, layerState, { transportMode });
+      patchStudio({
+        scenarioDiff: diff,
+        statusMessage: diff.rows.length
+          ? `Scenario diff: ${diff.scenario?.label} — ${diff.changedKeys.length} layer changes`
+          : `Scenario diff: ${diff.scenario?.label} — matches current layers`,
+      });
+    },
+    [layerState, patchStudio, transportMode]
+  );
+
+  const handlePreviewVersion = useCallback(
+    (versionId) => {
+      const version = getStudioVersion(versionId);
+      if (!version?.layerState) return;
+      patchStudio({
+        layerPreviewBackup: studioState.layerPreviewBackup ?? layerState,
+        previewingVersionId: versionId,
+        statusMessage: `Previewing: ${version.label}`,
+      });
+      setLayerState(version.layerState);
+    },
+    [layerState, patchStudio, studioState.layerPreviewBackup]
+  );
+
+  const handleExitVersionPreview = useCallback(() => {
+    if (studioState.layerPreviewBackup) {
+      setLayerState(studioState.layerPreviewBackup);
+    }
+    patchStudio({
+      previewingVersionId: null,
+      layerPreviewBackup: null,
+      statusMessage: 'Exited version preview',
+    });
+  }, [patchStudio, studioState.layerPreviewBackup]);
+
+  const handleCopilotRunPrompt = useCallback(
+    (prompt, response) => {
+      pushCopilotHistory(prompt, response);
+      refreshCopilotHistory();
+    },
+    [refreshCopilotHistory]
+  );
+
+  useEffect(() => {
+    if (!studioState) return undefined;
+    const timer = setTimeout(() => {
+      saveStudioSession({ layerState, studioState, simulationYear });
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [layerState, studioState, simulationYear]);
 
   const integratedDiagnosticsEnriched = useMemo(
     () => ({
@@ -581,7 +1020,58 @@ export default function FuturisticTransportMap({
     return { nodes, paths };
   }, []);
 
+  const autonomousSystem = useMemo(() => {
+    if (!FEATURE_FLAGS.ENABLE_AUTONOMOUS_TRANSPORT_FOUNDATION) return null;
+    const trunkStations = planetaryGraph.nodes.filter(
+      (n) =>
+        n.renderable &&
+        (n.isE2EHub || n.isSwitchNode || n.isIntermodalGateway || (n.tier != null && n.tier <= 3))
+    );
+    return buildAutonomousTransportSystem({
+      e2eHubs: roiHubs,
+      trunkStations,
+      e2mNodes: e2mOrbitalData.nodes,
+    });
+  }, [roiHubs, planetaryGraph.nodes, e2mOrbitalData.nodes]);
+
   const robotaxiData = useMemo(() => {
+    const mobilityActive = isHubMobilityOverlayActive(layerState, transportMode);
+
+    if (FEATURE_FLAGS.ENABLE_AUTONOMOUS_TRANSPORT_FOUNDATION && autonomousSystem) {
+      const autonomousLayers = selectAutonomousLayers(autonomousSystem);
+      const showZones =
+        mobilityActive &&
+        layerState.showRobotaxiServiceZones !== false &&
+        isRobotaxiServiceRingLayerVisible(zoom);
+      const zoneFeatures = showZones ? autonomousLayers.robotaxiFeatures : [];
+      const serviceAreas = selectRobotaxiServiceAreas(autonomousSystem);
+      const hubDots =
+        mobilityActive && zoom < 4 && layerState.showRobotaxiRemoteLastMile !== false
+          ? serviceAreas.map((a) => ({
+              id: a.id,
+              lat: a.coordinates[1],
+              lon: a.coordinates[0],
+              name: a.sourceHubName,
+              isMajorHub: true,
+            }))
+          : [];
+
+      return {
+        zones: [],
+        hubDots,
+        zoneFeatures,
+        robotaxiRingScatter: serviceAreas.map((a) => ({
+          id: a.id,
+          position: a.coordinates,
+          radiusMeters: a.radiusMeters,
+          name: a.sourceHubName,
+        })),
+        pickupDropoff: [],
+        autonomousLayers,
+        usesAutonomousFoundation: true,
+      };
+    }
+
     const trunkStations = planetaryGraph.nodes.filter(
       (n) => n.renderable && (n.isE2EHub || n.isSwitchNode || (n.tier != null && n.tier <= 2))
     );
@@ -600,8 +1090,20 @@ export default function FuturisticTransportMap({
       hubDots: filterRobotaxiHubDots(zones, layerState, zoom, transportMode),
       zoneFeatures: filterRobotaxiZoneFeatures(zones, layerState, zoom, transportMode),
       pickupDropoff: filterRobotaxiPickupDropoff(zones, layerState, zoom, transportMode),
+      robotaxiRingScatter: [],
+      autonomousLayers: null,
+      usesAutonomousFoundation: false,
     };
-  }, [roiHubs, planetaryGraph.nodes, e2mOrbitalData.nodes, layerState, zoom, transportMode, customDestinations]);
+  }, [
+    autonomousSystem,
+    roiHubs,
+    planetaryGraph.nodes,
+    e2mOrbitalData.nodes,
+    layerState,
+    zoom,
+    transportMode,
+    customDestinations,
+  ]);
 
   const globalHyperloopWeb = planetaryGraph;
 
@@ -822,6 +1324,14 @@ export default function FuturisticTransportMap({
   );
 
   const starshipRoutes = isHyperloopWebMode ? [] : e2eNetwork.starshipRoutes;
+
+  const planetaryStarshipArcs = useMemo(() => {
+    if (!isOverviewMode || isHyperloopWebMode || layerState.showIntegratedE2E === false) {
+      return [];
+    }
+    const arcs = canonicalTransportAdapter.getArcLayerData?.('e2e_starship') ?? [];
+    return arcs.filter(isGlobalPlanetaryE2EArc);
+  }, [isOverviewMode, isHyperloopWebMode, layerState.showIntegratedE2E]);
   const e2eFeederRoutes = isHyperloopWebMode ? [] : e2eNetwork.e2eFeederRoutes || [];
   const hyperloopRoutes = isHyperloopWebMode
     ? globalHyperloopWeb.paths
@@ -1003,10 +1513,20 @@ export default function FuturisticTransportMap({
     const integratedFocus = layerState.integratedViewFocus ?? INTEGRATED_VIEW_FOCUS.INTEGRATED_GRID;
     const autoOnlyOverlay = integratedFocus === INTEGRATED_VIEW_FOCUS.AUTO;
 
-    if (hubMobilityActive && autoOnlyOverlay) {
-      if (robotaxiData.hubDots.length > 0) layers.push('robotaxi-hub-availability');
-      if (robotaxiData.zoneFeatures.length > 0) layers.push('robotaxi-service-zones');
-      if (robotaxiData.pickupDropoff.length > 0) layers.push('robotaxi-pickup-dropoff');
+    if (hubMobilityActive) {
+      if (autoOnlyOverlay && robotaxiData.hubDots.length > 0) {
+        layers.push('robotaxi-hub-availability');
+      }
+      if (
+        showRobotaxiServiceZones !== false &&
+        isRobotaxiServiceRingLayerVisible(zoom) &&
+        robotaxiData.zoneFeatures.length > 0
+      ) {
+        layers.push('robotaxi-service-zones');
+      }
+      if (autoOnlyOverlay && robotaxiData.pickupDropoff.length > 0) {
+        layers.push('robotaxi-pickup-dropoff');
+      }
     }
 
     if (showGlobalConnectivityCorridors && globalConnectivityPaths.length > 0) {
@@ -1069,6 +1589,12 @@ export default function FuturisticTransportMap({
         }
       }
       if (showWorldCitiesPlanningGrid) layers.push('world-cities-planning-grid');
+      if (
+        planetaryStarshipArcs.length > 0 &&
+        !showIntegratedMapLayers
+      ) {
+        layers.push('planetary-starship-arcs');
+      }
       return layers;
     }
 
@@ -1163,6 +1689,8 @@ export default function FuturisticTransportMap({
     showParsedCitiesLabels,
     parsedMapPoints.length,
     starshipRoutes.length,
+    planetaryStarshipArcs.length,
+    showIntegratedMapLayers,
     feederCitiesInRadius.length,
     e2eFeederRoutes.length,
     hyperloopRoutes.length,
@@ -1526,6 +2054,30 @@ export default function FuturisticTransportMap({
 
   const layers = useMemo(() => {
     const layerList = [];
+    const robotaxiBaseLayers = [];
+
+    if (visibleLayers.includes('robotaxi-service-zones') && isRobotaxiServiceRingLayerVisible(zoom)) {
+      const ringStyle = getRobotaxiServiceZoneDeckStyle(zoom);
+      const ringPaths = robotaxiFeaturesToRingPaths(robotaxiData.zoneFeatures ?? []);
+      if (ringStyle.visible && ringPaths.length > 0) {
+        robotaxiBaseLayers.push(
+          new PathLayer({
+            id: 'robotaxi-service-zones-outline',
+            data: ringPaths,
+            pickable: true,
+            widthUnits: 'pixels',
+            widthMinPixels: ringStyle.lineWidthMinPixels,
+            widthMaxPixels: ringStyle.lineWidthMinPixels,
+            capRounded: true,
+            jointRounded: true,
+            getPath: (d) => d.path,
+            getColor: () => ringStyle.lineColor,
+            getWidth: ringStyle.lineWidthMinPixels,
+            parameters: { blendColorOperation: 'max', blendAlphaOperation: 'max' },
+          })
+        );
+      }
+    }
 
     if (visibleLayers.includes('e2m-orbital-routes')) {
       const orbitalArcs = (e2mOrbitalData.paths ?? [])
@@ -1549,6 +2101,9 @@ export default function FuturisticTransportMap({
     }
 
     if (visibleLayers.includes('robotaxi-hub-availability')) {
+      const hubDotColors = robotaxiData.usesAutonomousFoundation
+        ? AUTONOMOUS_ROBOTAXI_COLORS
+        : ROBOTAXI_COLORS;
       layerList.push(
         new ScatterplotLayer({
           id: 'robotaxi-hub-availability',
@@ -1558,36 +2113,89 @@ export default function FuturisticTransportMap({
           radiusMinPixels: 4,
           radiusMaxPixels: 8,
           getPosition: (d) => [d.lon, d.lat],
-          getFillColor: () => ROBOTAXI_COLORS.hubDot,
+          getFillColor: () => hubDotColors.hubDot,
           getRadius: (d) => (d.isMajorHub ? 7 : 5),
         })
       );
     }
 
-    if (visibleLayers.includes('robotaxi-service-zones')) {
-      const zoneCollection = {
-        type: 'FeatureCollection',
-        features: robotaxiData.zoneFeatures,
-      };
+    if (robotaxiData.autonomousLayers && layerState.showRoboCourierCorridors) {
       layerList.push(
-        new GeoJsonLayer({
-          id: 'robotaxi-service-zones-fill',
-          data: zoneCollection,
+        new PathLayer({
+          id: 'autonomous-robocourier',
+          data: robotaxiData.autonomousLayers.roboCourierPaths,
           pickable: false,
-          stroked: false,
-          filled: true,
-          getFillColor: () => ROBOTAXI_COLORS.zoneFill,
-        }),
-        new GeoJsonLayer({
-          id: 'robotaxi-service-zones-outline',
-          data: zoneCollection,
-          pickable: false,
-          stroked: true,
-          filled: false,
-          lineWidthMinPixels: 1,
-          getLineColor: () => ROBOTAXI_COLORS.zoneLine,
+          getPath: (d) => d.path,
+          getColor: () => AUTONOMOUS_ROBOTAXI_COLORS.roboCourierLine,
+          getWidth: 2,
+          widthMinPixels: 1,
         })
       );
+    }
+
+    if (robotaxiData.autonomousLayers && layerState.showAutonomousTruckingCorridors) {
+      layerList.push(
+        new PathLayer({
+          id: 'autonomous-trucking',
+          data: robotaxiData.autonomousLayers.truckingPaths,
+          pickable: false,
+          getPath: (d) => d.path,
+          getColor: () => AUTONOMOUS_ROBOTAXI_COLORS.truckingLine,
+          getWidth: 3,
+          widthMinPixels: 1,
+        })
+      );
+    }
+
+    if (robotaxiData.autonomousLayers && layerState.showAutonomousChargingNetwork) {
+      const diners = robotaxiData.autonomousLayers.superchargerPoints;
+      if (diners.length > 0) {
+        layerList.push(
+          new ScatterplotLayer({
+            id: 'autonomous-charging-supercharger',
+            data: diners,
+            pickable: true,
+            radiusMinPixels: 4,
+            radiusMaxPixels: 8,
+            getPosition: (d) => [d.lng, d.lat],
+            getFillColor: () => AUTONOMOUS_ROBOTAXI_COLORS.supercharger,
+          })
+        );
+      }
+    }
+
+    if (robotaxiData.autonomousLayers && layerState.showAutonomousMegachargerNetwork) {
+      const mega = robotaxiData.autonomousLayers.megachargerPoints;
+      if (mega.length > 0) {
+        layerList.push(
+          new ScatterplotLayer({
+            id: 'autonomous-charging-megacharger',
+            data: mega,
+            pickable: true,
+            radiusMinPixels: 5,
+            radiusMaxPixels: 9,
+            getPosition: (d) => [d.lng, d.lat],
+            getFillColor: () => AUTONOMOUS_ROBOTAXI_COLORS.megacharger,
+          })
+        );
+      }
+    }
+
+    if (robotaxiData.autonomousLayers && layerState.showIndustrialExchangeHubs) {
+      const industrial = robotaxiData.autonomousLayers.industrialHubPoints;
+      if (industrial.length > 0) {
+        layerList.push(
+          new ScatterplotLayer({
+            id: 'autonomous-industrial-exchange',
+            data: industrial,
+            pickable: true,
+            radiusMinPixels: 6,
+            radiusMaxPixels: 10,
+            getPosition: (d) => [d.lng, d.lat],
+            getFillColor: () => AUTONOMOUS_ROBOTAXI_COLORS.industrialHub,
+          })
+        );
+      }
     }
 
     if (visibleLayers.includes('robotaxi-pickup-dropoff')) {
@@ -1633,17 +2241,42 @@ export default function FuturisticTransportMap({
       layerList.push(...integratedDeckLayers);
     }
 
+    if (visibleLayers.includes('planetary-starship-arcs') && planetaryStarshipArcs.length > 0) {
+      layerList.push(
+        new ArcLayer({
+          id: 'planetary-starship-arcs',
+          data: planetaryStarshipArcs,
+          pickable: true,
+          greatCircle: true,
+          widthMinPixels: 1,
+          widthMaxPixels: 3,
+          getSourcePosition: (d) => d.sourcePosition,
+          getTargetPosition: (d) => d.targetPosition,
+          getSourceColor: (d) => {
+            const alpha = d.distanceKm >= 5000 ? 200 : d.distanceKm >= 2500 ? 170 : 140;
+            return [255, 200, 80, alpha];
+          },
+          getTargetColor: (d) => {
+            const alpha = d.distanceKm >= 5000 ? 120 : d.distanceKm >= 2500 ? 95 : 75;
+            return [255, 200, 80, alpha];
+          },
+          getWidth: (d) => (d.distanceKm >= 5000 ? 2.4 : d.distanceKm >= 2500 ? 1.8 : 1.2),
+        })
+      );
+    }
+
     if (visibleLayers.includes('starship-routes')) {
       layerList.push(
         new ArcLayer({
           id: 'starship-routes',
           data: starshipRoutes,
           pickable: false,
+          greatCircle: true,
           getSourcePosition: (d) => d.sourcePosition,
           getTargetPosition: (d) => d.targetPosition,
           getSourceColor: [255, 215, 0, 220],
           getTargetColor: [100, 200, 255, 180],
-          getWidth: zoom < 3 ? 3 : 1.5,
+          getWidth: zoom < 3 ? 2 : 1.5,
         })
       );
     }
@@ -2304,9 +2937,10 @@ export default function FuturisticTransportMap({
       );
     }
 
-    return layerList;
+    return [...robotaxiBaseLayers, ...layerList];
   }, [
     visibleLayers,
+    zoom,
     roiHubs,
     selectedOriginId,
     regionalHubIds,
@@ -2618,30 +3252,76 @@ export default function FuturisticTransportMap({
         onSimulationYearChange={setSimulationYear}
         dockSection={dockSection}
         onDockSectionChange={setDockSection}
+        studioEnabled
+        studioState={studioState}
+        onStudioPatch={patchStudio}
+        onMissionModeChange={handleMissionModeChange}
+        onViewModeChange={handleViewModeChange}
+        onStudioSave={handleStudioSaveVersion}
+        onStudioRestore={handleStudioRestoreSession}
+        onStudioCompare={() => {
+          const latest = studioState.versions?.[0];
+          if (latest) handleStudioCompareVersion(latest.id);
+          else patchStudio({ statusMessage: 'Save a version before comparing' });
+        }}
+        onStudioExport={handleStudioExportMission}
+        visibleSystems={studioVisibleSystems}
+        routeCount={integratedRenderView.visibleEdges.length}
+        hubCount={integratedRenderView.visibleNodes.length}
         layersContent={
-          <TransportControlPanel
-            mapDisplayMode={mapDisplayMode}
-            onMapModeChange={handleMapModeChange}
-            layerState={layerState}
-            setLayerFlag={setLayerFlag}
-            hideModeSelector
-            compactHeader
-            hyperloopWebHelper={HYPERLOOP_WEB_HELPER}
-            extendedRuralHelper={EXTENDED_RURAL_HELPER}
-            zoom={zoom}
-            remoteVisibleMinZoom={REMOTE_VISIBLE_MIN_ZOOM}
-            customDestinationCount={customDestinations.length}
-            onApplyViewFocus={handleApplyViewFocus}
-            selectedLocation={selectedLocation}
-            integratedGraph={integratedGraph}
-            connectedEdges={selectedConnectedEdges}
-            connectedNodes={selectedConnectedNodes}
-            allNodes={integratedGraph.nodes}
-            integratedDiagnostics={integratedDiagnosticsEnriched}
-            integratedGraphError={integratedGraph.error}
-            onSaveDestination={handleSaveIntegratedDestination}
-            onAddToScenario={handleAddIntegratedScenario}
-            onCloseSelectedLocation={() => setSelectedCity(null)}
+          <LogisticsStudioSidebar
+            simulationYear={simulationYear}
+            activeTab={studioState.activeTab}
+            onTabChange={setActiveTab}
+            studioState={studioState}
+            onStudioPatch={patchStudio}
+            onApplyScenario={handleApplyStudioScenario}
+            onDiffScenario={handleDiffScenario}
+            onApplyManufacturingPackage={handleApplyManufacturingPackage}
+            onApplyCopilotAction={handleApplyCopilotAction}
+            onApplyModeFocus={handleApplyModeFocus}
+            onApplyHubFocus={handleApplyHubFocus}
+            onApplyPayloadFocus={handleApplyPayloadFocus}
+            onTogglePayloadRouteFilter={handleTogglePayloadRouteFilter}
+            onApplyPlanetFocus={handleApplyPlanetFocus}
+            onApplySimulationPreset={handleApplySimulationPreset}
+            onApplyLayerQuickGroup={handleApplyLayerQuickGroup}
+            onSaveVersion={handleStudioSaveVersion}
+            onRestoreVersion={handleStudioRestoreVersion}
+            onCompareVersion={handleStudioCompareVersion}
+            onExportVersions={handleStudioExportVersions}
+            onClearCompare={handleStudioClearCompare}
+            onPreviewVersion={handlePreviewVersion}
+            onExitVersionPreview={handleExitVersionPreview}
+            onCopilotRunPrompt={handleCopilotRunPrompt}
+            copilotHistory={studioState.copilotHistory}
+            layersPanel={
+              <TransportControlPanel
+                mapDisplayMode={mapDisplayMode}
+                onMapModeChange={handleMapModeChange}
+                layerState={layerState}
+                setLayerFlag={setLayerFlag}
+                hideModeSelector
+                compactHeader
+                studioLayersEmbed
+                hyperloopWebHelper={HYPERLOOP_WEB_HELPER}
+                extendedRuralHelper={EXTENDED_RURAL_HELPER}
+                zoom={zoom}
+                remoteVisibleMinZoom={REMOTE_VISIBLE_MIN_ZOOM}
+                customDestinationCount={customDestinations.length}
+                onApplyViewFocus={handleApplyViewFocus}
+                selectedLocation={selectedLocation}
+                integratedGraph={integratedGraph}
+                connectedEdges={selectedConnectedEdges}
+                connectedNodes={selectedConnectedNodes}
+                allNodes={integratedGraph.nodes}
+                integratedDiagnostics={integratedDiagnosticsEnriched}
+                integratedGraphError={integratedGraph.error}
+                onSaveDestination={handleSaveIntegratedDestination}
+                onAddToScenario={handleAddIntegratedScenario}
+                onCloseSelectedLocation={() => setSelectedCity(null)}
+              />
+            }
           />
         }
         plannerContent={
