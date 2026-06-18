@@ -3,6 +3,10 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    // Canonical transport + world city JSON inflates the main chunk.
+    chunkSizeWarningLimit: 16000,
+  },
   server: {
     port: 5175,
     strictPort: false,
