@@ -2,6 +2,8 @@
  * Classify canonical routes/edges into render families for view + zoom filters.
  */
 
+import { isFeederRouteType } from './feederRouteSemantics.js';
+
 export const ROUTE_FAMILIES = {
   E2E_GLOBAL_ARC: 'E2E_GLOBAL_ARC',
   CONTINENTAL_SPINE: 'CONTINENTAL_SPINE',
@@ -33,13 +35,7 @@ export function classifyRouteFamily(item) {
     return ROUTE_FAMILIES.CONTINENTAL_SPINE;
   }
 
-  if (
-    mode === 'hyperloop' &&
-    (routeType === 'branch' ||
-      routeType === 'feeder' ||
-      routeType === 'feeder_route' ||
-      routeType === 'regional_feeder')
-  ) {
+  if (mode === 'hyperloop' && isFeederRouteType(routeType)) {
     return ROUTE_FAMILIES.FEEDER_BRANCH;
   }
 

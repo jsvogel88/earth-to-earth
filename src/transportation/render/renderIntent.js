@@ -18,10 +18,12 @@ export function normalizeRenderIntent(edge) {
   } else if (mode === TRANSPORTATION_MODES.E2E_STARSHIP || mode === 'e2e') {
     geometryType = GEOMETRY_TYPES.ARC;
   } else if (
+    mode === TRANSPORTATION_MODES.RE2E ||
     mode === TRANSPORTATION_MODES.E2M ||
     mode === TRANSPORTATION_MODES.CARGO ||
     mode === TRANSPORTATION_MODES.LOGISTICS ||
-    mode === 'e2m'
+    mode === 'e2m' ||
+    mode === 're2e'
   ) {
     geometryType = isE2MLocalGroundRoute(edge) ? GEOMETRY_TYPES.GROUND : GEOMETRY_TYPES.ARC;
   } else if (
@@ -44,14 +46,21 @@ export function normalizeRenderIntent(edge) {
   const arcHeight =
     mode === TRANSPORTATION_MODES.E2E_STARSHIP
       ? 'high'
-      : mode === TRANSPORTATION_MODES.E2M || mode === TRANSPORTATION_MODES.CARGO || mode === TRANSPORTATION_MODES.LOGISTICS
+      : mode === TRANSPORTATION_MODES.RE2E ||
+          mode === TRANSPORTATION_MODES.E2M ||
+          mode === TRANSPORTATION_MODES.CARGO ||
+          mode === TRANSPORTATION_MODES.LOGISTICS ||
+          mode === 're2e'
         ? 'medium'
         : 'low';
 
   const colorKey =
     mode === TRANSPORTATION_MODES.E2E_STARSHIP
       ? 'e2e_blue'
-      : mode === TRANSPORTATION_MODES.E2M || mode === TRANSPORTATION_MODES.CARGO || mode === TRANSPORTATION_MODES.LOGISTICS
+      : mode === TRANSPORTATION_MODES.RE2E ||
+          mode === TRANSPORTATION_MODES.E2M ||
+          mode === TRANSPORTATION_MODES.CARGO ||
+          mode === TRANSPORTATION_MODES.LOGISTICS
         ? 'e2m_orange'
         : mode === TRANSPORTATION_MODES.HYPERLOOP_SPINE
           ? 'hyperloop_cyan'
@@ -72,7 +81,9 @@ export function normalizeRenderIntent(edge) {
   const thickness =
     mode === TRANSPORTATION_MODES.E2E_STARSHIP
       ? 'thick'
-      : mode === TRANSPORTATION_MODES.E2M || mode === TRANSPORTATION_MODES.CARGO
+      : mode === TRANSPORTATION_MODES.RE2E ||
+          mode === TRANSPORTATION_MODES.E2M ||
+          mode === TRANSPORTATION_MODES.CARGO
         ? 'medium'
         : routeType === ROUTE_TYPES.FEEDER_ROUTE
           ? 'thin'

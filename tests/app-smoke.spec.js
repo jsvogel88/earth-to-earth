@@ -40,16 +40,15 @@ async function openDockSection(page, label) {
   await page.locator('.pmos-dock-rail').getByRole('button', { name: label, exact: true }).click({ force: true });
 }
 
-/** Mission Dock → Layers → studio Layers tab (Vision is default). */
+/** Primary Logistics Studio column (Layers tab is inside studio, not Mission Dock). */
+async function openStudioSidebar(page) {
+  await expect(page.getByTestId('studio-primary-sidebar')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('logistics-studio-sidebar')).toBeVisible({ timeout: 15_000 });
+}
+
 async function openStudioLayersPanel(page) {
-  await openDockSection(page, 'Layers');
-  const pinDock = page.locator('.pmos-dock-rail').getByTitle('Pin dock open');
-  if (await pinDock.isVisible({ timeout: 3000 }).catch(() => false)) {
-    await pinDock.click({ force: true });
-  }
-  const studioLayersTab = page.getByTestId('studio-tab-layers');
-  await expect(studioLayersTab).toBeVisible({ timeout: 15_000 });
-  await studioLayersTab.click({ force: true });
+  await openStudioSidebar(page);
+  await page.getByTestId('studio-tab-layers').click({ force: true });
   await expect(page.getByTestId('studio-layers-panel')).toBeVisible({ timeout: 15_000 });
 }
 
@@ -145,6 +144,31 @@ test.describe('Transport Map — browser smoke', () => {
     await toggleLayer(page, 'showIntegratedE2E');
     await capture(page, '10-integrated-grid-phase4');
     await expect(page.getByTestId('transport-map-container')).toBeVisible();
+  });
+
+  test('Planetary Logistics Studio surfaces render (Vision → Mfg → Copilot)', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('transport-map-root')).toBeVisible({ timeout: 60_000 });
+
+    await openStudioSidebar(page);
+    await expect(page.locator('.pmos-dock-rail').getByRole('button', { name: 'Layers', exact: true })).toHaveCount(0);
+
+    await openStudioLayersPanel(page);
+    await expect(page.getByTestId('pls-mission-bar')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('pls-intelligent-legend')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('pls-intelligence-bar')).toBeVisible({ timeout: 15_000 });
+
+    // The helper opens the Studio "Layers" tab first; switch back to Vision explicitly.
+    await page.getByTestId('studio-tab-vision').click({ force: true });
+    await expect(page.getByTestId('studio-vision-panel')).toBeVisible({ timeout: 15_000 });
+
+    // Manufacturing tab.
+    await page.getByTestId('studio-tab-manufacturing').click({ force: true });
+    await expect(page.getByTestId('studio-manufacturing-panel')).toBeVisible({ timeout: 15_000 });
+
+    // Copilot tab.
+    await page.getByTestId('studio-tab-copilot').click({ force: true });
+    await expect(page.getByTestId('studio-copilot-panel')).toBeVisible({ timeout: 15_000 });
   });
 
   test('survives repeated mode switches without blank screen', async ({ page }) => {

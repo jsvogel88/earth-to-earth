@@ -11,6 +11,8 @@ const METRIC_KEYS = [
   ['hyperloopRouteCount', 'Hyperloop routes'],
   ['orphanMineralHubCount', 'Orphan mineral hubs'],
   ['duplicateEdgeCountRemoved', 'Duplicates removed'],
+  ['syntheticFeederCount', 'Synthetic feeders'],
+  ['intermodalFeederCount', 'Intermodal feeders'],
   ['renderedVisibleNodeCount', 'Rendered nodes'],
   ['renderedVisibleEdgeCount', 'Rendered edges'],
   ['currentZoomTier', 'Zoom tier'],
@@ -78,6 +80,34 @@ export default function IntegratedGridDiagnostics({
             <dt style={{ margin: 0, opacity: 0.85 }}>Zoom tier (live)</dt>
             <dd style={{ margin: 0, textAlign: 'right' }} data-testid="diagnostics-zoom-tier">
               {zoomTier}
+            </dd>
+          </>
+        )}
+        {diagnostics?.geometryViolations && (
+          <>
+            <dt style={{ margin: 0, opacity: 0.85 }}>E2E ground violations</dt>
+            <dd style={{ margin: 0, textAlign: 'right' }} data-testid="geom-e2e-ground">
+              {diagnostics.geometryViolations.e2eGround}
+            </dd>
+            <dt style={{ margin: 0, opacity: 0.85 }}>E2M long-ground violations</dt>
+            <dd style={{ margin: 0, textAlign: 'right' }} data-testid="geom-e2m-ground">
+              {diagnostics.geometryViolations.e2mLongGround}
+            </dd>
+            <dt style={{ margin: 0, opacity: 0.85 }}>Hyperloop arc violations</dt>
+            <dd style={{ margin: 0, textAlign: 'right' }} data-testid="geom-hyperloop-arc">
+              {diagnostics.geometryViolations.hyperloopArc}
+            </dd>
+          </>
+        )}
+        {diagnostics?.feederSummary && (
+          <>
+            <dt style={{ margin: 0, opacity: 0.85 }}>Feeder branches (graph)</dt>
+            <dd style={{ margin: 0, textAlign: 'right' }} data-testid="feeder-branch-count">
+              {diagnostics.feederSummary.feederBranch}
+            </dd>
+            <dt style={{ margin: 0, opacity: 0.85 }}>Regional loops (graph)</dt>
+            <dd style={{ margin: 0, textAlign: 'right' }}>
+              {diagnostics.feederSummary.regionalLoop}
             </dd>
           </>
         )}

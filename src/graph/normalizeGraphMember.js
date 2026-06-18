@@ -23,7 +23,18 @@ export function normalizeGraphNode(node, options = {}) {
 
   const membership = options.membership ?? node.graphMembership ?? GRAPH_MEMBERSHIP.OFFICIAL;
   const cityStatus = node.cityStatus ?? node.city_status ?? inferCityStatus(node, membership);
-  const nodeTypes = node.nodeTypes ?? (node.nodeType ? [node.nodeType] : [getTaxonomyNodeType(node)]);
+  // Support both canonical adapter shapes:
+  // - nodeType/nodeTypes (canonical taxonomy)
+  // - node_type + taxonomyNodeType (legacy adapter / bridge output)
+  const nodeTypes =
+    node.nodeTypes ??
+    (node.nodeType
+      ? [node.nodeType]
+      : node.node_type
+        ? [node.node_type]
+        : node.taxonomyNodeType
+          ? [node.taxonomyNodeType]
+          : [getTaxonomyNodeType(node)]);
 
   const normalized = {
     ...node,

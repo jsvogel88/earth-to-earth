@@ -54,7 +54,15 @@ import {
 
 function isGroundPathMode(item) {
   const mode = String(item?.mode ?? '').toLowerCase();
-  return mode !== 'e2m' && mode !== 'cargo' && mode !== 'logistics' && mode !== 'e2e_starship';
+  // Ground-path layer is for Hyperloop/loop/feeder/corridors only.
+  // Keep RE2E (re2e) and legacy E2M (e2m/cargo/logistics) as arc-only.
+  return (
+    mode !== 'e2m' &&
+    mode !== 're2e' &&
+    mode !== 'cargo' &&
+    mode !== 'logistics' &&
+    mode !== 'e2e_starship'
+  );
 }
 
 function groundPathsOnly(paths = []) {
@@ -113,8 +121,8 @@ function edgesForRender(visibleEdges, zoom, activeFilters) {
     const mode = edge?.mode;
     if (mode === 'auto') return false;
     if (mode === 'hyperloop' && f.showIntegratedHyperloop === false) return false;
-    if (mode === 'e2e' && f.showIntegratedE2E === false) return false;
-    if (mode === 'e2m' && f.showIntegratedE2M === false) return false;
+    if ((mode === 'e2e' || mode === 'e2e_starship') && f.showIntegratedE2E === false) return false;
+    if ((mode === 'e2m' || mode === 're2e') && f.showIntegratedE2M === false) return false;
     if (mode === 'loop' && f.showIntegratedLoop === false) return false;
     return edgeHasValidVisibilityZoom(edge, zoom);
   });

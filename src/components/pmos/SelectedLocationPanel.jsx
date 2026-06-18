@@ -13,6 +13,11 @@ import { INTEGRATED_MAP_LEGEND } from '../../ui/integratedMapLegend.js';
 import StarbaseDetailCard from './StarbaseDetailCard.jsx';
 import { formatModeLabelForUI } from '../../ui/re2eDisplayLabels.js';
 import { countOffWorldStarbaseHubs } from '../../data/starbaseHubs.js';
+import {
+  canShowPromotionShell,
+  PROMOTION_TARGETS,
+  isPromotionImplemented,
+} from '../../ui/cityPromotion.js';
 
 const MODE_CHIP_COLORS = {
   auto: MODE_REGISTRY.auto?.color ?? '#7dff9a',
@@ -100,10 +105,21 @@ function groupEdgesByMode(edges) {
   return groups;
 }
 
+function isRe2eOrE2mMode(mode) {
+  return mode === 'e2m' || mode === 're2e' || mode === 'cargo' || mode === 'logistics';
+}
+
+function formatEdgeTaxonomy(edge) {
+  const rt = edge.route_type ?? edge.routeType ?? '—';
+  const geom = edge.geometryType ?? (edge.renderAsArc ? 'arc' : '—');
+  const ct = edge.corridor_type ?? edge.corridorType;
+  return [rt, geom, ct].filter(Boolean).join(' · ');
+}
+
 function groupE2MEdgesByRouteType(edges) {
   const groups = { feeder: [], resource: [], industrial: [], other: [] };
   for (const edge of edges ?? []) {
-    if ((edge.mode ?? edge.edgeMode) !== 'e2m') continue;
+    if (!isRe2eOrE2mMode(edge.mode ?? edge.edgeMode)) continue;
     const rt = edge.route_type ?? edge.routeType ?? 'other';
     if (rt === 'feeder') groups.feeder.push(edge);
     else if (rt === 'resource') groups.resource.push(edge);
@@ -111,6 +127,35 @@ function groupE2MEdgesByRouteType(edges) {
     else groups.other.push(edge);
   }
   return groups;
+}
+
+function CityPromotionShell({ location }) {
+  if (!canShowPromotionShell(location)) return null;
+  return (
+    <div
+      style={{ marginTop: 10, padding: 8, borderRadius: 6, background: 'rgba(180,120,255,0.08)' }}
+      data-testid="city-promotion-shell"
+    >
+      <span className="pmos-label">Promote to network</span>
+      <p className="pmos-subtitle" style={{ margin: '4px 0 8px', lineHeight: 1.45 }}>
+        Overlay-only — promotion does not add graph routes until you confirm in a future workflow.
+      </p>
+      <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11, color: '#a8b0d8' }}>
+        {PROMOTION_TARGETS.map((t) => (
+          <li key={t.id}>{t.label}</li>
+        ))}
+      </ul>
+      <button
+        type="button"
+        className="pmos-btn"
+        style={{ marginTop: 8, opacity: 0.55 }}
+        disabled={!isPromotionImplemented()}
+        title="Coming soon — explicit promote workflow"
+      >
+        Promote (coming soon)
+      </button>
+    </div>
+  );
 }
 
 function CityLocationView({ location, connectedEdges, connectedNodes, allNodes, mineralHubs }) {
@@ -123,7 +168,7 @@ function CityLocationView({ location, connectedEdges, connectedNodes, allNodes, 
     [location, mineralHubs]
   );
   const edgeGroups = useMemo(() => groupEdgesByMode(connectedEdges), [connectedEdges]);
-  const e2mEdges = connectedEdges.filter((e) => e.mode === 'e2m');
+  const e2mEdges = connectedEdges.filter((e) => isRe2eOrE2mMode(e.mode ?? e.edgeMode));
 
   const nodeTypeLabel = location.transfer_hub
     ? 'Transfer Hub'
@@ -156,6 +201,7 @@ function CityLocationView({ location, connectedEdges, connectedNodes, allNodes, 
       </div>
 
       <TaxonomyDetail location={location} />
+      <CityPromotionShell location={location} />
 
       <div style={{ marginTop: 10 }}>
         <span className="pmos-label">Population</span>
@@ -171,19 +217,35 @@ function CityLocationView({ location, connectedEdges, connectedNodes, allNodes, 
       </div>
 
       {Object.keys(edgeGroups).length > 0 && (
-        <div style={{ marginTop: 12 }}>
+        <div style={{ marginTop: 12 }} data-testid="connected-routes-summary">
           <span className="pmos-label">Connected routes</span>
           {Object.entries(edgeGroups).map(([mode, list]) => (
-            <p key={mode} className="pmos-subtitle" style={{ margin: '4px 0 0' }} data-testid={`route-count-${mode}`}>
-              {formatModeLabel(mode)}: {list.length} route{list.length !== 1 ? 's' : ''}
-            </p>
+            <div key={mode} style={{ marginTop: 4 }}>
+              <p
+                className="pmos-subtitle"
+                style={{ margin: 0 }}
+                data-testid={`route-count-${mode}`}
+              >
+                {formatModeLabel(mode)}: {list.length} route{list.length !== 1 ? 's' : ''}
+              </p>
+              {list.slice(0, 2).map((edge) => (
+                <p
+                  key={edge.id ?? `${mode}-${edge.origin_id}-${edge.destination_id}`}
+                  className="pmos-subtitle"
+                  style={{ margin: '2px 0 0', fontSize: 10, color: 'var(--pmos-text-dim)' }}
+                  data-testid="route-taxonomy-line"
+                >
+                  {formatEdgeTaxonomy(edge)}
+                </p>
+              ))}
+            </div>
           ))}
         </div>
       )}
 
       {e2mEdges.length > 0 && (
         <div style={{ marginTop: 8 }}>
-          <span className="pmos-label">Connected E2M routes</span>
+          <span className="pmos-label">Connected RE2E / E2M routes</span>
           <p className="pmos-subtitle" style={{ margin: '4px 0 0' }}>
             {e2mEdges.length} feeder / resource / industrial
           </p>

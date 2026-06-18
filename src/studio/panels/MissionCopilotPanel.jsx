@@ -72,7 +72,11 @@ export default function MissionCopilotPanel({
         onChange={(e) => setInput(e.target.value)}
         data-testid="copilot-input"
       />
-      <button type="button" className="pls-btn" onClick={() => runPrompt(input || 'Explain this network')}>
+      <button
+        type="button"
+        className="pls-btn pls-btn-primary"
+        onClick={() => runPrompt(input || 'Explain this network')}
+      >
         Ask Copilot
       </button>
       {response && (
@@ -80,7 +84,7 @@ export default function MissionCopilotPanel({
           <p>{response}</p>
           <button
             type="button"
-            className="pls-btn pls-btn-sm"
+            className={`pls-btn pls-btn-sm ${pendingAction ? 'pls-btn-primary' : ''}`}
             data-testid="copilot-apply-map"
             disabled={!pendingAction}
             onClick={applyToMap}

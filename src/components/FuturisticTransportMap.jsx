@@ -143,6 +143,7 @@ import {
   isCoreHyperloopWebPath,
 } from '../graph/index.js';
 import { useIntegratedTransportGraph } from '../hooks/useIntegratedTransportGraph.js';
+import { GRAPH_FEATURE_FLAGS } from '../config/graphFeatureFlags.js';
 import { withCanonicalHyperloopPaths } from '../data/canonicalHyperloopPathBridge.js';
 import {
   getNetworkStats,
@@ -353,7 +354,7 @@ export default function FuturisticTransportMap({
   const [showMetricsPanel, setShowMetricsPanel] = useState(false);
   const [constructionMetricsCollapsed, setConstructionMetricsCollapsed] = useState(true);
   const [mobileSheet, setMobileSheet] = useState(null);
-  const [dockSection, setDockSection] = useState('layers');
+  const [dockSection, setDockSection] = useState('planner');
   const [simulationYear, setSimulationYear] = useState(DEFAULT_SIMULATION_YEAR);
   const [metricOverlays, setMetricOverlays] = useState({});
   const [layerState, setLayerState] = useState(() =>
@@ -783,11 +784,20 @@ export default function FuturisticTransportMap({
     }
   }, []);
 
+  const integratedGraphOptions = useMemo(
+    () => ({
+      useCanonicalGraph: true,
+      synthesizeStrategicFeeders: GRAPH_FEATURE_FLAGS.SYNTHESIZE_STRATEGIC_FEEDERS,
+    }),
+    []
+  );
+
   const integratedGraph = useIntegratedTransportGraph({
     cities: roiHubs,
     existingHyperloopGraph: planetaryGraph,
     mineralHubs: DEFAULT_MINERAL_HUBS,
     layerState,
+    options: integratedGraphOptions,
   });
 
   const integratedRenderView = useMemo(() => {
@@ -3268,7 +3278,7 @@ export default function FuturisticTransportMap({
         visibleSystems={studioVisibleSystems}
         routeCount={integratedRenderView.visibleEdges.length}
         hubCount={integratedRenderView.visibleNodes.length}
-        layersContent={
+        studioPrimarySidebar={
           <LogisticsStudioSidebar
             simulationYear={simulationYear}
             activeTab={studioState.activeTab}
@@ -3324,6 +3334,7 @@ export default function FuturisticTransportMap({
             }
           />
         }
+        layersContent={null}
         plannerContent={
           <NetworkControlCenter
             compact

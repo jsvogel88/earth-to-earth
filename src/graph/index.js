@@ -86,3 +86,11 @@ export { generateE2ERoutes, isE2EHubNode } from './generateE2ERoutes.js';
 export { generateE2MRoutes } from './generateE2MRoutes.js';
 export { generateLoopRegionalRoutes } from './generateLoopRegionalRoutes.js';
 export { generateIntegratedRoutes } from './generateIntegratedRoutes.js';
+
+export {
+  buildPlanetaryMobilityGraph,
+  getDisplayGraphEdges,
+  countGeometryIntentViolations,
+  getOfficialNodes,
+  mergeGraphBackbone,
+} from './planetaryMobilityGraphEngine.js';

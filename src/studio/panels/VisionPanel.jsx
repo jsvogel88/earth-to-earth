@@ -42,33 +42,34 @@ export default function VisionPanel({ collapsed, onCollapsedChange, onNavigateTa
         <li>Robotaxi and local feeders</li>
         <li>Starbase / PETABOND intelligence (toggle in Layers)</li>
       </ul>
-      <div className="pls-action-grid">
-        <button type="button" className="pls-btn" onClick={() => onCollapsedChange?.(true)}>
-          Explore Current Map
-        </button>
-        <button type="button" className="pls-btn" onClick={() => onNavigateTab?.(STUDIO_TABS.MODES)}>
-          Transportation Modes
-        </button>
-        <button type="button" className="pls-btn" onClick={() => onNavigateTab?.(STUDIO_TABS.HUBS)}>
-          Hub Types
-        </button>
-        <button type="button" className="pls-btn" onClick={() => onNavigateTab?.(STUDIO_TABS.PAYLOADS)}>
-          Payload Types
-        </button>
-        <button
-          type="button"
-          className="pls-btn"
-          onClick={() => onNavigateTab?.(STUDIO_TABS.MANUFACTURING)}
-        >
-          Manufacturing Packages
-        </button>
-        <button type="button" className="pls-btn" onClick={() => onNavigateTab?.(STUDIO_TABS.SCENARIOS)}>
-          Build a Scenario
-        </button>
-        <button type="button" className="pls-btn" onClick={() => onNavigateTab?.(STUDIO_TABS.COPILOT)}>
-          Ask Mission Copilot
-        </button>
-      </div>
+      <button
+        type="button"
+        className="pls-btn pls-btn-primary"
+        style={{ width: '100%', marginTop: 10 }}
+        onClick={() => onCollapsedChange?.(true)}
+      >
+        Explore current map
+      </button>
+      <nav className="pls-nav-links" aria-label="Studio sections">
+        {[
+          [STUDIO_TABS.MODES, 'Transportation modes'],
+          [STUDIO_TABS.HUBS, 'Hub types'],
+          [STUDIO_TABS.PAYLOADS, 'Payload types'],
+          [STUDIO_TABS.MANUFACTURING, 'Manufacturing packages'],
+          [STUDIO_TABS.LAYERS, 'Layers & toggles'],
+          [STUDIO_TABS.SCENARIOS, 'Scenarios'],
+          [STUDIO_TABS.COPILOT, 'Mission Copilot'],
+        ].map(([tab, label]) => (
+          <button
+            key={tab}
+            type="button"
+            className="pls-link-btn"
+            onClick={() => onNavigateTab?.(tab)}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }

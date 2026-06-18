@@ -12,7 +12,7 @@ export default function IntelligentLegendShell({ studioState, legendProps }) {
 
   return (
     <div className="pls-legend-wrap" data-testid="pls-intelligent-legend">
-      <div className="pls-legend-studio pmos-glass">
+      <div className="pls-legend-studio">
         <div className="pls-label">Active scenario</div>
         <div className="pls-legend-title">{scenario?.label ?? 'Current Default Network'}</div>
         {mfg && (

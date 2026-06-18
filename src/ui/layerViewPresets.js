@@ -44,6 +44,8 @@ export const LAYER_VIEW_PRESETS = [
       showE2MLayer: true,
       showIntegratedMineralHubs: true,
       showPetabondExportPackages: true,
+      re2eCorridorFilter: 'all',
+      showFeederRoutesFilter: true,
       ...applyStarbaseVisionPreview({}, true),
     }),
   },

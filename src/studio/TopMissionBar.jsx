@@ -17,7 +17,7 @@ export default function TopMissionBar({
   const scenario = getScenarioById(activeScenarioId);
 
   return (
-    <header className="pls-mission-bar pmos-glass" data-testid="pls-mission-bar">
+    <header className="pls-mission-bar" data-testid="pls-mission-bar">
       <div className="pls-mission-brand">
         <strong>Planetary Logistics Studio</strong>
         <span>Design Earth, Moon, and Mars infrastructure networks</span>
@@ -56,16 +56,16 @@ export default function TopMissionBar({
         </select>
       </label>
       <div className="pls-mission-actions">
-        <button type="button" className="pls-btn pls-btn-sm" onClick={onSave} data-testid="mission-bar-save">
+        <button type="button" className="pls-btn pls-btn-ghost pls-btn-sm" onClick={onSave} data-testid="mission-bar-save">
           Save
         </button>
-        <button type="button" className="pls-btn pls-btn-sm" onClick={onRestore} data-testid="mission-bar-restore">
+        <button type="button" className="pls-btn pls-btn-ghost pls-btn-sm" onClick={onRestore} data-testid="mission-bar-restore">
           Restore
         </button>
-        <button type="button" className="pls-btn pls-btn-sm" onClick={onCompare} data-testid="mission-bar-compare">
+        <button type="button" className="pls-btn pls-btn-ghost pls-btn-sm" onClick={onCompare} data-testid="mission-bar-compare">
           Compare
         </button>
-        <button type="button" className="pls-btn pls-btn-sm" onClick={onExport} data-testid="mission-bar-export">
+        <button type="button" className="pls-btn pls-btn-ghost pls-btn-sm" onClick={onExport} data-testid="mission-bar-export">
           Export
         </button>
       </div>

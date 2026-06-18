@@ -5,6 +5,8 @@
 export const TRANSPORTATION_MODES = {
   E2E_STARSHIP: 'e2e_starship',
   E2E_FEEDER: 'e2e_feeder',
+  /** Canonical UI name for Earth industrial / rare-earth corridors (legacy graph mode: e2m). */
+  RE2E: 're2e',
   E2M: 'e2m',
   CARGO: 'cargo',
   LOGISTICS: 'logistics',
@@ -21,6 +23,14 @@ export const TRANSPORTATION_MODES = {
   RAIL: 'rail',
   ROAD: 'road',
   ENERGY: 'energy',
+
+  /** Space extension layers (planning / future routes). */
+  E2O: 'e2o',
+  E2F: 'e2f',
+  E2L: 'e2l',
+  E2A: 'e2a',
+  E2MARS: 'e2mars',
+  PETABOND: 'petabond',
 
   GRID: 'grid',
   PLANNING: 'planning',

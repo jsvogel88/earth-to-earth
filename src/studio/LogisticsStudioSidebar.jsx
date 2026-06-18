@@ -165,6 +165,11 @@ export default function LogisticsStudioSidebar({
 
   return (
     <div className="pls-sidebar" data-testid="logistics-studio-sidebar">
+      <header className="pls-sidebar-header">
+        <span className="pls-sidebar-title">Logistics Studio</span>
+        <span className="pls-sidebar-subtitle">Vision · Modes · Layers · Scenarios</span>
+      </header>
+      <div className="pls-sidebar-body">
       <nav className="pls-tab-rail" aria-label="Studio sections">
         {STUDIO_TAB_LIST.map((t) => (
           <button
@@ -181,6 +186,7 @@ export default function LogisticsStudioSidebar({
         ))}
       </nav>
       <div className="pls-tab-panel">{panel}</div>
+      </div>
     </div>
   );
 }

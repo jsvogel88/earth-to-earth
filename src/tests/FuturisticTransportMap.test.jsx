@@ -153,9 +153,7 @@ describe('App + FuturisticTransportMap integration', () => {
     await screen.findByTestId('transport-map-root');
     await user.click(screen.getByTestId('pmos-mode-mode_hyperloop_core'));
     await user.click(screen.getByTestId('pmos-mode-mode_e2e_starship'));
-    const dock = await screen.findByTestId('pmos-mission-dock');
-    const dockRail = within(dock).getByRole('navigation', { name: /Dock sections/i });
-    await user.click(within(dockRail).getByRole('button', { name: 'Layers' }));
+    expect(await screen.findByTestId('studio-primary-sidebar')).toBeInTheDocument();
     expect(await screen.findByTestId('logistics-studio-sidebar')).toBeInTheDocument();
     expect(screen.getByTestId('studio-vision-panel')).toBeInTheDocument();
     await user.click(screen.getByTestId('studio-tab-layers'));

@@ -12,11 +12,20 @@ export default function MissionDock({
   settingsContent,
   isMobileOpen,
   mobileSection,
+  excludeSectionIds = [],
+  defaultSection = 'layers',
 }) {
   const [expanded, setExpanded] = useState(false);
   const [pinned, setPinned] = useState(false);
 
-  const section = activeSection || 'layers';
+  const visibleSections = MISSION_DOCK_SECTIONS.filter(
+    (s) => !excludeSectionIds.includes(s.id)
+  );
+  const fallbackSection = visibleSections.find((s) => s.id === defaultSection)?.id
+    ?? visibleSections[0]?.id
+    ?? defaultSection;
+  const requested = activeSection || defaultSection;
+  const section = excludeSectionIds.includes(requested) ? fallbackSection : requested;
 
   const contentBySection = {
     layers: layersContent,
@@ -41,7 +50,7 @@ export default function MissionDock({
   return (
     <aside className={dockClass} data-testid="pmos-mission-dock" aria-label="Mission dock">
       <nav className="pmos-dock-rail pmos-glass" aria-label="Dock sections">
-        {MISSION_DOCK_SECTIONS.map((s) => (
+        {visibleSections.map((s) => (
           <button
             key={s.id}
             type="button"
@@ -79,7 +88,7 @@ export default function MissionDock({
       >
         <div className="pmos-dock-panel-inner">
           <div className="pmos-label" style={{ marginBottom: 8 }}>
-            {MISSION_DOCK_SECTIONS.find((s) => s.id === section)?.label || section}
+            {visibleSections.find((s) => s.id === section)?.label || section}
           </div>
           {panelContent || (
             <p className="pmos-subtitle">Select a section from the dock rail.</p>

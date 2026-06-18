@@ -31,7 +31,7 @@ export default function BottomIntelligenceBar({
     : null;
 
   return (
-    <footer className="pls-intel-bar pmos-glass" data-testid="pls-intelligence-bar">
+    <footer className="pls-intel-bar" data-testid="pls-intelligence-bar">
       <span>
         <strong>Scenario:</strong> {scenario?.label ?? '—'}
       </span>

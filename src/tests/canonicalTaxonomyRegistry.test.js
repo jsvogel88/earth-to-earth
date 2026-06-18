@@ -14,6 +14,8 @@ describe('canonical taxonomy registries', () => {
   it('registries contain expected core values', () => {
     expect(TRANSPORTATION_MODES.E2E_STARSHIP).toBe('e2e_starship');
     expect(TRANSPORTATION_MODES.E2M).toBe('e2m');
+    expect(TRANSPORTATION_MODES.RE2E).toBe('re2e');
+    expect(TRANSPORTATION_MODES.E2MARS).toBe('e2mars');
     expect(TRANSPORTATION_MODES.HYPERLOOP_SPINE).toBe('hyperloop_spine');
     expect(NODE_TYPES.E2E_HUB).toBe('e2e_hub');
     expect(ROUTE_TYPES.GLOBAL_ARC).toBe('global_arc');

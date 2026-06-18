@@ -213,7 +213,7 @@ export function getCorridorRouteColor(route, alpha = 200) {
   if (mode === 'e2e_starship' || mode === 'e2e') {
     return [...E2E_BASE_STYLE.color, alpha];
   }
-  if (mode === 'e2m' || mode === 'cargo' || mode === 'logistics') {
+  if (mode === 'e2m' || mode === 're2e' || mode === 'cargo' || mode === 'logistics') {
     return [...ROUTE_FAMILY_COLORS.e2m_arc, alpha];
   }
 

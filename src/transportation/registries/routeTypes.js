@@ -27,6 +27,12 @@ export const ROUTE_TYPES = {
   ROAD_CONNECTOR: 'road_connector',
   ENERGY_CORRIDOR: 'energy_corridor',
 
+  /** Planetary deployment package route (future-ready). */
+  PETABOND_DEPLOYMENT: 'petabond_deployment',
+  ORBITAL_LOGISTICS: 'orbital_logistics',
+  LUNAR_LOGISTICS: 'lunar_logistics',
+  MARS_TRANSFER: 'mars_transfer',
+
   PLANNING_EDGE: 'planning_edge',
   CUSTOM_ROUTE: 'custom_route',
   PARSED_ROUTE: 'parsed_route',

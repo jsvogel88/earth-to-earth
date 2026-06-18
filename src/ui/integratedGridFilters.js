@@ -19,6 +19,7 @@ export const INTEGRATED_FILTER_KEYS = {
   showE2MHubsOnly: 'showE2MHubsOnly',
   showMajorCorridorsOnly: 'showMajorCorridorsOnly',
   showFeederRoutesFilter: 'showFeederRoutesFilter',
+  re2eCorridorFilter: 're2eCorridorFilter',
   showParsedDestinationsOnly: 'showParsedDestinationsOnly',
   showSavedDestinationsOnly: 'showSavedDestinationsOnly',
   showCustomNodes: 'showCustomNodes',
@@ -37,6 +38,7 @@ export const INTEGRATED_FILTER_DEFAULTS = {
   [INTEGRATED_FILTER_KEYS.showE2MHubsOnly]: false,
   [INTEGRATED_FILTER_KEYS.showMajorCorridorsOnly]: false,
   [INTEGRATED_FILTER_KEYS.showFeederRoutesFilter]: true,
+  [INTEGRATED_FILTER_KEYS.re2eCorridorFilter]: 'all',
   [INTEGRATED_FILTER_KEYS.showParsedDestinationsOnly]: false,
   [INTEGRATED_FILTER_KEYS.showSavedDestinationsOnly]: false,
   [INTEGRATED_FILTER_KEYS.showCustomNodes]: true,
@@ -110,8 +112,11 @@ export function isEdgeVisibleInIntegratedFilters(edge, filters) {
   const f = mergeIntegratedFilterDefaults(filters);
   const mode = edge.mode ?? edge.edgeMode;
 
-  if (mode === 'e2e' && f.showIntegratedE2E === false) return false;
-  if (mode === 'e2m' && f.showIntegratedE2M === false) return false;
+  // Forward-compatible taxonomy aliases:
+  // - E2E canonical: e2e_starship (alias to legacy e2e)
+  // - RE2E canonical: re2e (alias to legacy e2m)
+  if ((mode === 'e2e' || mode === 'e2e_starship') && f.showIntegratedE2E === false) return false;
+  if ((mode === 'e2m' || mode === 're2e') && f.showIntegratedE2M === false) return false;
   if (mode === 'hyperloop' && f.showIntegratedHyperloop === false) return false;
   if (mode === 'loop' && f.showIntegratedLoop === false) return false;
   if (mode === 'auto' && f.showIntegratedAuto === false) return false;
@@ -148,6 +153,27 @@ export function isEdgeVisibleInIntegratedFilters(edge, filters) {
     ) {
       return false;
     }
+  }
+
+  const re2eFilter = f.re2eCorridorFilter ?? 'all';
+  if (re2eFilter !== 'all' && (mode === 'e2m' || mode === 're2e')) {
+    const rt = edge.route_type ?? edge.routeType;
+    const ct = edge.corridor_type ?? edge.corridorType;
+    const isResource =
+      ct === 'resource' ||
+      rt === 'resource' ||
+      rt === 'resource_corridor' ||
+      String(rt).includes('resource');
+    const isIndustrial =
+      ct === 'industrial' ||
+      ct === 'freight' ||
+      rt === 'industrial' ||
+      rt === 'cargo_corridor' ||
+      rt === 'logistics_corridor' ||
+      String(rt).includes('cargo') ||
+      String(rt).includes('logistics');
+    if (re2eFilter === 'resource' && !isResource) return false;
+    if (re2eFilter === 'industrial' && !isIndustrial) return false;
   }
 
   return true;

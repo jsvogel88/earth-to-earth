@@ -32,6 +32,7 @@ export default function PlanetaryMobilityShell({
   dockSection,
   onDockSectionChange,
   layersContent,
+  studioPrimarySidebar,
   plannerContent,
   routesContent,
   destinationsContent,
@@ -64,7 +65,11 @@ export default function PlanetaryMobilityShell({
   const themeClass = getModeThemeClass(modeUI.themeId);
 
   return (
-    <div className={`pmos-overlay pmos-active pmos-root ${themeClass}`} data-testid="pmos-shell">
+    <div
+      className={`pmos-overlay pmos-active pmos-root ${themeClass}${studioEnabled ? ' pmos-studio-mode' : ''}`}
+      data-testid="pmos-shell"
+      data-studio-mode={studioEnabled ? 'true' : undefined}
+    >
       <TopCommandBar
         mapDisplayMode={mapDisplayMode}
         onMapModeChange={onMapModeChange}
@@ -101,10 +106,20 @@ export default function PlanetaryMobilityShell({
         </p>
       )}
 
+      {studioEnabled && studioPrimarySidebar && (
+        <aside
+          className="pmos-studio-primary"
+          data-testid="studio-primary-sidebar"
+          aria-label="Logistics studio"
+        >
+          {studioPrimarySidebar}
+        </aside>
+      )}
+
       <MissionDock
         activeSection={dockSection}
         onSectionChange={onDockSectionChange}
-        layersContent={layersContent}
+        layersContent={studioEnabled ? null : layersContent}
         plannerContent={plannerContent}
         routesContent={routesContent}
         destinationsContent={destinationsContent}
@@ -112,6 +127,8 @@ export default function PlanetaryMobilityShell({
         settingsContent={settingsContent}
         isMobileOpen={isMobileLayout && mobileSheet === 'dock'}
         mobileSection={mobileSheet}
+        excludeSectionIds={studioEnabled ? ['layers'] : []}
+        defaultSection={studioEnabled ? 'planner' : 'layers'}
       />
 
       <div className={`pmos-metrics-drawer pmos-glass ${showMetrics ? '' : 'is-hidden'}`}>
