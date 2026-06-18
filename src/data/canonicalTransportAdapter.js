@@ -38,6 +38,34 @@ import { validateEdgeTaxonomy, validateNodeTaxonomy } from '../transportation/va
 import { normalizeRenderIntent } from '../transportation/render/renderIntent.js';
 import { matchesRouteFamilies, routeTypeInFamily } from './routeTypeFamilies.js';
 import { enrichRouteRecord, enrichEdgeRecord } from './corridorRouteRegistry.js';
+import { findStrategicHubForNode } from '../graph/strategicHubRegistry.js';
+
+function inferIntegratedRouteType(edge, taxonomyRouteType) {
+  const rt = String(edge?.routeType ?? edge?.route_type ?? taxonomyRouteType ?? '').toLowerCase();
+  if (!rt) return 'trunk';
+
+  // Preserve existing integrated graph expectations (integratedGraphTypes.js EDGE_TYPES).
+  if (rt.includes('global_arc') || rt.includes('global')) return 'global';
+  if (rt.includes('feeder')) return 'feeder';
+  if (rt.includes('resource') || rt.includes('mineral') || rt.includes('mining')) return 'resource';
+  if (rt.includes('cargo') || rt.includes('industrial') || rt.includes('logistics')) return 'industrial';
+  if (rt.includes('last_mile')) return 'last_mile';
+  return 'trunk';
+}
+
+function inferIntegratedCorridorType(edge, taxonomyMode, taxonomyRouteType) {
+  const mode = String(edge?.mode ?? taxonomyMode ?? '').toLowerCase();
+  const rt = String(edge?.routeType ?? edge?.route_type ?? taxonomyRouteType ?? '').toLowerCase();
+
+  // Keep existing integratedGraphTypes CORRIDOR_TYPES strings.
+  if (mode === 'e2e_starship' || mode === 'e2e') return 'passenger';
+  if (mode === 'e2m' || mode === 're2e' || mode === 'cargo' || mode === 'logistics') {
+    if (rt.includes('resource') || rt.includes('mineral') || rt.includes('mining')) return 'resource';
+    if (rt.includes('industrial') || rt.includes('cargo') || rt.includes('logistics')) return 'industrial';
+    return 'freight';
+  }
+  return 'mixed';
+}
 
 // ─── Internal indexes (built once) ──────────────────────────────────────────
 
@@ -152,11 +180,41 @@ export function getIntegratedGraph(modeFilter = null) {
       coordinates:  [n.longitude, n.latitude],
       population:   n.population,
       tier:         n.tier,
-      node_type:    n.isE2EHub ? 'E2E_HUB' : (n.modes?.includes('e2m') ? 'E2M_HUB' : 'CITY'),
-      taxonomyNodeType: getTaxonomyNodeType(n),
-      taxonomyMode: getTaxonomyMode(n.modes?.[0], n.routeType),
-      mode:         n.modes?.[0] || 'hyperloop',
-      modes:        n.modes || [],
+      // Strategy metadata enrichment: match canonical strategic hubs (NYC, Pilbara, etc.)
+      // onto real dataset nodes without changing edge generation.
+      node_type:    n.isE2EHub
+        ? 'E2E_HUB'
+        : (n.modes?.includes('e2m') ? 'E2M_HUB' : 'CITY'),
+      taxonomyNodeType: (() => {
+        const match = findStrategicHubForNode(n);
+        if (!match) return getTaxonomyNodeType(n);
+        // Convert strategic hubs into canonical hub node types.
+        return match.family === 'e2e' ? 'e2e_hub' : 'e2m_hub';
+      })(),
+      taxonomyMode: (() => {
+        const match = findStrategicHubForNode(n);
+        if (!match) return getTaxonomyMode(n.modes?.[0], n.routeType);
+        // Strategic hubs should visually and semantically follow the family.
+        return match.family === 'e2e' ? 'e2e_starship' : 're2e';
+      })(),
+      mode:         (() => {
+        const match = findStrategicHubForNode(n);
+        if (!match) return n.modes?.[0] || 'hyperloop';
+        return match.family === 'e2e' ? 'e2e_starship' : 're2e';
+      })(),
+      modes:        (() => {
+        const match = findStrategicHubForNode(n);
+        if (!match) return n.modes || [];
+        // Keep existing modes but ensure strategic mode is present for UI layer filters.
+        const existing = n.modes || [];
+        const strategicMode = match.family === 'e2e' ? 'e2e_starship' : 're2e';
+        return existing.includes(strategicMode) ? existing : [...existing, strategicMode];
+      })(),
+      hubRoles: (() => {
+        const match = findStrategicHubForNode(n);
+        if (!match) return n.hubRoles ?? [];
+        return match.family === 'e2e' ? ['E2E'] : ['RE2E'];
+      })(),
       tags:         n.tags || [],
       isE2EHub:     n.isE2EHub || false,
       // Economics (NEW — available to any consumer)
@@ -179,6 +237,12 @@ export function getIntegratedGraph(modeFilter = null) {
       const taxonomyRouteType = (e.routeType && typeof e.routeType === 'string')
         ? getTaxonomyMode(e.mode, e.routeType)
         : null;
+      const inferredRouteType = inferIntegratedRouteType(e, taxonomyRouteType ?? taxonomyMode);
+      const inferredCorridorType = inferIntegratedCorridorType(
+        e,
+        taxonomyMode,
+        taxonomyRouteType ?? taxonomyMode
+      );
       const baseEdge = {
         // Integrated graph edge shape (integratedGraphTypes.js)
         id:            e.id,
@@ -189,10 +253,12 @@ export function getIntegratedGraph(modeFilter = null) {
         fromName:      from?.name || '',
         toName:        to?.name   || '',
         mode:          _canonicalToIntegratedMode(e.mode),
-        route_type:    e.routeType || 'trunk',
+        route_type:    inferredRouteType,
+        routeType:     inferredRouteType,
         taxonomyMode,
         taxonomyRouteType: taxonomyRouteType ?? taxonomyMode,
-        corridor_type: e.mode === 'e2m' ? 'freight' : 'passenger',
+        corridor_type: inferredCorridorType,
+        corridorType:  inferredCorridorType,
         tier:          e.tier || 2,
         status:        e.status || 'conceptual',
         distanceKm:    e.distanceKm || null,
@@ -235,7 +301,13 @@ function coordsFromRoute(route) {
 
 function isArcOnlyTransportMode(item) {
   const mode = String(item?.mode ?? '').toLowerCase();
-  return mode === 'e2m' || mode === 'cargo' || mode === 'logistics' || mode === 'e2e_starship';
+  return (
+    mode === 'e2m' ||
+    mode === 're2e' ||
+    mode === 'cargo' ||
+    mode === 'logistics' ||
+    mode === 'e2e_starship'
+  );
 }
 
 function pathRecordFromRoute(route, options = {}) {

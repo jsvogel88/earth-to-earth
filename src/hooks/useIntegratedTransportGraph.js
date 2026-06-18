@@ -5,31 +5,16 @@
 
 import { useMemo } from 'react';
 import { generateIntegratedRoutes } from '../graph/generateIntegratedRoutes.js';
-import { getIntegratedGraph } from '../data/canonicalTransportAdapter.js';
-import { mergeGraphBackbone } from '../graph/planetaryMobilityGraphEngine.js';
+import {
+  buildPlanetaryMobilityGraph,
+  countGeometryIntentViolations,
+} from '../graph/planetaryMobilityGraphEngine.js';
+import { summarizeFeederEdges } from '../graph/feederRouteSemantics.js';
+import { buildSyntheticStrategicFeeders } from '../graph/buildSyntheticStrategicFeeders.js';
+import { buildIntermodalFeederEdges } from '../graph/buildIntermodalFeederEdges.js';
 import { classifyCity } from '../modes/classifyLocation.js';
 import { DEFAULT_MINERAL_HUBS } from '../data/mineralHubs.js';
 import { filterIntegratedGraph } from '../ui/integratedGridFilters.js';
-
-/**
- * Canonical backbone (E2E/hyperloop) + legacy E2M/loop/mineral enrichment.
- * @param {{ nodes: object[], edges: object[] }} canonical
- * @param {{ nodes: object[], edges: object[], diagnostics: object }} legacy
- */
-function mergeCanonicalIntegratedGraph(canonical, legacy) {
-  const merged = mergeGraphBackbone(canonical, legacy);
-  return {
-    ...merged,
-    diagnostics: {
-      ...legacy.diagnostics,
-      warnings: [
-        ...(legacy.diagnostics?.warnings ?? []),
-        'Merged canonical v1.4.0 E2E/hyperloop with legacy E2M/loop routes',
-      ],
-      dataSource: 'canonical-transport-v1.4.0+legacy',
-    },
-  };
-}
 
 const EMPTY_DIAGNOSTICS = {
   totalNodes: 0,
@@ -82,7 +67,7 @@ export function buildIntegratedTransportGraph({
       (existingHyperloopGraph != null && options?.useCanonicalGraph !== false);
 
     let graph;
-    let usedCanonicalGraph = false;
+    let usedPlanetaryEngine = false;
     if (useCanonicalGraph) {
       const legacyGraph = generateIntegratedRoutes({
         cities: classifiedCities,
@@ -91,16 +76,35 @@ export function buildIntegratedTransportGraph({
         options,
       });
       try {
-        const canonical = getIntegratedGraph(options?.modeFilter ?? null);
-        if (canonical?.nodes?.length && canonical?.edges?.length) {
-          const merged = mergeCanonicalIntegratedGraph(canonical, legacyGraph);
-          graph = { nodes: merged.nodes, edges: merged.edges, diagnostics: merged.diagnostics };
-          usedCanonicalGraph = true;
+        const pmGraph = buildPlanetaryMobilityGraph({
+          legacyGraph: { nodes: legacyGraph.nodes, edges: legacyGraph.edges },
+          customDestinations: options.customDestinations ?? [],
+          parsedCities: options.parsedCities ?? [],
+          includeStarbaseOverlays: false,
+          modeFilter: options.modeFilter ?? null,
+        });
+        if (pmGraph?.nodes?.length && pmGraph?.edges?.length) {
+          graph = {
+            nodes: pmGraph.nodes,
+            edges: pmGraph.edges,
+            diagnostics: {
+              ...(legacyGraph.diagnostics ?? {}),
+              ...pmGraph.diagnostics,
+              warnings: [
+                ...(legacyGraph.diagnostics?.warnings ?? []),
+                ...(pmGraph.warnings ?? []),
+                'Built via buildPlanetaryMobilityGraph (canonical + legacy merge)',
+              ],
+              dataSource: pmGraph.diagnostics?.dataSource ?? 'planetary-mobility-engine',
+              planetaryEngine: true,
+            },
+          };
+          usedPlanetaryEngine = true;
         } else {
-          throw new Error('Canonical integrated graph returned empty nodes or edges');
+          throw new Error('Planetary mobility graph returned empty backbone');
         }
-      } catch (canonicalError) {
-        console.warn('Canonical graph failed, falling back to legacy graph', canonicalError);
+      } catch (engineError) {
+        console.warn('Planetary mobility graph failed, falling back to legacy merge', engineError);
         graph = legacyGraph;
       }
     } else {
@@ -112,18 +116,47 @@ export function buildIntegratedTransportGraph({
       });
     }
 
-    const diagnostics = usedCanonicalGraph
-      ? {
-          ...(graph.diagnostics ?? {}),
-          totalNodes: graph.nodes.length,
-          totalEdges: graph.edges.length,
-          e2eRouteCount: graph.edges.filter((e) => e.mode === 'e2e').length,
-          e2mRouteCount: graph.edges.filter((e) => e.mode === 'e2m').length,
-          loopRouteCount: graph.edges.filter((e) => e.mode === 'loop').length,
-          hyperloopRouteCount: graph.edges.filter((e) => e.mode === 'hyperloop').length,
-          dataSource: 'canonical-transport-v1.4.0+legacy',
-        }
-      : { ...graph.diagnostics };
+    const synthesizeFeeders =
+      options?.synthesizeStrategicFeeders === true ||
+      options?.synthesizeStrategicFeeders === 'true';
+
+    const syntheticFeederEdges = buildSyntheticStrategicFeeders({
+      nodes: graph.nodes,
+      existingEdges: graph.edges,
+      enabled: synthesizeFeeders,
+    });
+    const intermodalFeederEdges = buildIntermodalFeederEdges({
+      nodes: graph.nodes,
+      existingEdges: [...graph.edges, ...syntheticFeederEdges],
+      enabled: synthesizeFeeders,
+    });
+
+    const allEdges = [
+      ...graph.edges,
+      ...syntheticFeederEdges,
+      ...intermodalFeederEdges,
+    ];
+
+    const geometryViolations = countGeometryIntentViolations(allEdges);
+    const feederSummary = summarizeFeederEdges(allEdges);
+
+    const diagnostics = {
+      ...(graph.diagnostics ?? {}),
+      totalNodes: graph.nodes.length,
+      totalEdges: allEdges.length,
+      e2eRouteCount: allEdges.filter(
+        (e) => e.mode === 'e2e' || e.mode === 'e2e_starship'
+      ).length,
+      e2mRouteCount: allEdges.filter((e) => e.mode === 'e2m' || e.mode === 're2e').length,
+      loopRouteCount: allEdges.filter((e) => e.mode === 'loop').length,
+      hyperloopRouteCount: allEdges.filter((e) => e.mode === 'hyperloop').length,
+      geometryViolations,
+      feederSummary,
+      syntheticFeederCount: syntheticFeederEdges.length,
+      intermodalFeederCount: intermodalFeederEdges.length,
+      planetaryEngine: usedPlanetaryEngine,
+    };
+
     const warnings = [...(diagnostics.warnings ?? [])];
 
     if (!existingHyperloopGraph) {
@@ -132,17 +165,28 @@ export function buildIntegratedTransportGraph({
       );
     }
 
+    if (syntheticFeederEdges.length > 0) {
+      warnings.push(
+        `Synthetic strategic feeders enabled (+${syntheticFeederEdges.length} conceptual edges)`
+      );
+    }
+    if (intermodalFeederEdges.length > 0) {
+      warnings.push(
+        `Intermodal feeder synthesis enabled (+${intermodalFeederEdges.length} conceptual edges)`
+      );
+    }
+
     diagnostics.warnings = warnings;
 
     const { nodes: visibleNodes, edges: visibleEdges } = filterIntegratedGraph(
       graph.nodes,
-      graph.edges,
+      allEdges,
       layerState
     );
 
     return {
       nodes: graph.nodes,
-      edges: graph.edges,
+      edges: allEdges,
       diagnostics,
       visibleNodes,
       visibleEdges,

@@ -58,7 +58,7 @@ export function mergeGraphBackbone(canonical, legacy) {
   }
   for (const e of legacy.edges ?? []) {
     const mode = e.mode;
-    if (mode === 'e2m' || mode === 'loop' || mode === 'auto') {
+    if (mode === 'e2m' || mode === 're2e' || mode === 'loop' || mode === 'auto') {
       const norm = normalizeGraphEdge(e);
       if (norm) edgeMap.set(edgeDedupKey(norm), norm);
     }
@@ -175,9 +175,10 @@ export function getDisplayGraphEdges(options = {}) {
 }
 
 /**
+ * Registry-driven geometry intent audit (E2E ground, E2M long ground, hyperloop arcs).
  * @param {object[]} edges
  */
-function countGeometryIntentViolations(edges) {
+export function countGeometryIntentViolations(edges) {
   let e2eGround = 0;
   let e2mLongGround = 0;
   let hyperloopArc = 0;
@@ -192,7 +193,10 @@ function countGeometryIntentViolations(edges) {
       e2eGround += 1;
     }
     if (
-      (mode === 'e2m' || mode === 'cargo' || mode === 'logistics') &&
+      (mode === 'e2m' ||
+        mode === 're2e' ||
+        mode === 'cargo' ||
+        mode === 'logistics') &&
       geom === 'ground' &&
       (e.distanceKm ?? 0) > 100
     ) {
